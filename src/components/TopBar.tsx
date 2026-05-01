@@ -4,7 +4,7 @@ import {
   Moon, Sun, HelpCircle, Settings, LogOut, ChevronDown,
 } from 'lucide-react'
 import { useStore, getActiveTab } from '../store/useStore'
-import { executeSQL, executeMongoQuery, executeRedisCommand, initializeDatabase } from '../engines/sqlEngine'
+import { executeSQL, executeMongoQuery, executeRedisCommand, initializeDatabase, importTableFromSQL } from '../engines/sqlEngine'
 import DatabaseManagerModal from './DatabaseManagerModal'
 import ExportModal from './modals/ExportModal'
 import HelpModal from './modals/HelpModal'
@@ -59,6 +59,20 @@ export default function TopBar({ session, onLogout }: TopBarProps) {
 
       if (/^\s*(CREATE|DROP|ALTER|INSERT|UPDATE|DELETE)\s/i.test(tab.query))
         store.incrementDbVersion()
+
+      // Auto-register tables with their database when CREATE TABLE is used
+      if (/CREATE\s+TABLE/i.test(tab.query)) {
+        const parsed = importTableFromSQL(tab.query)
+        const dbName = parsed.dbName ?? store.activeDbName
+        const tables = parsed.tablesReferenced.length > 0 ? parsed.tablesReferenced : parsed.tablesCreated
+        if (dbName && tables.length > 0) {
+          const existing = store.databases.find(d => d.name === dbName)?.tables ?? []
+          const DB_COLORS = ['#6366f1','#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899']
+          const colorIdx  = store.databases.findIndex(d => d.name === dbName)
+          const color     = colorIdx >= 0 ? store.databases[colorIdx].color : DB_COLORS[store.databases.length % DB_COLORS.length]
+          store.registerDatabase(dbName, [...new Set([...existing, ...tables])], color)
+        }
+      }
 
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error desconocido'
