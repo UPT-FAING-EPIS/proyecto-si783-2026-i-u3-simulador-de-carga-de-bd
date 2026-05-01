@@ -60,14 +60,18 @@ export default function TopBar({ session, onLogout }: TopBarProps) {
       if (/^\s*(CREATE|DROP|ALTER|INSERT|UPDATE|DELETE)\s/i.test(tab.query))
         store.incrementDbVersion()
 
-      // Auto-register tables with their database when CREATE TABLE is used
-      if (/CREATE\s+TABLE/i.test(tab.query)) {
-        const parsed = importTableFromSQL(tab.query)
-        const dbName = parsed.dbName ?? store.activeDbName
-        const tables = parsed.tablesReferenced.length > 0 ? parsed.tablesReferenced : parsed.tablesCreated
-        if (dbName && tables.length > 0) {
-          const existing = store.databases.find(d => d.name === dbName)?.tables ?? []
-          const DB_COLORS = ['#6366f1','#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899']
+      // Auto-register database + tables from CREATE DATABASE / USE / CREATE TABLE
+      if (/CREATE\s+DATABASE|CREATE\s+TABLE/i.test(tab.query)) {
+        const DB_COLORS = ['#6366f1','#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899']
+        const parsed    = importTableFromSQL(tab.query)
+
+        // Prefer USE match, fall back to CREATE DATABASE name, then active DB
+        const createDbMatch = tab.query.match(/CREATE\s+DATABASE\s+(\w+)/i)
+        const dbName = parsed.dbName ?? (createDbMatch ? createDbMatch[1] : null) ?? store.activeDbName
+
+        if (dbName) {
+          const tables    = parsed.tablesReferenced.length > 0 ? parsed.tablesReferenced : parsed.tablesCreated
+          const existing  = store.databases.find(d => d.name === dbName)?.tables ?? []
           const colorIdx  = store.databases.findIndex(d => d.name === dbName)
           const color     = colorIdx >= 0 ? store.databases[colorIdx].color : DB_COLORS[store.databases.length % DB_COLORS.length]
           store.registerDatabase(dbName, [...new Set([...existing, ...tables])], color)
