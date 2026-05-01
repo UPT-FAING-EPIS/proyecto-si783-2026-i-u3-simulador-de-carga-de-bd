@@ -3,8 +3,9 @@ import { X, Keyboard, BookOpen, Zap } from 'lucide-react'
 interface Props { onClose: () => void }
 
 const SHORTCUTS = [
-  { keys: ['Ctrl', 'Enter'], desc: 'Ejecutar consulta', category: 'Ejecución' },
-  { keys: ['F5'], desc: 'Ejecutar consulta', category: 'Ejecución' },
+  { keys: ['F5'],            desc: 'Ejecutar consulta',              category: 'Ejecución' },
+  { keys: ['Ctrl', 'Enter'], desc: 'Ejecutar consulta',              category: 'Ejecución' },
+  { keys: ['F11'],           desc: 'Pantalla completa del editor',   category: 'Ejecución' },
   { keys: ['Ctrl', '/'], desc: 'Comentar / descomentar línea', category: 'Editor' },
   { keys: ['Ctrl', 'Z'], desc: 'Deshacer', category: 'Editor' },
   { keys: ['Ctrl', 'Y'], desc: 'Rehacer', category: 'Editor' },

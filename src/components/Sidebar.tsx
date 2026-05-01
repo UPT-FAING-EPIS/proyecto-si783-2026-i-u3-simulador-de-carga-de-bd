@@ -1,25 +1,87 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
-  Play, Square, Eraser, Save, ChevronLeft, ChevronRight,
+  Play, Square, Eraser, Save, FolderOpen, ChevronLeft, ChevronRight,
   Clock, Code2, Activity, Zap, BarChart2, Settings2,
   ChevronDown, Database, Cpu, Wifi, AlertTriangle, MemoryStick,
   Timer,
 } from 'lucide-react'
 import { useStore, getActiveTab } from '../store/useStore'
-import { ENGINE_CONFIGS } from '../types'
+import { ENGINE_CONFIGS, EngineType } from '../types'
 import { executeSQL, executeMongoQuery, executeRedisCommand, initializeDatabase } from '../engines/sqlEngine'
 
-// ─── Snippets ─────────────────────────────────────────────────────────────────
+// ─── Engine-specific snippets ─────────────────────────────────────────────────
 
-const SNIPPETS: Record<string, string> = {
-  'SELECT Básico':  'SELECT *\nFROM tabla\nWHERE condición;',
-  'INSERT':         "INSERT INTO tabla (col1, col2)\nVALUES ('valor1', 'valor2');",
-  'UPDATE':         "UPDATE tabla\nSET columna = 'nuevo_valor'\nWHERE condición;",
-  'DELETE':         'DELETE FROM tabla\nWHERE condición;',
-  'INNER JOIN':     'SELECT a.col, b.col\nFROM tablaA a\nINNER JOIN tablaB b ON a.id = b.id;',
-  'GROUP BY':       'SELECT columna, COUNT(*) AS total\nFROM tabla\nGROUP BY columna\nHAVING total > 1;',
-  'CREATE TABLE':   'CREATE TABLE nueva_tabla (\n  id INT PRIMARY KEY,\n  nombre VARCHAR(100)\n);',
-  'LEFT JOIN':      'SELECT a.col, b.col\nFROM tablaA a\nLEFT JOIN tablaB b ON a.id = b.id;',
+const ENGINE_SNIPPETS: Record<EngineType, Record<string, string>> = {
+  sqlserver: {
+    'TOP N filas':   'SELECT TOP 10 *\nFROM tabla\nORDER BY id DESC;',
+    'IDENTITY':      'CREATE TABLE productos (\n  id   INT IDENTITY(1,1) PRIMARY KEY,\n  nombre NVARCHAR(100) NOT NULL\n);',
+    'IF EXISTS':     "IF OBJECT_ID('tabla') IS NOT NULL\n  DROP TABLE tabla;",
+    'GETDATE':       'SELECT GETDATE() AS fecha_actual;',
+    'ISNULL':        "SELECT ISNULL(columna, 'Sin valor') AS col\nFROM tabla;",
+    'CASE WHEN':     "SELECT nombre,\n  CASE\n    WHEN edad >= 18 THEN 'Mayor'\n    ELSE 'Menor'\n  END AS categoria\nFROM personas;",
+    'JOIN + TOP':    'SELECT TOP 5 a.nombre, b.descripcion\nFROM tablaA a\nINNER JOIN tablaB b ON a.id = b.a_id\nORDER BY a.id DESC;',
+    'GROUP BY':      'SELECT departamento, COUNT(*) AS total\nFROM empleados\nGROUP BY departamento\nHAVING COUNT(*) > 2;',
+  },
+  mysql: {
+    'LIMIT':         'SELECT *\nFROM tabla\nLIMIT 10;',
+    'AUTO_INCREMENT':'CREATE TABLE productos (\n  id     INT AUTO_INCREMENT PRIMARY KEY,\n  nombre VARCHAR(100) NOT NULL\n);',
+    'NOW()':         'SELECT NOW() AS fecha_actual;',
+    'CONCAT':        "SELECT CONCAT(nombre, ' ', apellido) AS nombre_completo\nFROM personas;",
+    'IFNULL':        "SELECT IFNULL(columna, 'Sin valor') AS col\nFROM tabla;",
+    'LIMIT OFFSET':  'SELECT *\nFROM tabla\nLIMIT 10 OFFSET 20;',
+    'CASE WHEN':     "SELECT nombre,\n  CASE\n    WHEN edad >= 18 THEN 'Mayor'\n    ELSE 'Menor'\n  END AS categoria\nFROM personas;",
+    'GROUP BY':      'SELECT categoria, COUNT(*) AS total\nFROM productos\nGROUP BY categoria\nORDER BY total DESC;',
+  },
+  postgresql: {
+    'SERIAL PK':     'CREATE TABLE productos (\n  id     SERIAL PRIMARY KEY,\n  nombre VARCHAR(100) NOT NULL\n);',
+    'LIMIT OFFSET':  'SELECT *\nFROM tabla\nLIMIT 10 OFFSET 20;',
+    'COALESCE':      'SELECT COALESCE(valor, 0) AS valor\nFROM tabla;',
+    'NOW()':         'SELECT NOW() AS fecha_actual;',
+    'ARRAY_AGG':     'SELECT ARRAY_AGG(nombre) AS nombres\nFROM personas;',
+    'CASE WHEN':     "SELECT nombre,\n  CASE\n    WHEN edad >= 18 THEN 'Mayor'\n    ELSE 'Menor'\n  END AS categoria\nFROM personas;",
+    'FULL OUTER':    'SELECT a.nombre, b.descripcion\nFROM tablaA a\nFULL OUTER JOIN tablaB b ON a.id = b.a_id;',
+    'GROUP BY':      'SELECT categoria, COUNT(*) AS total\nFROM productos\nGROUP BY categoria\nORDER BY total DESC;',
+  },
+  oracle: {
+    'ROWNUM':        'SELECT *\nFROM tabla\nWHERE ROWNUM <= 10;',
+    'SEQUENCE':      'CREATE SEQUENCE seq_id\n  START WITH 1\n  INCREMENT BY 1\n  NOCACHE;',
+    'SYSDATE':       'SELECT SYSDATE AS fecha_actual\nFROM DUAL;',
+    'NVL':           "SELECT NVL(columna, 'Sin valor') AS col\nFROM tabla;",
+    'DECODE':        "SELECT DECODE(estado,\n  'A', 'Activo',\n  'I', 'Inactivo',\n  'Desconocido') AS label\nFROM tabla;",
+    'FETCH FIRST':   'SELECT *\nFROM tabla\nORDER BY id\nFETCH FIRST 10 ROWS ONLY;',
+    'CASE WHEN':     "SELECT nombre,\n  CASE\n    WHEN edad >= 18 THEN 'Mayor'\n    ELSE 'Menor'\n  END AS categoria\nFROM personas;",
+    'GROUP BY':      'SELECT categoria, COUNT(*) AS total\nFROM productos\nGROUP BY categoria\nORDER BY total DESC;',
+  },
+  sqlite: {
+    'AUTOINCREMENT': 'CREATE TABLE productos (\n  id     INTEGER PRIMARY KEY AUTOINCREMENT,\n  nombre TEXT NOT NULL\n);',
+    'PRAGMA info':   'PRAGMA table_info(tabla);',
+    'Listar tablas': "SELECT name\nFROM sqlite_master\nWHERE type = 'table';",
+    'STRFTIME':      "SELECT strftime('%Y-%m-%d', fecha) AS fecha_fmt\nFROM tabla;",
+    'NULL check':    'SELECT *\nFROM tabla\nWHERE columna IS NULL;',
+    'REPLACE INTO':  "REPLACE INTO tabla (id, nombre)\nVALUES (1, 'nuevo valor');",
+    'CASE WHEN':     "SELECT nombre,\n  CASE\n    WHEN edad >= 18 THEN 'Mayor'\n    ELSE 'Menor'\n  END AS categoria\nFROM personas;",
+    'GROUP BY':      'SELECT categoria, COUNT(*) AS total\nFROM productos\nGROUP BY categoria\nORDER BY total DESC;',
+  },
+  mongodb: {
+    'Find todos':    'db.coleccion.find({})',
+    'Find filtro':   'db.coleccion.find({ campo: "valor" })',
+    'Proyección':    'db.coleccion.find(\n  { activo: true },\n  { nombre: 1, email: 1, _id: 0 }\n)',
+    'InsertOne':     'db.coleccion.insertOne({\n  nombre: "Juan",\n  email: "juan@ejemplo.com",\n  edad: 30\n})',
+    'UpdateOne':     'db.coleccion.updateOne(\n  { _id: 1 },\n  { $set: { nombre: "Nuevo" } }\n)',
+    'DeleteOne':     'db.coleccion.deleteOne({ _id: 1 })',
+    'Aggregate':     'db.coleccion.aggregate([\n  { $match: { activo: true } },\n  { $group: { _id: "$categoria", total: { $sum: 1 } } }\n])',
+    'Count':         'db.coleccion.countDocuments({ activo: true })',
+  },
+  redis: {
+    'SET / GET':     'SET clave "valor"\nGET clave',
+    'HSET / HGETALL':'HSET usuario:1 nombre "Juan" edad "30"\nHGETALL usuario:1',
+    'LPUSH / LRANGE':'LPUSH lista "item3" "item2" "item1"\nLRANGE lista 0 -1',
+    'SADD / SMEMBERS':'SADD tags "sql" "nosql" "redis"\nSMEMBERS tags',
+    'EXPIRE / TTL':  'SET sesion:abc "token"\nEXPIRE sesion:abc 3600\nTTL sesion:abc',
+    'INCR':          'SET contador 0\nINCR contador\nINCR contador\nGET contador',
+    'KEYS':          'KEYS *\nKEYS usuario:*',
+    'DEL / EXISTS':  'EXISTS clave\nDEL clave1 clave2',
+  },
 }
 
 function timeAgo(date: Date): string {
@@ -147,7 +209,59 @@ export default function Sidebar() {
   const store = useStore()
   const tab = getActiveTab(store)
   const cfg = tab ? ENGINE_CONFIGS[tab.engine] : ENGINE_CONFIGS.sqlserver
-  const [snippetKey, setSnippetKey] = useState('SELECT Básico')
+
+  // ── Engine snippets ───────────────────────────────────────────────────────
+  const currentSnippets = ENGINE_SNIPPETS[tab?.engine ?? 'sqlserver']
+  const [snippetKey, setSnippetKey] = useState(Object.keys(currentSnippets)[0])
+  const activeSnippetKey = snippetKey in currentSnippets ? snippetKey : Object.keys(currentSnippets)[0]
+
+  useEffect(() => {
+    setSnippetKey(Object.keys(currentSnippets)[0])
+  }, [tab?.engine])
+
+  // ── Session save/load ─────────────────────────────────────────────────────
+  const loadRef = useRef<HTMLInputElement>(null)
+
+  function handleSaveSession() {
+    const session = {
+      version: '1.0',
+      savedAt: new Date().toISOString(),
+      tabs: store.tabs.map(t => ({ engine: t.engine, database: t.database, query: t.query })),
+      databases: store.databases,
+      activeDbName: store.activeDbName,
+      simulation: store.simulation,
+    }
+    const blob = new Blob([JSON.stringify(session, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `simulador_${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function handleFileLoad(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target?.result as string)
+        if (!data.version || !Array.isArray(data.tabs)) throw new Error('Formato inválido')
+        store.loadSession(data)
+        const activeTab = getActiveTab(store)
+        if (activeTab) store.setTabMessages(activeTab.id, ['✓ Sesión cargada. Recrea las tablas si es necesario.'])
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Error desconocido'
+        if (tab) {
+          store.setTabMessages(tab.id, [`✗ Error al cargar sesión: ${msg}`])
+          store.setActiveResultsTab('messages')
+        }
+      }
+      e.target.value = ''
+    }
+    reader.readAsText(file)
+  }
 
   async function handleExecute() {
     if (!tab || store.isExecuting) return
@@ -160,7 +274,7 @@ export default function Sidebar() {
         ? executeMongoQuery(tab.query)
         : tab.engine === 'redis'
           ? executeRedisCommand(tab.query)
-          : await executeSQL(tab.query, store.simulation.networkLatency, store.simulation.simulateErrors, store.simulation.errorProbability)
+          : await executeSQL(tab.query, store.simulation.networkLatency, store.simulation.simulateErrors, store.simulation.errorProbability, store.activeDbName, store.databases)
       store.setTabResults(tab.id, result)
       store.setTabMessages(tab.id, [`✓ Consulta ejecutada — ${result.rowCount} filas — ${result.executionTime.toFixed(1)}ms`])
       const elapsed = performance.now() - t0
@@ -246,7 +360,7 @@ export default function Sidebar() {
               { icon: <Play size={12} />,   label: 'Ejecutar',  color: 'text-green-400',  bg: 'hover:bg-green-500/10 hover:border-green-500/40', action: handleExecute },
               { icon: <Square size={12} />, label: 'Detener',   color: 'text-red-400',    bg: 'hover:bg-red-500/10 hover:border-red-500/40',     action: () => store.setIsExecuting(false) },
               { icon: <Eraser size={12} />, label: 'Limpiar',   color: 'text-yellow-400', bg: 'hover:bg-yellow-500/10 hover:border-yellow-500/40', action: () => { if (tab) { store.updateQuery(tab.id, ''); store.setTabResults(tab.id, null) } } },
-              { icon: <Save size={12} />,   label: 'Guardar',   color: 'text-blue-400',   bg: 'hover:bg-blue-500/10 hover:border-blue-500/40',   action: () => {} },
+              { icon: <Save size={12} />,   label: 'Guardar',   color: 'text-blue-400',   bg: 'hover:bg-blue-500/10 hover:border-blue-500/40',   action: handleSaveSession },
             ] as const).map(btn => (
               <button
                 key={btn.label}
@@ -257,6 +371,14 @@ export default function Sidebar() {
                 {btn.label}
               </button>
             ))}
+            <button
+              onClick={() => loadRef.current?.click()}
+              className="flex items-center justify-center gap-1.5 w-full py-2 bg-surface-700/60 rounded-lg text-slate-300 hover:text-white text-[11px] font-medium transition-all border border-surface-600/60 hover:bg-blue-500/10 hover:border-blue-500/40"
+            >
+              <span className="text-blue-400"><FolderOpen size={12} /></span>
+              Cargar sesión
+            </button>
+            <input ref={loadRef} type="file" accept=".json" className="hidden" onChange={handleFileLoad} />
           </div>
         </Section>
 
@@ -342,16 +464,21 @@ export default function Sidebar() {
         </Section>
 
         {/* ── 5. Snippets SQL ──────────────────────────────────────── */}
-        <Section id="snippets" icon={<Code2 size={13} />} label="Snippets SQL" iconColor="text-orange-400" accentRgb="251 146 60" defaultOpen={false}
-          badge={Object.keys(SNIPPETS).length}>
+        <Section id="snippets" icon={<Code2 size={13} />} label="Templates" iconColor="text-orange-400" accentRgb="251 146 60" defaultOpen={false}
+          badge={Object.keys(currentSnippets).length}>
           <div className="mx-3">
+            {/* Engine label */}
+            <div className="flex items-center gap-1.5 mb-2 px-1">
+              <span className="text-[10px] font-semibold" style={{ color: cfg.color }}>{cfg.name}</span>
+              <span className="text-[10px] text-slate-500">— templates específicos</span>
+            </div>
             <div className="grid grid-cols-2 gap-1 mb-2">
-              {Object.keys(SNIPPETS).map(k => (
+              {Object.keys(currentSnippets).map(k => (
                 <button
                   key={k}
                   onClick={() => setSnippetKey(k)}
                   className={`text-[10px] px-2 py-1.5 rounded text-left truncate transition-colors border ${
-                    snippetKey === k
+                    activeSnippetKey === k
                       ? 'bg-blue-600/20 border-blue-500/50 text-blue-300'
                       : 'bg-surface-700/60 border-surface-600/60 text-slate-400 hover:text-white hover:bg-surface-600/60'
                   }`}
@@ -361,11 +488,11 @@ export default function Sidebar() {
               ))}
             </div>
             <div className="bg-surface-900/80 border border-surface-600/60 rounded-lg p-2.5 font-mono text-[10px] text-slate-300 whitespace-pre leading-relaxed mb-2 max-h-[80px] overflow-auto">
-              {SNIPPETS[snippetKey]}
+              {currentSnippets[activeSnippetKey]}
             </div>
             <button
               onClick={() => {
-                if (tab) store.updateQuery(tab.id, (tab.query ? tab.query + '\n\n' : '') + SNIPPETS[snippetKey])
+                if (tab) store.updateQuery(tab.id, (tab.query ? tab.query + '\n\n' : '') + currentSnippets[activeSnippetKey])
               }}
               className="w-full py-1.5 text-[11px] font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors"
             >

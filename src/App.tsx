@@ -149,11 +149,14 @@ export default function App() {
       <div className="flex flex-1 overflow-hidden min-h-0">
 
         {/* ── Sidebar ─────────────────────────────────────────────────── */}
-        <div style={{ width: sidebar.size, flexShrink: 0 }} className="overflow-hidden">
+        <div
+          style={{ width: store.editorFullscreen ? 0 : sidebar.size, flexShrink: 0 }}
+          className="overflow-hidden transition-all duration-300"
+        >
           <Sidebar />
         </div>
 
-        <Handle dir="h" onMouseDown={sidebar.startDrag} />
+        {!store.editorFullscreen && <Handle dir="h" onMouseDown={sidebar.startDrag} />}
 
         {/* ── Main content ───────────────────────────────────────────── */}
         <main className="flex flex-col flex-1 overflow-hidden min-w-0 bg-surface-900">
@@ -161,21 +164,28 @@ export default function App() {
           <ConnectionBar />
 
           <div className="flex flex-col flex-1 overflow-hidden min-h-0">
-            <div style={{ height: editor.size, flexShrink: 0 }} className="overflow-hidden">
+            <div
+              style={{ height: store.editorFullscreen ? undefined : editor.size, flexShrink: store.editorFullscreen ? undefined : 0 }}
+              className={store.editorFullscreen ? 'flex-1 overflow-hidden' : 'overflow-hidden'}
+            >
               <SQLEditor />
             </div>
 
-            <Handle dir="v" onMouseDown={editor.startDrag} />
+            {!store.editorFullscreen && <Handle dir="v" onMouseDown={editor.startDrag} />}
 
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <ResultsPanel />
-            </div>
+            {!store.editorFullscreen && (
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <ResultsPanel />
+              </div>
+            )}
 
-            <Handle dir="v" onMouseDown={schema.startDrag} />
+            {!store.editorFullscreen && <Handle dir="v" onMouseDown={schema.startDrag} />}
 
-            <div style={{ height: schema.size, flexShrink: 0 }} className="overflow-hidden">
-              <SchemaExplorer />
-            </div>
+            {!store.editorFullscreen && (
+              <div style={{ height: schema.size, flexShrink: 0 }} className="overflow-hidden">
+                <SchemaExplorer />
+              </div>
+            )}
           </div>
         </main>
       </div>

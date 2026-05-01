@@ -221,12 +221,13 @@ interface CardProps {
 function DBCard({ title, subtitle, accentColor, tree, isActive, onPreview, onDelete }: CardProps) {
   return (
     <div
-      className={`bg-surface-700 border rounded-lg overflow-hidden shrink-0 transition-all group/card ${
+      className={`flex flex-col bg-surface-700 border rounded-lg overflow-hidden shrink-0 transition-all group/card h-full ${
         isActive ? 'border-blue-500/60 shadow-md shadow-blue-900/20' : 'border-surface-600'
       }`}
       style={{ minWidth: 210, maxWidth: 260 }}
     >
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-surface-600">
+      {/* Card header */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-surface-600 shrink-0">
         <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: accentColor }} />
         <div className="flex-1 overflow-hidden">
           <div className="text-xs font-bold text-white truncate">{title}</div>
@@ -245,7 +246,8 @@ function DBCard({ title, subtitle, accentColor, tree, isActive, onPreview, onDel
           </button>
         )}
       </div>
-      <div className="p-1.5 overflow-y-auto max-h-[200px]">
+      {/* Tree — scrollable, fills remaining card height */}
+      <div className="flex-1 p-1.5 overflow-y-auto schema-scroll min-h-0">
         {tree.map((node, i) => <NodeRow key={i} node={node} onPreview={onPreview} />)}
       </div>
     </div>
@@ -327,8 +329,8 @@ export default function SchemaExplorer() {
 
       {/* Cards + Preview */}
       <div className="flex flex-1 overflow-hidden min-h-0">
-        {/* Scrollable cards */}
-        <div className="flex gap-3 p-3 overflow-x-auto flex-1">
+        {/* Scrollable cards — stretch height, horizontal scroll */}
+        <div className="flex items-stretch gap-3 p-3 overflow-x-auto overflow-y-hidden flex-1 schema-x-scroll">
           {/* One card per active SQL engine per registered database */}
           {SQL_ENGINE_META
             .filter(eng => tabs.some(t => t.engine === eng.key))

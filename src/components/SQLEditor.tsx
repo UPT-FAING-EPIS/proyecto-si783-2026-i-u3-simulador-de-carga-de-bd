@@ -1,56 +1,93 @@
 import { useEffect, useRef } from 'react'
 import Editor, { loader } from '@monaco-editor/react'
-import { Maximize2 } from 'lucide-react'
+import type * as Monaco from 'monaco-editor'
+import { Maximize2, FilePlus } from 'lucide-react'
 import { useStore, getActiveTab } from '../store/useStore'
-import { executeSQL, executeMongoQuery, executeRedisCommand, initializeDatabase } from '../engines/sqlEngine'
+import { executeSQL, executeMongoQuery, executeRedisCommand, initializeDatabase, enhanceError } from '../engines/sqlEngine'
 
 loader.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' } })
 
 export default function SQLEditor() {
   const store = useStore()
   const tab = getActiveTab(store)
-  const editorRef = useRef<unknown>(null)
+  const { addTab } = store
+  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null)
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault()
-        runQuery()
-      }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  })
+  // Always points to the latest runQuery — avoids stale closure in Monaco actions
+  const runQueryRef = useRef<() => void>(() => {})
+
+  function getEffectiveQuery(): string {
+    const fullQuery = tab?.query ?? ''
+    const editor = editorRef.current
+    if (!editor) return fullQuery
+    const selection = editor.getSelection()
+    if (!selection || selection.isEmpty()) return fullQuery
+    return editor.getModel()?.getValueInRange(selection)?.trim() || fullQuery
+  }
+
+  function onSelectionChange() {
+    if (!tab || !editorRef.current) return
+    const sel = editorRef.current.getSelection()
+    const text = (!sel || sel.isEmpty())
+      ? ''
+      : (editorRef.current.getModel()?.getValueInRange(sel)?.trim() ?? '')
+    store.setTabSelectedText(tab.id, text)
+  }
 
   async function runQuery() {
     if (!tab || store.isExecuting) return
+    const queryToRun = getEffectiveQuery()
+    if (!queryToRun.trim()) return
+
     initializeDatabase()
     store.setIsExecuting(true)
     store.setActiveResultsTab('results')
     const t0 = performance.now()
     try {
       const result = tab.engine === 'mongodb'
-        ? executeMongoQuery(tab.query)
+        ? executeMongoQuery(queryToRun)
         : tab.engine === 'redis'
-          ? executeRedisCommand(tab.query)
-          : await executeSQL(tab.query, store.simulation.networkLatency, store.simulation.simulateErrors, store.simulation.errorProbability)
+          ? executeRedisCommand(queryToRun)
+          : await executeSQL(
+              queryToRun,
+              store.simulation.networkLatency,
+              store.simulation.simulateErrors,
+              store.simulation.errorProbability,
+              store.activeDbName,
+              store.databases,
+            )
       store.setTabResults(tab.id, result)
+
+      const isSelection = queryToRun !== tab.query
       store.setTabMessages(tab.id, [
-        `[${new Date().toLocaleTimeString()}] Consulta ejecutada exitosamente`,
-        `Filas devueltas: ${result.rowCount}`,
-        `Tiempo: ${result.executionTime.toFixed(3)} ms`,
-        `Memoria: ${result.memoryUsage.toFixed(2)} MB`,
-        `Motor: ${tab.engine.toUpperCase()}`,
-        `Base de datos: ${tab.database}`,
+        `[${new Date().toLocaleTimeString()}] ✓ Consulta ejecutada exitosamente${isSelection ? ' (selección)' : ''}`,
+        `   Filas devueltas : ${result.rowCount}`,
+        `   Tiempo          : ${result.executionTime.toFixed(3)} ms`,
+        `   Memoria         : ${result.memoryUsage.toFixed(2)} MB`,
+        `   Motor           : ${tab.engine.toUpperCase()}`,
+        `   Base de datos   : ${tab.database}`,
       ])
       const elapsed = performance.now() - t0
       const mm = Math.floor(elapsed / 60000).toString().padStart(2, '0')
       const ss = Math.floor((elapsed % 60000) / 1000).toString().padStart(2, '0')
       const ms = Math.floor(elapsed % 1000).toString().padStart(3, '0')
-      store.setMetrics({ executionTime: `00:${mm}:${ss}.${ms}`, rowsAffected: result.rowCount, warnings: result.warnings, memoryUsage: `${result.memoryUsage.toFixed(2)} MB` })
-      store.addHistory({ id: Date.now().toString(), query: tab.query, timestamp: new Date(), engine: tab.engine, rowCount: result.rowCount, executionTime: result.executionTime })
+      store.setMetrics({
+        executionTime: `00:${mm}:${ss}.${ms}`,
+        rowsAffected: result.rowCount,
+        warnings: result.warnings,
+        memoryUsage: `${result.memoryUsage.toFixed(2)} MB`,
+      })
+      store.addHistory({
+        id: Date.now().toString(),
+        query: queryToRun,
+        timestamp: new Date(),
+        engine: tab.engine,
+        rowCount: result.rowCount,
+        executionTime: result.executionTime,
+      })
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Error desconocido'
+      const raw = e instanceof Error ? e.message : 'Error desconocido'
+      const msg = enhanceError(raw)
       store.setTabMessages(tab.id, [`[${new Date().toLocaleTimeString()}] ✗ ERROR: ${msg}`])
       store.setActiveResultsTab('messages')
     } finally {
@@ -58,7 +95,28 @@ export default function SQLEditor() {
     }
   }
 
-  const language = tab?.engine === 'mongodb' ? 'javascript' : tab?.engine === 'redis' ? 'plaintext' : 'sql'
+  // Keep ref in sync every render so Monaco action always calls the latest version
+  runQueryRef.current = runQuery
+
+  // Window-level F5 / Ctrl+Enter / F11 fallback (when editor is not focused)
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'F5' || (e.key === 'Enter' && (e.ctrlKey || e.metaKey))) {
+        e.preventDefault()
+        runQueryRef.current()
+      }
+      if (e.key === 'F11') {
+        e.preventDefault()
+        store.toggleEditorFullscreen()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const language = tab?.engine === 'mongodb' ? 'javascript'
+    : tab?.engine === 'redis' ? 'plaintext'
+    : 'sql'
 
   return (
     <div className="flex flex-col border-b border-surface-600 h-full">
@@ -68,7 +126,7 @@ export default function SQLEditor() {
           Editor de Consultas
           {tab?.engine === 'mongodb' && ' (MongoDB)'}
           {tab?.engine === 'redis' && ' (Redis)'}
-          {!['mongodb','redis'].includes(tab?.engine ?? '') && ' (SQL)'}
+          {!['mongodb', 'redis'].includes(tab?.engine ?? '') && ' (SQL)'}
         </span>
         <div className="flex items-center gap-2">
           {store.isExecuting && (
@@ -77,7 +135,27 @@ export default function SQLEditor() {
               Ejecutando...
             </span>
           )}
-          <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-600 text-slate-400 hover:text-white transition-colors">
+
+          {tab && (
+            <button
+              title="Nueva consulta (mismo motor)"
+              onClick={() => addTab(tab.engine)}
+              className="flex items-center gap-1.5 h-6 px-2.5 rounded
+                         text-[11px] font-medium text-slate-400
+                         border border-surface-500
+                         hover:text-white hover:border-blue-500/60 hover:bg-blue-600/10
+                         transition-all select-none"
+            >
+              <FilePlus size={12} />
+              <span>Nueva consulta</span>
+            </button>
+          )}
+
+          <button
+            title={store.editorFullscreen ? 'Salir de pantalla completa (F11)' : 'Pantalla completa (F11)'}
+            onClick={store.toggleEditorFullscreen}
+            className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${store.editorFullscreen ? 'bg-blue-600/30 text-blue-400 hover:bg-blue-600/40' : 'hover:bg-surface-600 text-slate-400 hover:text-white'}`}
+          >
             <Maximize2 size={13} />
           </button>
         </div>
@@ -91,7 +169,31 @@ export default function SQLEditor() {
           theme={store.editorTheme}
           value={tab?.query ?? ''}
           onChange={value => { if (tab) store.updateQuery(tab.id, value ?? '') }}
-          onMount={editor => { editorRef.current = editor }}
+          onMount={(editor, monaco) => {
+            editorRef.current = editor
+
+            // Sync selection to store
+            editor.onDidChangeCursorSelection(onSelectionChange)
+
+            // F5 and Ctrl+Enter execute the query
+            editor.addAction({
+              id: 'execute-query-f5',
+              label: 'Ejecutar consulta',
+              keybindings: [monaco.KeyCode.F5],
+              contextMenuGroupId: 'navigation',
+              contextMenuOrder: 1,
+              run: () => runQueryRef.current(),
+            })
+            editor.addAction({
+              id: 'execute-query-ctrl-enter',
+              label: 'Ejecutar consulta (Ctrl+Enter)',
+              keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+              contextMenuGroupId: 'navigation',
+              contextMenuOrder: 2,
+              run: () => runQueryRef.current(),
+            })
+            editor.addCommand(monaco.KeyCode.F5, () => runQueryRef.current())
+          }}
           options={{
             minimap: { enabled: false },
             fontSize: store.editorFontSize,

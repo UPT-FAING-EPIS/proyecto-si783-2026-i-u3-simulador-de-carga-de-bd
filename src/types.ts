@@ -1,6 +1,12 @@
 export type EngineType = 'sqlserver' | 'mysql' | 'postgresql' | 'mongodb' | 'oracle' | 'sqlite' | 'redis'
 export type IsolationLevel = 'READ UNCOMMITTED' | 'READ COMMITTED' | 'REPEATABLE READ' | 'SERIALIZABLE'
 
+export interface QueryResultSet {
+  label: string
+  columns: string[]
+  rows: Record<string, unknown>[]
+}
+
 export interface QueryResult {
   columns: string[]
   rows: Record<string, unknown>[]
@@ -8,6 +14,7 @@ export interface QueryResult {
   executionTime: number
   memoryUsage: number
   warnings: number
+  sets?: QueryResultSet[]
 }
 
 export interface QueryHistoryItem {
@@ -40,6 +47,7 @@ export interface EngineTab {
   database: string
   connection: string
   query: string
+  selectedText: string
   results: QueryResult | null
   messages: string[]
 }
@@ -52,6 +60,28 @@ export interface EngineConfig {
   defaultDatabase: string
   defaultConnection: string
   defaultQuery: string
+}
+
+export type ExplainStepType = 'scan' | 'join' | 'filter' | 'aggregate' | 'sort' | 'limit' | 'projection' | 'dml' | 'info'
+
+export interface ExplainStep {
+  id: number
+  type: ExplainStepType
+  operation: string
+  table?: string
+  detail: string
+  estimatedRows: number
+  costLevel: 'low' | 'medium' | 'high'
+  note?: string
+}
+
+export interface SessionData {
+  version: string
+  savedAt: string
+  tabs: Array<{ engine: EngineType; database: string; query: string }>
+  databases: { name: string; tables: string[]; color?: string }[]
+  activeDbName: string
+  simulation: SimulationSettings
 }
 
 export const ENGINE_CONFIGS: Record<EngineType, EngineConfig> = {

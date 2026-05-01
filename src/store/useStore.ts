@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { ENGINE_CONFIGS } from '../types'
-import type { EngineType, EngineTab, SimulationSettings, Metrics, QueryHistoryItem, IsolationLevel } from '../types'
+import type { EngineType, EngineTab, SimulationSettings, Metrics, QueryHistoryItem, IsolationLevel, SessionData } from '../types'
 
 // ─── Database registry persistence ───────────────────────────────────────────
 
@@ -30,6 +30,7 @@ function newTab(engine: EngineType): EngineTab {
     database: cfg.defaultDatabase,
     connection: cfg.defaultConnection,
     query: cfg.defaultQuery,
+    selectedText: '',
     results: null,
     messages: [],
   }
@@ -43,12 +44,17 @@ interface AppState {
   removeTab: (id: string) => void
   setActiveTab: (id: string) => void
   updateQuery: (id: string, query: string) => void
+  setTabSelectedText: (id: string, text: string) => void
   setTabResults: (id: string, results: EngineTab['results']) => void
   setTabMessages: (id: string, messages: string[]) => void
 
   // Sidebar
   sidebarCollapsed: boolean
   toggleSidebar: () => void
+
+  // Editor fullscreen
+  editorFullscreen: boolean
+  toggleEditorFullscreen: () => void
 
   // Environment
   environment: string
@@ -63,8 +69,8 @@ interface AppState {
   setIsExecuting: (v: boolean) => void
 
   // Results tab
-  activeResultsTab: 'results' | 'messages'
-  setActiveResultsTab: (t: 'results' | 'messages') => void
+  activeResultsTab: 'results' | 'messages' | 'explain'
+  setActiveResultsTab: (t: 'results' | 'messages' | 'explain') => void
 
   // Simulation
   simulation: SimulationSettings
@@ -93,6 +99,9 @@ interface AppState {
   registerDatabase: (name: string, tables: string[], color?: string) => void
   setActiveDbName: (name: string) => void
   unregisterDatabase: (name: string) => void
+
+  // Session
+  loadSession: (data: SessionData) => void
 
   // Editor settings
   editorFontSize: number
@@ -142,6 +151,8 @@ export const useStore = create<AppState>((set, get) => ({
   setActiveTab: (id) => set({ activeTabId: id }),
   updateQuery: (id, query) =>
     set(s => ({ tabs: s.tabs.map(t => t.id === id ? { ...t, query } : t) })),
+  setTabSelectedText: (id, text) =>
+    set(s => ({ tabs: s.tabs.map(t => t.id === id ? { ...t, selectedText: text } : t) })),
   setTabResults: (id, results) =>
     set(s => ({ tabs: s.tabs.map(t => t.id === id ? { ...t, results } : t) })),
   setTabMessages: (id, messages) =>
@@ -149,6 +160,9 @@ export const useStore = create<AppState>((set, get) => ({
 
   sidebarCollapsed: false,
   toggleSidebar: () => set(s => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+
+  editorFullscreen: false,
+  toggleEditorFullscreen: () => set(s => ({ editorFullscreen: !s.editorFullscreen })),
 
   environment: 'Desarrollo',
   setEnvironment: (e) => set({ environment: e }),
@@ -201,6 +215,30 @@ export const useStore = create<AppState>((set, get) => ({
       activeDbName: s.activeDbName === name ? (updated[0]?.name ?? '') : s.activeDbName,
     }
   }),
+
+  loadSession: (data) => {
+    let counter = Date.now()
+    const newTabs: EngineTab[] = (data.tabs ?? []).map(t => ({
+      id: `tab-${counter++}`,
+      engine: t.engine,
+      database: t.database,
+      connection: ENGINE_CONFIGS[t.engine]?.defaultConnection ?? 'localhost',
+      query: t.query,
+      selectedText: '',
+      results: null,
+      messages: [],
+    }))
+    if (newTabs.length === 0) return
+    saveDatabases(data.databases ?? [])
+    set({
+      tabs: newTabs,
+      activeTabId: newTabs[0].id,
+      databases: data.databases ?? [],
+      activeDbName: data.activeDbName ?? '',
+      simulation: { ...defaultSimulation, ...(data.simulation ?? {}) },
+      dbVersion: get().dbVersion + 1,
+    })
+  },
 
   editorFontSize: 13,
   setEditorFontSize: (n) => set({ editorFontSize: n }),

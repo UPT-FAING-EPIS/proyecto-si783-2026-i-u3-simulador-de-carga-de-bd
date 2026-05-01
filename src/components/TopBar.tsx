@@ -34,15 +34,17 @@ export default function TopBar({ session, onLogout }: TopBarProps) {
     store.setIsExecuting(true)
     store.setActiveResultsTab('results')
     const t0 = performance.now()
+    const queryToRun = tab.selectedText?.trim() || tab.query
     try {
       const result =
-        tab.engine === 'mongodb' ? executeMongoQuery(tab.query)
-        : tab.engine === 'redis' ? executeRedisCommand(tab.query)
-        : await executeSQL(tab.query, store.simulation.networkLatency, store.simulation.simulateErrors, store.simulation.errorProbability)
+        tab.engine === 'mongodb' ? executeMongoQuery(queryToRun)
+        : tab.engine === 'redis' ? executeRedisCommand(queryToRun)
+        : await executeSQL(queryToRun, store.simulation.networkLatency, store.simulation.simulateErrors, store.simulation.errorProbability, store.activeDbName, store.databases)
 
       store.setTabResults(tab.id, result)
+      const isSelection = !!(tab.selectedText?.trim())
       store.setTabMessages(tab.id, [
-        `[${new Date().toLocaleTimeString()}] ✓ Consulta ejecutada exitosamente`,
+        `[${new Date().toLocaleTimeString()}] ✓ Consulta ejecutada exitosamente${isSelection ? ' (selección)' : ''}`,
         `   Filas devueltas : ${result.rowCount}`,
         `   Tiempo          : ${result.executionTime.toFixed(3)} ms`,
         `   Memoria         : ${result.memoryUsage.toFixed(2)} MB`,
@@ -190,7 +192,7 @@ export default function TopBar({ session, onLogout }: TopBarProps) {
             }
             <span>{store.isExecuting ? 'Ejecutando…' : 'Ejecutar'}</span>
             {!store.isExecuting && (
-              <span className="hidden lg:inline text-[10px] text-white/50 font-normal">Ctrl+Enter</span>
+              <span className="hidden lg:inline text-[10px] text-white/50 font-normal">F5</span>
             )}
           </button>
 
