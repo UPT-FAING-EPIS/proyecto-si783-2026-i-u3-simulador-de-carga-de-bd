@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import Editor, { loader } from '@monaco-editor/react'
 import type * as Monaco from 'monaco-editor'
-import { Maximize2, FilePlus } from 'lucide-react'
+import { Maximize2, Plus, X } from 'lucide-react'
 import { useStore, getActiveTab } from '../store/useStore'
 import { executeSQL, executeMongoQuery, executeRedisCommand, initializeDatabase, enhanceError } from '../engines/sqlEngine'
 
@@ -10,7 +10,7 @@ loader.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/
 export default function SQLEditor() {
   const store = useStore()
   const tab = getActiveTab(store)
-  const { addTab } = store
+  const { addQueryPane, removeQueryPane, setActiveQueryPane } = store
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null)
 
   // Always points to the latest runQuery — avoids stale closure in Monaco actions
@@ -120,37 +120,59 @@ export default function SQLEditor() {
 
   return (
     <div className="flex flex-col border-b border-surface-600 h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-surface-700 border-b border-surface-600">
-        <span className="text-xs font-semibold text-slate-300">
-          Editor de Consultas
-          {tab?.engine === 'mongodb' && ' (MongoDB)'}
-          {tab?.engine === 'redis' && ' (Redis)'}
-          {!['mongodb', 'redis'].includes(tab?.engine ?? '') && ' (SQL)'}
-        </span>
-        <div className="flex items-center gap-2">
+      {/* Query sub-tabs bar */}
+      <div className="flex items-center bg-surface-800 border-b border-surface-600 shrink-0">
+        <div className="flex items-center overflow-x-auto flex-1">
+          {tab?.queryPanes.map((pane, idx) => {
+            const active = pane.id === tab.activeQueryPaneId
+            return (
+              <button
+                key={pane.id}
+                onClick={() => tab && setActiveQueryPane(tab.id, pane.id)}
+                className={[
+                  'flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border-r border-surface-600',
+                  'transition-colors whitespace-nowrap group shrink-0',
+                  active
+                    ? 'bg-surface-700 text-white border-t-2 border-t-blue-500'
+                    : 'bg-surface-800 text-slate-400 hover:text-slate-200 hover:bg-surface-700',
+                ].join(' ')}
+              >
+                <span>Consulta {idx + 1}</span>
+                {tab.queryPanes.length > 1 && (
+                  <span
+                    role="button"
+                    title="Cerrar consulta"
+                    onClick={e => { e.stopPropagation(); tab && removeQueryPane(tab.id, pane.id) }}
+                    className="w-3.5 h-3.5 flex items-center justify-center rounded-full
+                               opacity-0 group-hover:opacity-100
+                               hover:bg-surface-500 text-slate-400 hover:text-white transition-all"
+                  >
+                    <X size={9} />
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Right side: add pane + executing + fullscreen */}
+        <div className="flex items-center gap-1 px-2 shrink-0">
           {store.isExecuting && (
-            <span className="flex items-center gap-1.5 text-xs text-yellow-400">
+            <span className="flex items-center gap-1.5 text-xs text-yellow-400 mr-1">
               <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
               Ejecutando...
             </span>
           )}
-
           {tab && (
             <button
-              title="Nueva consulta (mismo motor)"
-              onClick={() => addTab(tab.engine)}
-              className="flex items-center gap-1.5 h-6 px-2.5 rounded
-                         text-[11px] font-medium text-slate-400
-                         border border-surface-500
-                         hover:text-white hover:border-blue-500/60 hover:bg-blue-600/10
-                         transition-all select-none"
+              title="Nueva consulta"
+              onClick={() => addQueryPane(tab.id)}
+              className="w-6 h-6 flex items-center justify-center rounded text-slate-500
+                         hover:text-slate-200 hover:bg-surface-600 transition-colors"
             >
-              <FilePlus size={12} />
-              <span>Nueva consulta</span>
+              <Plus size={14} />
             </button>
           )}
-
           <button
             title={store.editorFullscreen ? 'Salir de pantalla completa (F11)' : 'Pantalla completa (F11)'}
             onClick={store.toggleEditorFullscreen}

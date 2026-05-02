@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { ENGINE_CONFIGS } from '../types'
-import type { EngineType, EngineTab, SimulationSettings, Metrics, QueryHistoryItem, IsolationLevel, SessionData } from '../types'
+import type { EngineType, EngineTab, QueryPane, SimulationSettings, Metrics, QueryHistoryItem, IsolationLevel, SessionData } from '../types'
 
 // ─── Database registry persistence ───────────────────────────────────────────
 
@@ -22,17 +22,26 @@ function saveDatabases(dbs: DBEntry[]) {
 }
 
 let tabCounter = 0
+let paneCounter = 0
+
+function newPane(query = ''): import('../types').QueryPane {
+  return { id: `pane-${++paneCounter}`, query, results: null, messages: [] }
+}
+
 function newTab(engine: EngineType): EngineTab {
   const cfg = ENGINE_CONFIGS[engine]
+  const pane = newPane(cfg.defaultQuery)
   return {
     id: `tab-${++tabCounter}`,
     engine,
     database: cfg.defaultDatabase,
     connection: cfg.defaultConnection,
-    query: cfg.defaultQuery,
+    query: pane.query,
     selectedText: '',
     results: null,
     messages: [],
+    queryPanes: [pane],
+    activeQueryPaneId: pane.id,
   }
 }
 
@@ -47,6 +56,10 @@ interface AppState {
   setTabSelectedText: (id: string, text: string) => void
   setTabResults: (id: string, results: EngineTab['results']) => void
   setTabMessages: (id: string, messages: string[]) => void
+  // Query panes (sub-tabs within a tab)
+  addQueryPane: (tabId: string) => void
+  removeQueryPane: (tabId: string, paneId: string) => void
+  setActiveQueryPane: (tabId: string, paneId: string) => void
 
   // Sidebar
   sidebarCollapsed: boolean
@@ -158,6 +171,48 @@ export const useStore = create<AppState>((set, get) => ({
   setTabMessages: (id, messages) =>
     set(s => ({ tabs: s.tabs.map(t => t.id === id ? { ...t, messages } : t) })),
 
+  addQueryPane: (tabId) => set(s => {
+    const tabs = s.tabs.map(t => {
+      if (t.id !== tabId) return t
+      // Save current live state into the active pane
+      const savedPanes: QueryPane[] = t.queryPanes.map(p =>
+        p.id === t.activeQueryPaneId ? { ...p, query: t.query, results: t.results, messages: t.messages } : p
+      )
+      const newP = newPane()
+      return { ...t, queryPanes: [...savedPanes, newP], activeQueryPaneId: newP.id, query: '', results: null, messages: [] }
+    })
+    return { tabs }
+  }),
+
+  removeQueryPane: (tabId, paneId) => set(s => {
+    const tabs = s.tabs.map(t => {
+      if (t.id !== tabId || t.queryPanes.length <= 1) return t
+      const saved: QueryPane[] = t.queryPanes.map(p =>
+        p.id === t.activeQueryPaneId ? { ...p, query: t.query, results: t.results, messages: t.messages } : p
+      )
+      const remaining = saved.filter(p => p.id !== paneId)
+      const isActive = t.activeQueryPaneId === paneId
+      if (!isActive) return { ...t, queryPanes: remaining }
+      const idx = saved.findIndex(p => p.id === paneId)
+      const next = remaining[Math.max(0, idx - 1)]
+      return { ...t, queryPanes: remaining, activeQueryPaneId: next.id, query: next.query, results: next.results, messages: next.messages }
+    })
+    return { tabs }
+  }),
+
+  setActiveQueryPane: (tabId, paneId) => set(s => {
+    const tabs = s.tabs.map(t => {
+      if (t.id !== tabId || t.activeQueryPaneId === paneId) return t
+      // Save current live state into the current pane
+      const saved: QueryPane[] = t.queryPanes.map(p =>
+        p.id === t.activeQueryPaneId ? { ...p, query: t.query, results: t.results, messages: t.messages } : p
+      )
+      const next = saved.find(p => p.id === paneId)!
+      return { ...t, queryPanes: saved, activeQueryPaneId: paneId, query: next.query, results: next.results, messages: next.messages }
+    })
+    return { tabs }
+  }),
+
   sidebarCollapsed: false,
   toggleSidebar: () => set(s => ({ sidebarCollapsed: !s.sidebarCollapsed })),
 
@@ -218,16 +273,21 @@ export const useStore = create<AppState>((set, get) => ({
 
   loadSession: (data) => {
     let counter = Date.now()
-    const newTabs: EngineTab[] = (data.tabs ?? []).map(t => ({
-      id: `tab-${counter++}`,
-      engine: t.engine,
-      database: t.database,
-      connection: ENGINE_CONFIGS[t.engine]?.defaultConnection ?? 'localhost',
-      query: t.query,
-      selectedText: '',
-      results: null,
-      messages: [],
-    }))
+    const newTabs: EngineTab[] = (data.tabs ?? []).map(t => {
+      const pane = newPane(t.query)
+      return {
+        id: `tab-${counter++}`,
+        engine: t.engine,
+        database: t.database,
+        connection: ENGINE_CONFIGS[t.engine]?.defaultConnection ?? 'localhost',
+        query: pane.query,
+        selectedText: '',
+        results: null,
+        messages: [],
+        queryPanes: [pane],
+        activeQueryPaneId: pane.id,
+      }
+    })
     if (newTabs.length === 0) return
     saveDatabases(data.databases ?? [])
     set({

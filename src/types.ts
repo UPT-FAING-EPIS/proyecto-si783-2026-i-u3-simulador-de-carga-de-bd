@@ -41,6 +41,13 @@ export interface Metrics {
   memoryUsage: string
 }
 
+export interface QueryPane {
+  id: string
+  query: string
+  results: QueryResult | null
+  messages: string[]
+}
+
 export interface EngineTab {
   id: string
   engine: EngineType
@@ -50,6 +57,8 @@ export interface EngineTab {
   selectedText: string
   results: QueryResult | null
   messages: string[]
+  queryPanes: QueryPane[]
+  activeQueryPaneId: string
 }
 
 export interface EngineConfig {
