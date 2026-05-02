@@ -257,26 +257,54 @@ function DBCard({ title, subtitle, accentColor, tree, isActive, onPreview, onDel
 // ─── Preview panel ────────────────────────────────────────────────────────────
 
 function PreviewPanel({ tableName, onClose }: { tableName: string; onClose: () => void }) {
-  const result = getTablePreview(tableName, 20)
+  const result = getTablePreview(tableName, 200)
+  const rows = result.rows.filter(r => r != null && typeof r === 'object')
   return (
-    <div className="shrink-0 border-l border-surface-600 bg-surface-900" style={{ minWidth: 320, maxWidth: 500 }}>
-      <div className="flex items-center justify-between px-3 py-2 border-b border-surface-600">
+    <div className="shrink-0 border-l border-surface-600 bg-surface-900 flex flex-col" style={{ minWidth: 340, maxWidth: 520 }}>
+      <div className="flex items-center justify-between px-3 py-2 border-b border-surface-600 shrink-0">
         <div className="flex items-center gap-2">
           <Table2 size={12} className="text-blue-400" />
           <span className="text-xs font-bold text-white">{tableName}</span>
-          <span className="text-[10px] text-slate-500">{result.rowCount} filas</span>
+          <span className="text-[10px] text-slate-500">{result.rowCount} fila{result.rowCount !== 1 ? 's' : ''}</span>
         </div>
         <button onClick={onClose} className="text-[10px] text-slate-500 hover:text-white transition-colors">✕ cerrar</button>
       </div>
-      {result.rows.length > 0 ? (
-        <div className="overflow-auto max-h-[200px]">
-          <table className="results-table text-[11px]">
-            <thead><tr>{result.columns.map(c => <th key={c} className="text-[10px]">{c}</th>)}</tr></thead>
+      {rows.length > 0 ? (
+        <div className="overflow-auto flex-1 schema-scroll" style={{ maxHeight: 260 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+            <thead>
+              <tr>
+                {result.columns.map(c => (
+                  <th key={c} style={{
+                    position: 'sticky', top: 0, zIndex: 2,
+                    background: 'rgb(var(--s-700))',
+                    padding: '5px 10px',
+                    textAlign: 'left',
+                    fontWeight: 600,
+                    fontSize: 10,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: '#94a3b8',
+                    borderBottom: '1px solid rgb(var(--s-500))',
+                    whiteSpace: 'nowrap',
+                  }}>{c}</th>
+                ))}
+              </tr>
+            </thead>
             <tbody>
-              {result.rows.map((row, i) => (
-                <tr key={i}>{result.columns.map(c => (
-                  <td key={c} className="py-1 text-[11px]">{String(row[c] ?? 'NULL')}</td>
-                ))}</tr>
+              {rows.map((row, i) => (
+                <tr key={i} style={{ background: i % 2 === 0 ? 'rgb(var(--s-800))' : 'rgb(var(--s-900))' }}>
+                  {result.columns.map(c => (
+                    <td key={c} style={{
+                      padding: '5px 10px',
+                      borderBottom: '1px solid rgb(var(--s-700))',
+                      color: '#e2e8f0',
+                      fontFamily: 'Consolas, JetBrains Mono, monospace',
+                      whiteSpace: 'nowrap',
+                      fontSize: 11,
+                    }}>{String(row[c] ?? 'NULL')}</td>
+                  ))}
+                </tr>
               ))}
             </tbody>
           </table>
