@@ -86,8 +86,10 @@ export function getAllTableInfos(): TableInfo[] {
 
 export function getTablePreview(name: string, limit = 200): QueryResult {
   try {
-    const rows = (alasql(`SELECT * FROM \`${name}\` LIMIT ${limit}`) as Record<string, unknown>[])
-    return { columns: rows.length > 0 ? Object.keys(rows[0]) : [], rows, rowCount: rows.length, executionTime: 1, memoryUsage: 0.1, warnings: 0 }
+    const allData = ((alasql as any).tables[name]?.data ?? []) as Record<string, unknown>[]
+    const rows = allData.slice(0, limit)
+    const columns = rows.length > 0 ? Object.keys(rows[0]) : []
+    return { columns, rows, rowCount: allData.length, executionTime: 1, memoryUsage: 0.1, warnings: 0 }
   } catch {
     return { columns: [], rows: [], rowCount: 0, executionTime: 0, memoryUsage: 0, warnings: 0 }
   }

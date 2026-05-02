@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   ChevronRight, ChevronDown, Table2, Hash,
   Key, List, Columns3, Database, Trash2,
@@ -297,6 +297,7 @@ export default function SchemaExplorer() {
   const { databases, activeDbName, tabs, dbVersion } = store
   const [allTables, setAllTables] = useState<TableInfo[]>([])
   const [previewTable, setPreviewTable] = useState<string | null>(null)
+  const cardsRef = useRef<HTMLDivElement>(null)
 
   const hasRedis  = tabs.some(t => t.engine === 'redis')
   const hasMongo  = tabs.some(t => t.engine === 'mongodb')
@@ -330,7 +331,11 @@ export default function SchemaExplorer() {
       {/* Cards + Preview */}
       <div className="flex flex-1 overflow-hidden min-h-0">
         {/* Scrollable cards — stretch height, horizontal scroll */}
-        <div className="flex items-stretch gap-3 p-3 overflow-x-auto overflow-y-hidden flex-1 schema-x-scroll">
+        <div
+          ref={cardsRef}
+          className="flex items-stretch gap-3 p-3 overflow-x-auto overflow-y-hidden flex-1 schema-x-scroll"
+          onWheel={e => { e.preventDefault(); if (cardsRef.current) cardsRef.current.scrollLeft += e.deltaY }}
+        >
           {/* One card per active SQL engine per registered database */}
           {SQL_ENGINE_META
             .filter(eng => tabs.some(t => t.engine === eng.key))
