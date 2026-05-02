@@ -304,7 +304,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-full bg-surface-800 border-r border-surface-600 flex flex-col overflow-hidden">
+    <aside className="w-full h-full bg-surface-800 border-r border-surface-600 flex flex-col overflow-hidden">
 
       {/* ── Top header ──────────────────────────────────────────────── */}
       <div className="flex items-center gap-2.5 px-3 py-3 border-b border-surface-600 shrink-0">
@@ -319,7 +319,7 @@ export default function Sidebar() {
       </div>
 
       {/* ── Scrollable sections ──────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto schema-scroll">
 
         {/* ── 1. Estado del Sistema ─────────────────────────────────── */}
         <Section id="status" icon={<Activity size={13} />} label="Estado del Sistema" iconColor="text-green-400" accentRgb="74 222 128">
