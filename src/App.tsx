@@ -10,6 +10,7 @@ import SchemaExplorer from './components/SchemaExplorer'
 import LoginScreen, { SESSION_KEY } from './components/LoginScreen'
 import WelcomeScreen from './components/WelcomeScreen'
 import { initializeDatabase } from './engines/sqlEngine'
+import { registerPresence, unregisterPresence } from './lib/presence'
 
 // ─── Resize hook ──────────────────────────────────────────────────────────────
 
@@ -111,6 +112,15 @@ export default function App() {
         store.incrementDbVersion()
         setTimeout(() => setAppVisible(true), 30)
       })
+
+      // Registrar presencia real en Firebase
+      const activeTab = store.tabs.find(t => t.id === store.activeTabId)
+      registerPresence({
+        name:   session.username,
+        role:   session.role,
+        color:  session.color,
+        engine: activeTab?.engine ?? 'mysql',
+      })
     }
   }, [session, welcomed]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -144,7 +154,12 @@ export default function App() {
       className="flex flex-col h-screen bg-surface-900 overflow-hidden transition-opacity duration-500"
       style={{ opacity: appVisible ? 1 : 0 }}
     >
-      <TopBar session={session} onLogout={() => { localStorage.removeItem(SESSION_KEY); setSession(null); setAppVisible(false) }} />
+      <TopBar session={session} onLogout={() => {
+        unregisterPresence()
+        localStorage.removeItem(SESSION_KEY)
+        setSession(null)
+        setAppVisible(false)
+      }} />
 
       <div className="flex flex-1 overflow-hidden min-h-0">
 

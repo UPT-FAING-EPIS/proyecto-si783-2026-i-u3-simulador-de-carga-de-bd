@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Database, Upload, Download, Play, Square, Trash2,
-  Moon, Sun, HelpCircle, Settings, LogOut, ChevronDown,
+  Moon, Sun, HelpCircle, Settings, LogOut, ChevronDown, Activity, Users,
 } from 'lucide-react'
 import { useStore, getActiveTab } from '../store/useStore'
 import { executeSQL, executeMongoQuery, executeRedisCommand, initializeDatabase, preprocessSQL } from '../engines/sqlEngine'
@@ -14,8 +14,12 @@ import HistoryModal from './modals/HistoryModal'
 import AboutModal from './modals/AboutModal'
 import UserDropdown from './modals/UserDropdown'
 import { EnvButton } from './modals/EnvModal'
+import LoadSimulatorModal from './LoadSimulatorModal'
+import OnlineUsersPanel from './OnlineUsersPanel'
+import { subscribeToCount } from '../lib/presence'
+import { isConfigured } from '../lib/firebase'
 
-type Modal = 'import' | 'export' | 'help' | 'settings' | 'user' | 'stats' | 'history' | 'about' | null
+type Modal = 'import' | 'export' | 'help' | 'settings' | 'user' | 'stats' | 'history' | 'about' | 'load' | 'online' | null
 
 interface TopBarProps {
   session?: { username: string; role: string; color: string }
@@ -26,6 +30,13 @@ export default function TopBar({ session, onLogout }: TopBarProps) {
   const store = useStore()
   const tab   = getActiveTab(store)
   const [modal, setModal] = useState<Modal>(null)
+
+  // Contador real de Firebase (0 si no está configurado)
+  const [onlineCount, setOnlineCount] = useState(0)
+  useEffect(() => {
+    const unsub = subscribeToCount(setOnlineCount)
+    return () => { if (typeof unsub === 'function') unsub() }
+  }, [])
 
   // ── Execute ───────────────────────────────────────────────────────────────
   async function handleExecute() {
@@ -226,10 +237,65 @@ export default function TopBar({ session, onLogout }: TopBarProps) {
           />
         </div>
 
+        <Sep />
+
+        {/* ── Load Simulator ───────────────────────────────────────────────── */}
+        <button
+          title="Simulador de Carga — genera miles de consultas y monitorea en tiempo real"
+          onClick={() => open('load')}
+          className={[
+            'flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium transition-all select-none',
+            modal === 'load'
+              ? 'text-orange-300 bg-orange-900/30 border border-orange-800/50'
+              : 'text-slate-400 hover:text-orange-300 hover:bg-orange-900/20 border border-transparent',
+          ].join(' ')}
+        >
+          <Activity size={13} />
+          <span className="hidden md:inline">Sim. Carga</span>
+        </button>
+
         <div className="flex-1" />
 
         {/* ── Right tools ──────────────────────────────────────────────────── */}
         <div className="flex items-center gap-0.5">
+
+          {/* Online users indicator */}
+          <div className="relative">
+            <button
+              title={isConfigured ? 'Usuarios conectados en tiempo real' : 'Configura Firebase para ver usuarios reales'}
+              onClick={() => setModal(m => m === 'online' ? null : 'online')}
+              className={[
+                'flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs font-medium transition-all select-none',
+                modal === 'online'
+                  ? 'bg-emerald-900/30 border border-emerald-800/40 text-emerald-300'
+                  : isConfigured
+                    ? 'text-slate-400 hover:text-emerald-300 hover:bg-emerald-900/20 border border-transparent'
+                    : 'text-slate-600 hover:text-slate-400 hover:bg-surface-600 border border-transparent',
+              ].join(' ')}
+            >
+              {isConfigured ? (
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
+              ) : (
+                <span className="w-2 h-2 rounded-full bg-slate-600 shrink-0" />
+              )}
+              <Users size={12} />
+              <span className="tabular-nums font-semibold">
+                {isConfigured ? onlineCount.toLocaleString('es') : '—'}
+              </span>
+            </button>
+
+            {modal === 'online' && (
+              <OnlineUsersPanel
+                onClose={close}
+                session={session}
+              />
+            )}
+          </div>
+
+          <Sep />
 
           {/* Theme */}
           <IconBtn
@@ -306,6 +372,8 @@ export default function TopBar({ session, onLogout }: TopBarProps) {
       {modal === 'stats'    && <StatsModal onClose={close} />}
       {modal === 'history'  && <HistoryModal onClose={close} />}
       {modal === 'about'    && <AboutModal onClose={close} />}
+      {modal === 'load'     && <LoadSimulatorModal onClose={close} />}
+      {/* OnlineUsersPanel se renderiza inline dentro del botón relativo */}
     </>
   )
 }
