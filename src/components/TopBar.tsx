@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import {
   Database, Upload, Download, Play, Square, Trash2,
-  Moon, Sun, HelpCircle, Settings, LogOut, ChevronDown, Activity, Users,
+  Moon, Sun, HelpCircle, Settings, LogOut, ChevronDown, Activity, Users, FileText,
 } from 'lucide-react'
 import { useStore, getActiveTab } from '../store/useStore'
 import { executeSQL, executeMongoQuery, executeRedisCommand, initializeDatabase, preprocessSQL } from '../engines/sqlEngine'
@@ -11,6 +11,7 @@ import HelpModal from './modals/HelpModal'
 import SettingsModal from './modals/SettingsModal'
 import StatsModal from './modals/StatsModal'
 import HistoryModal from './modals/HistoryModal'
+import QueryLogsModal from './modals/QueryLogsModal'
 import AboutModal from './modals/AboutModal'
 import UserDropdown from './modals/UserDropdown'
 import { EnvButton } from './modals/EnvModal'
@@ -19,7 +20,7 @@ import OnlineUsersPanel from './OnlineUsersPanel'
 import { subscribeToCount } from '../lib/presence'
 import { isConfigured } from '../lib/firebase'
 
-type Modal = 'import' | 'export' | 'help' | 'settings' | 'user' | 'stats' | 'history' | 'about' | 'load' | 'online' | null
+type Modal = 'import' | 'export' | 'help' | 'settings' | 'user' | 'stats' | 'history' | 'logs' | 'about' | 'load' | 'online' | null
 
 interface TopBarProps {
   session?: { username: string; role: string; color: string }
@@ -313,6 +314,12 @@ export default function TopBar({ session, onLogout }: TopBarProps) {
             active={modal === 'help'}
           />
           <IconBtn
+            icon={<FileText size={15} />}
+            title="Logs de consultas"
+            onClick={() => open('logs')}
+            active={modal === 'logs'}
+          />
+          <IconBtn
             icon={<Settings size={15} />}
             title="Configuración"
             onClick={() => open('settings')}
@@ -371,6 +378,7 @@ export default function TopBar({ session, onLogout }: TopBarProps) {
       {modal === 'settings' && <SettingsModal onClose={close} />}
       {modal === 'stats'    && <StatsModal onClose={close} />}
       {modal === 'history'  && <HistoryModal onClose={close} />}
+      {modal === 'logs'     && <QueryLogsModal onClose={close} />}
       {modal === 'about'    && <AboutModal onClose={close} />}
       {modal === 'load'     && <LoadSimulatorModal onClose={close} />}
       {/* OnlineUsersPanel se renderiza inline dentro del botón relativo */}

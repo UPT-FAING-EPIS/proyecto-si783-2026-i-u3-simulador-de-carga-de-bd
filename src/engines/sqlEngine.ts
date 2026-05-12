@@ -2,6 +2,7 @@
 import alasql from 'alasql'
 import type { QueryResult } from '../types'
 import { idbSaveTables, idbLoadTables, idbClearTables, idbSaveSchema, type SchemaEntry } from '../db/idbStorage'
+import { initQueryLogger, logQuery } from './queryLogger'
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 
@@ -869,6 +870,7 @@ export async function executeSQL(
   databases: { name: string; tables: string[] }[] = [],
 ): Promise<QueryResult> {
   const start = performance.now()
+  initQueryLogger()
   await new Promise(r => setTimeout(r, networkLatency))
 
   if (simulateErrors && Math.random() * 100 < errorProbability)
@@ -911,7 +913,21 @@ export async function executeSQL(
     const label = tableMatch ? tableMatch[1] : `Resultado ${sets.length + 1}`
     let raw: unknown
     try { raw = alasql(exec) }
-    catch (e: any) { throw new Error(e?.message ?? 'Error al ejecutar la consulta') }
+    catch (e: any) {
+      const msg = e?.message ?? 'Error al ejecutar la consulta'
+      await logQuery({
+        query,
+        processed: normalized,
+        durationMs: Math.max(performance.now() - start, 1),
+        rowCount: 0,
+        affectedRows: totalAffected,
+        success: false,
+        errorMessage: msg,
+        dbName: activeDbName,
+        setsCount: sets.length,
+      })
+      throw new Error(msg)
+    }
 
     if (/^\s*(CREATE|DROP|ALTER|INSERT|UPDATE|DELETE)\s/i.test(exec)) hasDDL = true
     if (Array.isArray(raw)) {
@@ -924,6 +940,22 @@ export async function executeSQL(
 
   const elapsed = performance.now() - elapsed_start
   if (hasDDL) persistTables()
+
+  // Log successful execution summary
+  try {
+    const overallRowCount = sets.length > 0 ? sets.reduce((s, r) => s + r.rows.length, 0) : totalAffected
+    await logQuery({
+      query,
+      processed: normalized,
+      durationMs: Math.max(performance.now() - start, 1),
+      rowCount: overallRowCount,
+      affectedRows: totalAffected,
+      success: true,
+      errorMessage: null,
+      dbName: activeDbName,
+      setsCount: sets.length,
+    })
+  } catch { /* ignore logging failures */ }
 
   // Single statement — return plain result (backward compatible)
   if (sets.length === 1) {

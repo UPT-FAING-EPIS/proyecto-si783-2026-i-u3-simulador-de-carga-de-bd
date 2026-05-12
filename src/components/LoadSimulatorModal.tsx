@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import {
   X, Play, Square, Zap, AlertTriangle, Activity,
   Users, Clock, TrendingUp, Database,
@@ -168,6 +168,23 @@ interface LoadMetrics {
   totalErrors: number
 }
 
+type QueryType = 'SELECT' | 'INSERT' | 'UPDATE' | 'DELETE'
+
+interface LoadScriptLog {
+  id: string
+  createdAt: number
+  timestamp: string
+  type: QueryType
+  script: string
+  status: 'OK' | 'ERROR'
+  users: number
+  tps: number
+  latency: number
+  message: string
+}
+
+const LOG_LIMIT = 10
+
 type LoadStatus = 'idle' | 'running' | 'completed'
 
 const EMPTY_METRICS: LoadMetrics = {
@@ -197,11 +214,149 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
   const [tpsData,     setTpsData]     = useState<number[]>([])
   const [cpuData,     setCpuData]     = useState<number[]>([])
   const [connData,    setConnData]    = useState<number[]>([])
+  const [scriptLogs,  setScriptLogs]  = useState<LoadScriptLog[]>([])
+  const [logFilter,   setLogFilter]   = useState<'ALL' | QueryType>('ALL')
+  const [logSearch,   setLogSearch]   = useState('')
+  const [logSort,     setLogSort]     = useState<'TIME_DESC' | 'TIME_ASC' | 'SEVERITY'>('TIME_DESC')
+  const engineCfg = ENGINE_CONFIGS[engine]
 
   const intervalRef  = useRef<ReturnType<typeof setInterval> | null>(null)
   const startTimeRef = useRef(0)
   const peakRef      = useRef(0)
   const totalErrRef  = useRef(0)
+  const logViewportRef = useRef<HTMLDivElement | null>(null)
+
+  const activeQueryTypes = (Object.entries(queryTypes) as Array<[QueryType, boolean]>)
+    .filter(([, enabled]) => enabled)
+    .map(([type]) => type)
+
+  function pickQueryType(seed: number): QueryType {
+    const enabled: QueryType[] = activeQueryTypes.length > 0 ? activeQueryTypes : ['SELECT']
+    return enabled[seed % enabled.length]
+  }
+
+  function buildScript(type: QueryType, tick: number, userCount: number) {
+    const rowIdx = (userCount % 500) + 1
+    const productId = (tick % 7) + 1
+    const engineHint = engineCfg.name
+
+    switch (type) {
+      case 'SELECT':
+        return `SELECT * FROM orders WHERE user_id = ${rowIdx} ORDER BY created_at DESC LIMIT 25; -- ${engineHint}`
+      case 'INSERT':
+        return `INSERT INTO audit_log (user_id, action, created_at) VALUES (${rowIdx}, 'login', NOW()); -- ${engineHint}`
+      case 'UPDATE':
+        return `UPDATE inventory SET stock = stock - 1 WHERE product_id = ${productId}; -- ${engineHint}`
+      case 'DELETE':
+        return `DELETE FROM sessions WHERE last_seen < NOW() - INTERVAL 30 DAY; -- ${engineHint}`
+    }
+  }
+
+  function createLogEntry(type: QueryType, tick: number, currentUsers: number, tps: number, latency: number, errored: boolean): LoadScriptLog {
+    const createdAt = Date.now()
+    return {
+      id: `${createdAt}-${tick}-${type}-${Math.random().toString(36).slice(2, 7)}`,
+      createdAt,
+      timestamp: new Date().toLocaleTimeString(),
+      type,
+      script: buildScript(type, tick, currentUsers),
+      status: errored ? 'ERROR' : 'OK',
+      users: currentUsers,
+      tps,
+      latency,
+      message: errored ? 'Timeout simulado por saturación' : 'Ejecución simulada exitosa',
+    }
+  }
+
+  function downloadFile(fileName: string, content: string, mimeType: string) {
+    const blob = new Blob([content], { type: mimeType })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  function escapeCsv(value: string | number | undefined | null) {
+    const text = String(value ?? '')
+    return /[",\n\r;]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text
+  }
+
+  const filteredLogs = logFilter === 'ALL'
+    ? scriptLogs
+    : scriptLogs.filter(log => log.type === logFilter)
+
+  const searchedLogs = useMemo(() => {
+    const term = logSearch.trim().toLowerCase()
+    if (!term) return filteredLogs
+
+    return filteredLogs.filter(log => {
+      return [
+        log.timestamp,
+        log.type,
+        log.status,
+        log.message,
+        log.script,
+        `${log.users}`,
+        `${log.tps}`,
+        `${log.latency}`,
+      ].some(field => field.toLowerCase().includes(term))
+    })
+  }, [filteredLogs, logSearch])
+
+  const sortedLogs = useMemo(() => {
+    const severityWeight = (status: LoadScriptLog['status']) => (status === 'ERROR' ? 1 : 0)
+
+    return [...searchedLogs].sort((left, right) => {
+      if (logSort === 'SEVERITY') {
+        const severityDiff = severityWeight(right.status) - severityWeight(left.status)
+        if (severityDiff !== 0) return severityDiff
+        return right.createdAt - left.createdAt
+      }
+
+      return logSort === 'TIME_ASC'
+        ? left.createdAt - right.createdAt
+        : right.createdAt - left.createdAt
+    })
+  }, [searchedLogs, logSort])
+
+  const visibleLogs = sortedLogs.slice(0, LOG_LIMIT)
+
+  useEffect(() => {
+    if (logViewportRef.current) {
+      logViewportRef.current.scrollTop = 0
+    }
+  }, [visibleLogs.length, logFilter, logSearch, status])
+
+  function exportLogsAsJson() {
+    if (visibleLogs.length === 0) return
+    const payload = JSON.stringify(visibleLogs, null, 2)
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+    downloadFile(`sim-carga-logs-${stamp}.json`, payload, 'application/json;charset=utf-8')
+  }
+
+  function exportLogsAsCsv() {
+    if (visibleLogs.length === 0) return
+    const rows = [
+      ['timestamp', 'type', 'status', 'users', 'tps', 'latency', 'message', 'script'],
+      ...visibleLogs.map(log => [
+        log.timestamp,
+        log.type,
+        log.status,
+        log.users,
+        log.tps,
+        `${log.latency.toFixed(0)}ms`,
+        log.message,
+        log.script,
+      ]),
+    ]
+    const csv = rows
+      .map(row => row.map(value => escapeCsv(value)).join(','))
+      .join('\n')
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+    downloadFile(`sim-carga-logs-${stamp}.csv`, csv, 'text/csv;charset=utf-8')
+  }
 
   // ── Stop ────────────────────────────────────────────────────────────────────
   const stop = useCallback(() => {
@@ -210,6 +365,27 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
       intervalRef.current = null
     }
     setStatus(prev => prev === 'running' ? 'completed' : prev)
+  }, [])
+
+  // ── Reset to idle ──────────────────────────────────────────────────────────
+  const resetSimulation = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+    startTimeRef.current = 0
+    peakRef.current = 0
+    totalErrRef.current = 0
+    setStatus('idle')
+    setMetrics(EMPTY_METRICS)
+    setLatencyData([])
+    setTpsData([])
+    setCpuData([])
+    setConnData([])
+    setScriptLogs([])
+    setLogFilter('ALL')
+    setLogSearch('')
+    setLogSort('TIME_DESC')
   }, [])
 
   // ── Start ───────────────────────────────────────────────────────────────────
@@ -223,6 +399,7 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
     setTpsData([])
     setCpuData([])
     setConnData([])
+    setScriptLogs([])
 
     startTimeRef.current = Date.now()
 
@@ -262,6 +439,15 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
       const errorCount  = Math.floor(errFactor * currentUsers * Math.random() * 2.5)
       totalErrRef.current += errorCount
 
+      const scriptsPerTick = Math.max(1, Math.min(4, Math.ceil(tps / 250)))
+      const tickLogs = Array.from({ length: scriptsPerTick }, (_, index) => {
+        const type = pickQueryType(Math.floor(elapsed * 10) + index)
+        const forceError = errEnabled
+          ? Math.random() < Math.min(0.5, errProb * 2)
+          : cpuUsage >= 92 && Math.random() < 0.25
+        return createLogEntry(type, Math.floor(elapsed * 2) + index, currentUsers, tps, latency, forceError)
+      })
+
       const snap: LoadMetrics = {
         currentUsers,
         tps,
@@ -279,14 +465,14 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
       setTpsData(prev     => [...prev.slice(-59), tps])
       setCpuData(prev     => [...prev.slice(-59), cpuUsage])
       setConnData(prev    => [...prev.slice(-59), connections])
+      setScriptLogs(prev  => [...prev.slice(-39), ...tickLogs].slice(-40))
     }, 500)
-  }, [duration, maxUsers, rampUp, stop, store.simulation])
+  }, [duration, maxUsers, rampUp, stop, store.simulation, queryTypes, engineCfg])
 
   // ── Cleanup on unmount ──────────────────────────────────────────────────────
   useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current) }, [])
 
   // ── Derived display values ──────────────────────────────────────────────────
-  const engineCfg   = ENGINE_CONFIGS[engine]
   const progressPct = status === 'completed' ? 100
     : status === 'running' ? Math.min(100, (metrics.elapsedSeconds / duration) * 100)
     : 0
@@ -316,13 +502,9 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-bold text-white">Simulador de Carga</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-surface-700 text-slate-400 border border-surface-600 shrink-0">
-                {engineCfg.emoji} {engineCfg.name}
-              </span>
               {status === 'running' && (
-                <span className="flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full bg-emerald-900/30 text-emerald-400 border border-emerald-800/40 shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  EN VIVO
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-900/20 text-amber-300 border border-amber-800/30 shrink-0">
+                  EN EJECUCIÓN
                 </span>
               )}
               {status === 'completed' && (
@@ -347,6 +529,15 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
             >
               <Square size={11} className="fill-red-400" />
               Detener
+            </button>
+          )}
+          {status === 'completed' && (
+            <button
+              onClick={resetSimulation}
+              className="flex items-center gap-1.5 h-7 px-3 rounded-lg text-xs font-medium text-slate-200 bg-surface-700 border border-surface-600 hover:bg-surface-600 transition-all shrink-0"
+            >
+              <Play size={11} />
+              Nueva prueba
             </button>
           )}
           <button
@@ -380,13 +571,14 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
 
                 {/* Engine selector */}
                 <div>
-                  <label className="text-[11px] text-slate-500 block mb-1.5 flex items-center gap-1.5">
+                  <label className="text-[11px] text-slate-500 mb-1.5 flex items-center gap-1.5">
                     <Database size={10} /> Motor de BD
                   </label>
                   <select
                     value={engine}
                     onChange={e => setEngine(e.target.value as EngineType)}
-                    className="w-full h-8 px-2.5 text-xs bg-surface-700 border border-surface-600 rounded-lg text-slate-200 focus:outline-none focus:border-blue-500 transition-colors"
+                    disabled={status !== 'idle'}
+                    className={`w-full h-8 px-2.5 text-xs bg-surface-700 border border-surface-600 rounded-lg text-slate-200 focus:outline-none transition-colors ${status !== 'idle' ? 'opacity-60 cursor-not-allowed' : 'focus:border-blue-500'}`}
                   >
                     {Object.values(ENGINE_CONFIGS).map(cfg => (
                       <option key={cfg.type} value={cfg.type}>{cfg.emoji} {cfg.name}</option>
@@ -402,7 +594,8 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
                   </label>
                   <input type="range" min={30} max={600} step={30} value={duration}
                     onChange={e => setDuration(+e.target.value)}
-                    className="w-full accent-orange-500" />
+                    disabled={status !== 'idle'}
+                    className={`w-full accent-orange-500 ${status !== 'idle' ? 'opacity-60' : ''}`} />
                   <div className="flex justify-between text-[10px] text-slate-600 mt-0.5">
                     <span>30s</span><span>600s</span>
                   </div>
@@ -416,7 +609,8 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
                   </label>
                   <input type="range" min={10} max={500} step={10} value={maxUsers}
                     onChange={e => setMaxUsers(+e.target.value)}
-                    className="w-full accent-orange-500" />
+                    disabled={status !== 'idle'}
+                    className={`w-full accent-orange-500 ${status !== 'idle' ? 'opacity-60' : ''}`} />
                   <div className="flex justify-between text-[10px] text-slate-600 mt-0.5">
                     <span>10</span><span>500</span>
                   </div>
@@ -430,7 +624,8 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
                   </label>
                   <input type="range" min={5} max={120} step={5} value={rampUp}
                     onChange={e => setRampUp(+e.target.value)}
-                    className="w-full accent-orange-500" />
+                    disabled={status !== 'idle'}
+                    className={`w-full accent-orange-500 ${status !== 'idle' ? 'opacity-60' : ''}`} />
                   <div className="flex justify-between text-[10px] text-slate-600 mt-0.5">
                     <span>5s</span><span>120s</span>
                   </div>
@@ -442,10 +637,11 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
                   <div className="grid grid-cols-2 gap-1.5">
                     {(Object.keys(queryTypes) as Array<keyof typeof queryTypes>).map(qt => (
                       <label key={qt}
-                        className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-surface-700 border border-surface-600 cursor-pointer hover:border-surface-500 transition-colors">
+                        className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-surface-700 border border-surface-600 transition-colors ${status !== 'idle' ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:border-surface-500'}`}>
                         <input type="checkbox" checked={queryTypes[qt]}
                           onChange={() => toggleQT(qt)}
-                          className="accent-orange-500 w-3 h-3 shrink-0" />
+                          disabled={status !== 'idle'}
+                          className={`accent-orange-500 w-3 h-3 shrink-0 ${status !== 'idle' ? 'opacity-60 cursor-not-allowed' : ''}`} />
                         <span className="text-[11px] text-slate-400">{qt}</span>
                       </label>
                     ))}
@@ -475,14 +671,14 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
 
               <div className="px-4 pb-4 mt-auto">
                 <button
-                  onClick={start}
+                  onClick={status === 'completed' ? resetSimulation : start}
                   className="w-full h-9 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold text-white
                              bg-gradient-to-r from-orange-500 to-red-600
                              hover:from-orange-400 hover:to-red-500
                              shadow-lg shadow-orange-900/30 transition-all active:scale-[0.98]"
                 >
                   <Play size={13} className="fill-white" />
-                  {status === 'completed' ? 'Reiniciar Prueba' : 'Iniciar Prueba'}
+                  {status === 'completed' ? 'Nueva Prueba' : 'Iniciar Prueba'}
                 </button>
               </div>
             </div>
@@ -595,6 +791,129 @@ export default function LoadSimulatorModal({ onClose }: { onClose: () => void })
                     <StatBadge label="Latencia"      value={`${metrics.latency.toFixed(0)}ms`}  color="text-white" />
                     <StatBadge label="Errores/seg"   value={metrics.errorCount}                 color={metrics.errorCount > 0 ? 'text-red-400' : 'text-slate-600'} />
                     <StatBadge label="Tiempo rest."  value={`${timeLeft.toFixed(0)}s`}          color="text-amber-400" />
+                  </div>
+                </div>
+
+                <div className="bg-surface-800 rounded-xl border border-surface-600 overflow-hidden shrink-0">
+                  <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-surface-600 bg-surface-800/80">
+                    <div className="flex items-center gap-2">
+                      <Zap size={12} className="text-orange-400" />
+                      <span className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
+                        Logs de scripts ejecutados
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap justify-end">
+                      <div className="relative">
+                        <input
+                          value={logSearch}
+                          onChange={e => setLogSearch(e.target.value)}
+                          placeholder="Buscar..."
+                          className="h-7 w-36 px-2.5 pr-7 rounded-lg text-[10px] bg-surface-700 border border-surface-600 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-orange-500"
+                        />
+                        {logSearch && (
+                          <button
+                            type="button"
+                            onClick={() => setLogSearch('')}
+                            className="absolute right-1 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-md text-slate-500 hover:text-white hover:bg-surface-600"
+                          >
+                            <X size={11} />
+                          </button>
+                        )}
+                      </div>
+                      <select
+                        value={logFilter}
+                        onChange={e => setLogFilter(e.target.value as 'ALL' | QueryType)}
+                        className="h-7 px-2 rounded-lg text-[10px] font-semibold bg-surface-700 border border-surface-600 text-slate-200 focus:outline-none focus:border-orange-500"
+                      >
+                        <option value="ALL">Todos</option>
+                        <option value="SELECT">SELECT</option>
+                        <option value="INSERT">INSERT</option>
+                        <option value="UPDATE">UPDATE</option>
+                        <option value="DELETE">DELETE</option>
+                      </select>
+                      <select
+                        value={logSort}
+                        onChange={e => setLogSort(e.target.value as 'TIME_DESC' | 'TIME_ASC' | 'SEVERITY')}
+                        className="h-7 px-2 rounded-lg text-[10px] font-semibold bg-surface-700 border border-surface-600 text-slate-200 focus:outline-none focus:border-orange-500"
+                      >
+                        <option value="TIME_DESC">Tiempo ↓</option>
+                        <option value="TIME_ASC">Tiempo ↑</option>
+                        <option value="SEVERITY">Severidad</option>
+                      </select>
+                      <span className="text-[10px] text-slate-500 tabular-nums">
+                        {visibleLogs.length}/{searchedLogs.length} visibles
+                      </span>
+                      <span className={`inline-flex items-center gap-1 h-7 px-2 rounded-full text-[10px] font-semibold border ${logSort === 'SEVERITY' ? 'bg-red-900/25 text-red-300 border-red-800/40' : logSort === 'TIME_ASC' ? 'bg-blue-900/25 text-blue-300 border-blue-800/40' : 'bg-orange-900/25 text-orange-300 border-orange-800/40'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${logSort === 'SEVERITY' ? 'bg-red-400' : logSort === 'TIME_ASC' ? 'bg-blue-400' : 'bg-orange-400'}`} />
+                        Orden: {logSort === 'SEVERITY' ? 'Severidad' : logSort === 'TIME_ASC' ? 'Tiempo asc.' : 'Tiempo desc.'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={exportLogsAsJson}
+                        disabled={visibleLogs.length === 0}
+                        className="h-7 px-2.5 rounded-lg text-[10px] font-semibold text-slate-200 bg-surface-700 border border-surface-600 hover:bg-surface-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                      >
+                        JSON
+                      </button>
+                      <button
+                        type="button"
+                        onClick={exportLogsAsCsv}
+                        disabled={visibleLogs.length === 0}
+                        className="h-7 px-2.5 rounded-lg text-[10px] font-semibold text-slate-200 bg-surface-700 border border-surface-600 hover:bg-surface-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                      >
+                        CSV
+                      </button>
+                    </div>
+                  </div>
+
+                  <div ref={logViewportRef} className="max-h-60 overflow-y-auto p-3">
+                    {visibleLogs.length === 0 ? (
+                      <div className="text-xs text-slate-500 px-1 py-3">
+                        {scriptLogs.length === 0
+                          ? 'Los scripts simulados aparecerán aquí cuando empiece la prueba.'
+                          : 'No hay registros para el filtro o búsqueda seleccionados.'}
+                      </div>
+                    ) : (
+                      <div className="overflow-hidden rounded-xl border border-surface-600 bg-surface-700/60">
+                        <table className="w-full text-left border-collapse">
+                          <thead className="sticky top-0 bg-surface-800/95 backdrop-blur border-b border-surface-600">
+                            <tr className="text-[10px] uppercase tracking-wider text-slate-500">
+                              <th className="px-3 py-2 font-semibold w-20">Estado</th>
+                              <th className="px-3 py-2 font-semibold w-20">Tipo</th>
+                              <th className="px-3 py-2 font-semibold w-24">Hora</th>
+                              <th className="px-3 py-2 font-semibold w-20">Users</th>
+                              <th className="px-3 py-2 font-semibold w-20">TPS</th>
+                              <th className="px-3 py-2 font-semibold w-20">Lat</th>
+                              <th className="px-3 py-2 font-semibold">Consulta</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {visibleLogs.map(log => (
+                              <tr key={log.id} className="border-t border-surface-600/70 align-top hover:bg-surface-700/80 transition-colors">
+                                <td className="px-3 py-2">
+                                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${log.status === 'ERROR' ? 'bg-red-900/30 text-red-400 border-red-800/40' : 'bg-emerald-900/30 text-emerald-400 border-emerald-800/40'}`}>
+                                    {log.status}
+                                  </span>
+                                </td>
+                                <td className="px-3 py-2 text-[10px] text-slate-300 font-semibold">{log.type}</td>
+                                <td className="px-3 py-2 text-[10px] text-slate-400 whitespace-nowrap">{log.timestamp}</td>
+                                <td className="px-3 py-2 text-[10px] text-slate-300 tabular-nums">{log.users}</td>
+                                <td className="px-3 py-2 text-[10px] text-slate-300 tabular-nums">{log.tps}</td>
+                                <td className="px-3 py-2 text-[10px] text-slate-300 tabular-nums">{log.latency.toFixed(0)}ms</td>
+                                <td className="px-3 py-2">
+                                  <div className="space-y-1">
+                                    <div className="text-[11px] text-slate-100 font-mono break-all leading-relaxed">
+                                      {log.script}
+                                    </div>
+                                    <div className="text-[10px] text-slate-500">{log.message}</div>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
                 </div>
               </>
