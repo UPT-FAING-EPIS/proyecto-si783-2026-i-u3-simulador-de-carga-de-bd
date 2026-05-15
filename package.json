@@ -76,10 +76,10 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Simulador DB",
-      "artifactName": "Simulador.DB.Setup.1.5.0.${ext}"
+      "artifactName": "Simulador.DB.Setup.${version}.${ext}"
     },
     "portable": {
-      "artifactName": "Simulador.DB.1.5.0.${ext}"
+      "artifactName": "Simulador.DB.${version}.${ext}"
     }
   },
   "dependencies": {
