@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="version" content="1.5.0" />
   <title>Simulador DB — Practica SQL y NoSQL gratis en tu computadora</title>
   <meta name="description" content="Herramienta educativa gratuita para practicar SQL y NoSQL en 7 motores — SQL Server, MySQL, PostgreSQL, SQLite, Oracle, MongoDB y Redis — sin instalar servidores." />
   <meta property="og:type"        content="website" />
   <meta property="og:title"       content="Simulador DB — Practica SQL y NoSQL gratis" />
   <meta property="og:description" content="7 motores de bases de datos en una sola app. SQL Server, MySQL, PostgreSQL, SQLite, Oracle, MongoDB y Redis. Gratis, sin registro." />
-  <meta property="og:image"       content="https://upt-faing-epis.github.io/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds/og-preview.png" />
-  <meta property="og:url"         content="https://upt-faing-epis.github.io/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds" />
+  <meta property="og:image"       content="https://jhonyvargas.github.io/simulador-bds/og-preview.png" />
+  <meta property="og:url"         content="https://jhonyvargas.github.io/simulador-bds" />
   <meta name="twitter:card"        content="summary_large_image" />
   <meta name="twitter:title"       content="Simulador DB — Practica SQL y NoSQL gratis" />
   <meta name="twitter:description" content="7 motores de bases de datos en una sola app. Gratis, sin registro." />
-  <meta name="twitter:image"       content="https://upt-faing-epis.github.io/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds/og-preview.png" />
+  <meta name="twitter:image"       content="https://jhonyvargas.github.io/simulador-bds/og-preview.png" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231d4ed8'/><ellipse cx='16' cy='10' rx='9' ry='3' fill='white' opacity='.9'/><path d='M7 10v4c0 1.66 4.03 3 9 3s9-1.34 9-3v-4' stroke='white' stroke-width='1.5' fill='none' opacity='.9'/><path d='M7 14v4c0 1.66 4.03 3 9 3s9-1.34 9-3v-4' stroke='white' stroke-width='1.5' fill='none' opacity='.9'/></svg>" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -437,7 +436,7 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v4c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 9v4c0 1.66 4.03 3 9 3s9-1.34 9-3V9"/></svg>
     </div>
     <span class="nav-logo-text">Simulador <span>DB</span></span>
-    <span class="nav-badge">v1.5</span>
+    <span class="nav-badge">v1.1</span>
   </a>
 
   <div class="nav-links">
@@ -474,14 +473,14 @@
     </p>
 
     <div class="reveal reveal-delay-3" style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:44px;">
-      <a href="https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds/releases/download/v1.5.0/Simulador.DB.Setup.1.5.0.exe" class="btn-primary">
+      <a href="https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds/releases/download/v1.6.0/Simulador.DB.Setup.1.6.0.exe" class="btn-primary">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Descargar para Windows
         <span style="font-size:11px;opacity:0.7;font-weight:500;">Gratis</span>
       </a>
-      <a href="app.html" class="btn-secondary">
+      <a href="#features" class="btn-secondary">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        Usar en el navegador
+        Ver características
       </a>
     </div>
 
@@ -642,16 +641,6 @@
       </div>
       <div class="bento-title">Simulación de entorno</div>
       <div class="bento-desc">Latencia de red, errores aleatorios, niveles de aislamiento — simula condiciones reales de producción.</div>
-      <div style="margin-top:16px;display:flex;flex-direction:column;gap:6px;">
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Restricción de config. en ejecución
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Botón de reinicio completo
-        </div>
-      </div>
     </div>
 
     <!-- Card 4 — Export -->
@@ -668,33 +657,25 @@
       </div>
     </div>
 
-    <!-- Card 5 — Logging wide (v1.5.0) -->
+    <!-- Card 5 — History wide -->
     <div class="glass bento-card wide reveal reveal-delay-1" style="background:linear-gradient(135deg,rgba(168,85,247,0.07),rgba(139,92,246,0.03));">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
-        <div class="bento-icon" style="background:rgba(168,85,247,0.15);margin-bottom:0;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        </div>
-        <div>
-          <div class="bento-title" style="margin-bottom:2px;">Logging persistente <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(168,85,247,0.2);color:#c084fc;font-weight:600;vertical-align:middle;">Nuevo en v1.5</span></div>
-          <div class="bento-desc">Registro automático de todas las consultas SQL ejecutadas con timestamp, tipo de sentencia y duración.</div>
-        </div>
+      <div class="bento-icon" style="background:rgba(168,85,247,0.15);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2"><path d="M3 3h18v18H3z" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
       </div>
-      <div style="display:flex; gap:16px; margin-top:8px;">
+      <div class="bento-title">Historial y estadísticas</div>
+      <div class="bento-desc">Guarda automáticamente todas tus consultas. Ve métricas de rendimiento, tiempo de ejecución y uso de memoria por motor.</div>
+      <div style="display:flex; gap:16px; margin-top:20px;">
         <div style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);text-align:center;">
-          <div style="font-size:22px;font-weight:900;color:#c084fc;letter-spacing:-1px;">∞</div>
+          <div style="font-size:22px;font-weight:900;color:#c084fc;letter-spacing:-1px;">50</div>
           <div style="font-size:11px;color:#64748b;margin-top:2px;">Consultas guardadas</div>
         </div>
         <div style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);text-align:center;">
-          <div style="font-size:22px;font-weight:900;color:#34d399;letter-spacing:-1px;">JSON</div>
-          <div style="font-size:11px;color:#64748b;margin-top:2px;">Exporta logs</div>
-        </div>
-        <div style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);text-align:center;">
-          <div style="font-size:22px;font-weight:900;color:#60a5fa;letter-spacing:-1px;">CSV</div>
-          <div style="font-size:11px;color:#64748b;margin-top:2px;">Exporta logs</div>
-        </div>
-        <div style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);text-align:center;">
-          <div style="font-size:22px;font-weight:900;color:#fb923c;letter-spacing:-1px;">&lt;5ms</div>
+          <div style="font-size:22px;font-weight:900;color:#34d399;letter-spacing:-1px;">&lt;5ms</div>
           <div style="font-size:11px;color:#64748b;margin-top:2px;">Tiempo promedio</div>
+        </div>
+        <div style="flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);text-align:center;">
+          <div style="font-size:22px;font-weight:900;color:#60a5fa;letter-spacing:-1px;">100%</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px;">Sin pérdidas</div>
         </div>
       </div>
     </div>
@@ -734,7 +715,7 @@
       </div>
       <div style="padding-top:8px;">
         <div style="font-size:20px;font-weight:800;color:#f8fafc;letter-spacing:-0.5px;margin-bottom:8px;">Descarga e instala</div>
-        <div style="font-size:15px;color:#475569;line-height:1.6;">Un instalador de ~115 MB para Windows. Sin dependencias, sin configuración de servidores. Abre y listo.</div>
+        <div style="font-size:15px;color:#475569;line-height:1.6;">Un instalador de ~101 MB para Windows. Sin dependencias, sin configuración de servidores. Abre y listo.</div>
       </div>
     </div>
 
@@ -791,14 +772,14 @@
         <svg width="44" height="44" viewBox="0 0 24 24"><path d="M3 5.5L11 4v8H3V5.5z" fill="#0078d4"/><path d="M3 18.5L11 20v-8H3v6.5z" fill="#0078d4"/><path d="M12 3.7L21 2v10h-9V3.7z" fill="#0078d4"/><path d="M12 20.3L21 22V12h-9v8.3z" fill="#0078d4"/></svg>
         <div>
           <div style="font-size:17px;font-weight:800;color:#f8fafc;margin-bottom:3px;">Windows</div>
-          <div style="font-size:12px;color:#475569;">Windows 10 / 11 · 64-bit · ~115 MB</div>
+          <div style="font-size:12px;color:#475569;">Windows 10 / 11 · 64-bit · ~101 MB</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;width:100%;margin-top:4px;">
-          <a href="https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds/releases/download/v1.5.0/Simulador.DB.Setup.1.5.0.exe" class="dl-btn dl-btn-primary">
+          <a href="https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds/releases/download/v1.6.0/Simulador.DB.Setup.1.6.0.exe" class="dl-btn dl-btn-primary">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Instalador (.exe)
           </a>
-          <a href="https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds/releases/download/v1.5.0/Simulador.DB.1.5.0.exe" class="dl-btn dl-btn-ghost">
+          <a href="https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds/releases/download/v1.6.0/Simulador.DB.1.6.0.exe" class="dl-btn dl-btn-ghost">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Portátil (sin instalar)
           </a>
@@ -810,7 +791,7 @@
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" fill="#e2e8f0"/></svg>
         <div>
           <div style="font-size:17px;font-weight:800;color:#f8fafc;margin-bottom:3px;">macOS</div>
-          <div style="font-size:12px;color:#475569;">macOS 12 Monterey+ · ~115 MB</div>
+          <div style="font-size:12px;color:#475569;">macOS 12 Monterey+ · ~101 MB</div>
         </div>
         <a href="#" class="dl-btn dl-btn-ghost" style="margin-top:4px;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -823,7 +804,7 @@
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none"><path d="M20.581 19.049c-.55-.446-.336-1.431-.932-1.928-.196-.12-.41-.207-.573-.231-.27-.047-.456-.04-.61-.1-.355-.142-.427-.693-.777-.977a6.263 6.263 0 0 0-1.265-.66c-.97-.36-1.255-.31-2.51.09-.72.23-1.286-.195-2.085-.27-.442-.043-.708-.067-.806-.33-.126-.346.202-.734.46-.925.198-.148.47-.261.615-.449.207-.263.15-.5.047-.672-.137-.227-.372-.389-.608-.472-.151-.053-.392-.017-.608-.017-.254 0-.35.15-.531.345-.211.225-.466.476-.643.73-.266.393-.356.768-.404 1.17-.047.397-.058.796-.107 1.18-.047.37-.18.83-.118 1.208.064.383.331.74.607 1.023.222.231.574.452.695.737.123.289-.089.644-.073.978.012.24.139.573.073.832-.07.282-.291.413-.445.59-.203.243-.255.587-.179.868.083.3.285.587.557.77.336.225.7.328.938.664.263.367.283.64.459.943.163.284.5.376.794.473.228.075.5.113.723.11.338-.004.693-.017 1.023-.065.385-.055.72-.17.889-.493.207-.393-.052-.83-.159-1.228-.104-.385-.074-.733.14-1.009.189-.245.489-.36.797-.36.281 0 .585.118.85.204.42.137.745.32 1.112.461.4.153.73.246 1.14.283.28.025.574-.02.783-.21.166-.153.216-.38.17-.59-.046-.208-.195-.367-.366-.476zM12 2C6.486 2 2 6.486 2 12c0 5.515 4.487 10 10 10 5.515 0 10-4.485 10-10 0-5.514-4.486-10-10-10z" fill="#f97316"/></svg>
         <div>
           <div style="font-size:17px;font-weight:800;color:#f8fafc;margin-bottom:3px;">Linux</div>
-          <div style="font-size:12px;color:#475569;">Ubuntu, Debian, Fedora · ~115 MB</div>
+          <div style="font-size:12px;color:#475569;">Ubuntu, Debian, Fedora · ~101 MB</div>
         </div>
         <a href="#" class="dl-btn dl-btn-ghost" style="margin-top:4px;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -833,7 +814,7 @@
     </div>
 
     <p style="font-size:13px; color:#334155;" class="reveal reveal-delay-2">
-      v1.5.0 · Sin registro · Sin suscripción · Sin telemetría ·
+      v1.6.0 · Sin registro · Sin suscripción · Sin telemetría ·
       <a href="mailto:juanchoqueperca@gmail.com" style="color:#60a5fa;text-decoration:none;">¿Preguntas?</a>
     </p>
   </div>
@@ -847,12 +828,13 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v4c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 9v4c0 1.66 4.03 3 9 3s9-1.34 9-3V9"/></svg>
       </div>
       <span style="font-size:15px;font-weight:700;color:#f8fafc;">Simulador <span style="color:#60a5fa;">DB</span></span>
-      <span class="nav-badge">v1.5.0</span>
+      <span class="nav-badge">v1.6.0</span>
     </div>
     <div style="display:flex; gap:32px;">
       <a href="#features" style="font-size:13px;color:#475569;text-decoration:none;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#475569'">Características</a>
       <a href="#engines" style="font-size:13px;color:#475569;text-decoration:none;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#475569'">Motores</a>
       <a href="#download" style="font-size:13px;color:#475569;text-decoration:none;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#475569'">Descargar</a>
+      <a href="https://github.com/JhonyVargas/simulador-bds" style="font-size:13px;color:#475569;text-decoration:none;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#475569'" target="_blank">GitHub</a>
     </div>
     <div style="font-size:12px; color:#1e293b;">© 2025 Simulador DB · Herramienta educativa gratuita</div>
   </div>
