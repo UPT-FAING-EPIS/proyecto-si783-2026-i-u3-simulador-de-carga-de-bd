@@ -74,19 +74,12 @@ function Handle({ dir, onMouseDown }: {
 
 interface Session { username: string; role: string; color: string; uid?: string }
 
-function loadSession(): Session | null {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY)
-    return raw ? JSON.parse(raw) : null
-  } catch { return null }
-}
-
 // ─── App ─────────────────────────────────────────────────────────────────────
 
 export default function App() {
   const store = useStore()
-  const [session,    setSession]    = useState<Session | null>(() => loadSession())
-  const [welcomed,   setWelcomed]   = useState(() => !!loadSession())
+  const [session,    setSession]    = useState<Session | null>(null)
+  const [welcomed,   setWelcomed]   = useState(false)
   const [appVisible, setAppVisible] = useState(false)
   const dbInitRef = useRef<Promise<void> | null>(null)
 

@@ -169,7 +169,7 @@ export default function LoginScreen({ onLogin }: Props) {
   const [showPass, setShowPass] = useState(false)
   const [pin,      setPin]      = useState('')
   const [pinError, setPinError] = useState(false)
-  const [remember, setRemember] = useState(true)
+  const [remember, setRemember] = useState(false)
   const [error,    setError]    = useState('')
   const [loading,  setLoading]  = useState(false)
   const [gLoading, setGLoading] = useState(false)
