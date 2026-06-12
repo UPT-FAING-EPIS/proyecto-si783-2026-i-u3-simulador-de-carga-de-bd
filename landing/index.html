@@ -266,10 +266,23 @@
     .dl-btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; }
     .dl-btn-ghost:hover { background: rgba(255,255,255,0.09); color: #fff; }
 
+    /* ── Hamburger lines ── */
+    .nav-hamburger-line { display: block; width: 20px; height: 2px; background: #e2e8f0; border-radius: 1px; }
+
     @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .bento-grid { grid-template-columns: 1fr; }
-      .bento-card.wide { grid-column: span 1; }
+      html, body { overflow-x: hidden !important; }
+      nav { padding: 0 16px !important; height: 56px !important; }
+      .nav-links { display: none !important; }
+      .nav-cta { display: none !important; }
+      #navHamburger { display: flex !important; }
+      .bento-grid { grid-template-columns: 1fr !important; }
+      .bento-card.wide { grid-column: span 1 !important; }
+      section#features { padding: 48px 16px !important; max-width: 100% !important; }
+      section#howto { padding: 48px 16px 64px !important; max-width: 100% !important; }
+      section#download { padding: 48px 16px 64px !important; }
+    }
+    @media (max-width: 480px) {
+      #heroRight { display: none !important; }
     }
 
     /* ── Custom cursor — neon code arrow ── */
@@ -450,13 +463,25 @@
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     Descargar gratis
   </a>
+  <button id="navHamburger" style="display:none; flex-direction:column; justify-content:center; align-items:center; gap:5px; width:40px; height:40px; background:transparent; border:1px solid rgba(255,255,255,0.12); border-radius:8px; cursor:pointer; padding:4px; flex-shrink:0;" onclick="toggleMobileMenu()">
+    <span class="nav-hamburger-line"></span>
+    <span class="nav-hamburger-line"></span>
+    <span class="nav-hamburger-line"></span>
+  </button>
 </nav>
+<!-- Mobile nav menu -->
+<div id="mobileMenu" style="display:none; position:fixed; top:56px; left:0; right:0; z-index:98; background:rgba(5,8,16,0.97); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,255,255,0.08); padding:20px 24px; flex-direction:column; gap:4px;">
+  <a href="#features" onclick="closeMobileMenu()" style="display:block; padding:12px 0; font-size:15px; color:#cbd5e1; text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.05);">Características</a>
+  <a href="#engines" onclick="closeMobileMenu()" style="display:block; padding:12px 0; font-size:15px; color:#cbd5e1; text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.05);">Motores</a>
+  <a href="#howto" onclick="closeMobileMenu()" style="display:block; padding:12px 0; font-size:15px; color:#cbd5e1; text-decoration:none; border-bottom:1px solid rgba(255,255,255,0.05);">Cómo funciona</a>
+  <a href="#download" onclick="closeMobileMenu()" style="display:block; padding:12px 0; font-size:15px; color:#22c55e; font-weight:700; text-decoration:none;">Descargar gratis</a>
+</div>
 
 <!-- ══════════════ HERO ══════════════ -->
-<section style="min-height:100vh; display:flex; align-items:center; padding:100px 32px 60px; position:relative; z-index:1; max-width:1280px; margin:0 auto; gap:60px;">
+<section id="heroSection" style="min-height:100vh; display:flex; align-items:center; padding:100px 32px 60px; position:relative; z-index:1; max-width:1280px; margin:0 auto; gap:60px;">
 
   <!-- Left: Text -->
-  <div style="flex:1; max-width:540px;">
+  <div id="heroLeft" style="flex:1; max-width:540px;">
     <div class="badge reveal" style="margin-bottom:28px;">
       <span class="badge-dot"></span>
       Herramienta educativa — 100% gratuita
@@ -468,11 +493,11 @@
       de BD
     </h1>
 
-    <p class="reveal reveal-delay-2" style="font-size:17px; color:#64748b; line-height:1.7; margin:0 0 36px; max-width:420px;">
+    <p id="heroP" class="reveal reveal-delay-2" style="font-size:17px; color:#64748b; line-height:1.7; margin:0 0 36px; max-width:420px;">
       SQL Server, MySQL, PostgreSQL, SQLite, Oracle, MongoDB y Redis — todo en una sola aplicación. Sin instalar servidores. Sin configuraciones.
     </p>
 
-    <div class="reveal reveal-delay-3" style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:44px;">
+    <div id="heroButtons" class="reveal reveal-delay-3" style="display:flex; gap:14px; flex-wrap:wrap; margin-bottom:44px;">
       <a href="https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds/releases/download/v1.8.0/Simulador.DB.Setup.1.8.0.exe" class="btn-primary">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Descargar para Windows
@@ -485,7 +510,7 @@
     </div>
 
     <!-- Mini stats -->
-    <div class="reveal reveal-delay-4" style="display:flex; gap:28px;">
+    <div id="heroStats" class="reveal reveal-delay-4" style="display:flex; gap:28px;">
       <div>
         <div style="font-size:24px; font-weight:900; color:#f8fafc; letter-spacing:-1px;">7</div>
         <div style="font-size:12px; color:#475569;">Motores de BD</div>
@@ -509,7 +534,7 @@
   </div>
 
   <!-- Right: App mockup -->
-  <div style="flex:1.1; min-width:0;" class="reveal reveal-delay-2">
+  <div id="heroRight" style="flex:1.1; min-width:0;" class="reveal reveal-delay-2">
     <div class="mockup-wrap">
       <div class="mockup-glow"></div>
       <div class="mockup-tilt">
@@ -575,7 +600,7 @@
 </section>
 
 <!-- ══════════════ ENGINES MARQUEE ══════════════ -->
-<div style="position:relative;z-index:1; padding:0 0 80px; overflow:hidden;">
+<div id="engines" style="position:relative;z-index:1; padding:0 0 80px; overflow:hidden;">
   <div style="text-align:center; font-size:12px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:#334155; margin-bottom:24px;">
     7 motores integrados
   </div>
@@ -765,7 +790,7 @@
     </div>
 
     <!-- OS Cards -->
-    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:32px;" class="reveal reveal-delay-1">
+    <div id="downloadGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:32px;" class="reveal reveal-delay-1">
 
       <!-- Windows -->
       <div style="padding:28px;border-radius:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;align-items:center;gap:14px;transition:all 0.25s;" onmouseover="this.style.borderColor='rgba(255,255,255,0.16)';this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
@@ -1014,6 +1039,87 @@
       });
     });
   }
+
+  // ── Mobile menu ──
+  function toggleMobileMenu() {
+    var m = document.getElementById('mobileMenu');
+    if (!m) return;
+    m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+  }
+  function closeMobileMenu() {
+    var m = document.getElementById('mobileMenu');
+    if (m) m.style.display = 'none';
+  }
+
+  // ── Responsive layout ──
+  (function() {
+    var BP = 768, SM = 480;
+    function apply() {
+      var w = window.innerWidth;
+      var m = w <= BP, s = w <= SM;
+      var nav = document.querySelector('nav');
+      var navLinks = document.querySelector('.nav-links');
+      var navCta = document.querySelector('.nav-cta');
+      var burger = document.getElementById('navHamburger');
+      if (nav) { nav.style.padding = m ? '0 16px' : ''; nav.style.height = m ? '56px' : ''; }
+      if (navLinks) navLinks.style.display = m ? 'none' : '';
+      if (navCta) navCta.style.display = m ? 'none' : '';
+      if (burger) burger.style.display = m ? 'flex' : 'none';
+      if (!m) closeMobileMenu();
+      var sec = document.getElementById('heroSection');
+      var left = document.getElementById('heroLeft');
+      var right = document.getElementById('heroRight');
+      var p = document.getElementById('heroP');
+      var btns = document.getElementById('heroButtons');
+      var stats = document.getElementById('heroStats');
+      if (sec) {
+        sec.style.flexDirection = m ? 'column' : '';
+        sec.style.alignItems = m ? 'flex-start' : '';
+        sec.style.padding = s ? '72px 16px 40px' : m ? '80px 20px 48px' : '';
+        sec.style.gap = m ? '32px' : '';
+        sec.style.maxWidth = m ? '100%' : '';
+      }
+      if (left) { left.style.maxWidth = m ? '100%' : ''; left.style.width = m ? '100%' : ''; }
+      if (p) {
+        p.style.maxWidth = m ? '100%' : '';
+        p.style.fontSize = s ? '14px' : m ? '15px' : '';
+      }
+      if (btns) {
+        btns.style.flexDirection = m ? 'column' : '';
+        btns.style.alignItems = m ? 'stretch' : '';
+        btns.style.width = m ? '100%' : '';
+        btns.querySelectorAll('a').forEach(function(a) {
+          a.style.width = m ? '100%' : '';
+          a.style.justifyContent = m ? 'center' : '';
+          a.style.boxSizing = m ? 'border-box' : '';
+        });
+      }
+      if (stats) {
+        if (m) {
+          stats.style.display = 'grid';
+          stats.style.gridTemplateColumns = '1fr 1fr';
+          stats.style.gap = '12px';
+          stats.style.width = '100%';
+          stats.querySelectorAll('div').forEach(function(d) {
+            if (d.style.width === '1px') d.style.display = 'none';
+          });
+        } else {
+          stats.style.display = '';
+          stats.style.gridTemplateColumns = '';
+          stats.style.gap = '';
+          stats.style.width = '';
+          stats.querySelectorAll('div').forEach(function(d) {
+            if (d.style.width === '1px') d.style.display = '';
+          });
+        }
+      }
+      if (right) { right.style.display = s ? 'none' : ''; right.style.width = (m && !s) ? '100%' : ''; }
+      var dlGrid = document.getElementById('downloadGrid');
+      if (dlGrid) dlGrid.style.gridTemplateColumns = m ? '1fr' : '';
+    }
+    apply();
+    window.addEventListener('resize', apply);
+  })();
 
   // ── Theme toggle ──
   (function() {
