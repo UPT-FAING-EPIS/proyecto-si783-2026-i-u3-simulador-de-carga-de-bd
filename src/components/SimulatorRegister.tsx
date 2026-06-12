@@ -66,7 +66,7 @@ export default function SimulatorRegister({ onRegister }: Props) {
         {/* Card */}
         <div className="bg-surface-800 border border-surface-600 rounded-2xl p-7 shadow-2xl">
           <p className="text-slate-300 text-sm font-medium mb-5">
-            Ingresa tu nombre para registrar tu sesión y que el docente pueda monitorearte en tiempo real.
+            Tu sesión será monitoreada en tiempo real. Se registrará el motor, TPS, latencia y actividad.
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
