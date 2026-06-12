@@ -15,7 +15,7 @@
   <meta name="twitter:description" content="7 motores de bases de datos en una sola app. Gratis, sin registro." />
   <meta name="twitter:image"       content="https://jhonyvargas.github.io/simulador-bds/og-preview.png" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231d4ed8'/><ellipse cx='16' cy='10' rx='9' ry='3' fill='white' opacity='.9'/><path d='M7 10v4c0 1.66 4.03 3 9 3s9-1.34 9-3v-4' stroke='white' stroke-width='1.5' fill='none' opacity='.9'/><path d='M7 14v4c0 1.66 4.03 3 9 3s9-1.34 9-3v-4' stroke='white' stroke-width='1.5' fill='none' opacity='.9'/></svg>" />
-  <link rel="stylesheet" href="/styles.css" />
+  <!-- styles.css is for the React app — landing page uses only the <style> block below -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
@@ -1248,6 +1248,87 @@
       });
     });
   }
+
+  // ── Responsive layout — JS-driven for guaranteed cross-device support ──
+  // Inline styles from JS override CSS class rules, bypassing cache and specificity issues.
+  (function() {
+    var BP = 768, SM = 480;
+
+    function apply() {
+      var w = window.innerWidth;
+      var m = w <= BP, s = w <= SM;
+
+      // — NAV —
+      var nav      = document.querySelector('nav');
+      var navLinks = document.querySelector('.nav-links');
+      var navCta   = document.querySelector('.nav-cta');
+      var burger   = document.getElementById('navHamburger');
+      if (nav)      { nav.style.padding = m ? '0 16px' : ''; nav.style.height = m ? '56px' : ''; }
+      if (navLinks) navLinks.style.display = m ? 'none' : '';
+      if (navCta)   navCta.style.display   = m ? 'none' : '';
+      if (burger)   burger.style.display   = m ? 'flex' : 'none';
+
+      // — HERO —
+      var sec   = document.querySelector('.hero-section');
+      var left  = document.querySelector('.hero-left');
+      var right = document.querySelector('.hero-right');
+      var btns  = document.querySelector('.hero-btns');
+      var sts   = document.querySelector('.hero-stats');
+      var seps  = document.querySelectorAll('.hero-stats-sep');
+      var h1    = document.querySelector('.hero-left h1');
+      var p     = document.querySelector('.hero-left > p');
+
+      if (sec) {
+        sec.style.flexDirection = m ? 'column'     : '';
+        sec.style.alignItems    = m ? 'flex-start' : '';
+        sec.style.padding       = s ? '72px 16px 40px' : m ? '80px 20px 48px' : '';
+        sec.style.gap           = m ? '40px' : '';
+      }
+      if (left) {
+        left.style.width     = m ? '100%'   : '';
+        left.style.maxWidth  = m ? '100%'   : '';
+        left.style.display   = m ? 'block'  : '';
+        left.style.textAlign = m ? 'center' : '';
+      }
+      if (h1) {
+        h1.style.fontSize      = s ? 'clamp(30px,8vw,40px)' : m ? 'clamp(34px,8.5vw,52px)' : '';
+        h1.style.letterSpacing = m ? '-1.5px' : '';
+      }
+      if (p) {
+        p.style.width     = m ? '100%'   : '';
+        p.style.maxWidth  = m ? '100%'   : '';
+        p.style.textAlign = m ? 'center' : '';
+        p.style.fontSize  = s ? '14px'   : m ? '15px' : '';
+      }
+      if (btns) {
+        btns.style.flexDirection = m ? 'column'  : '';
+        btns.style.alignItems    = m ? 'stretch' : '';
+        btns.style.width         = m ? '100%'    : '';
+        btns.style.gap           = m ? '10px'    : '';
+        btns.querySelectorAll('a').forEach(function(a) {
+          a.style.width          = m ? '100%'       : '';
+          a.style.justifyContent = m ? 'center'     : '';
+          a.style.display        = m ? 'flex'       : '';
+          a.style.boxSizing      = m ? 'border-box' : '';
+        });
+      }
+      if (sts) {
+        sts.style.display             = m ? 'grid'    : '';
+        sts.style.gridTemplateColumns = m ? '1fr 1fr' : '';
+        sts.style.gap                 = m ? '16px'    : '';
+        sts.style.width               = m ? '100%'    : '';
+      }
+      seps.forEach(function(sep) { sep.style.display = m ? 'none' : ''; });
+      if (right) {
+        right.style.display  = s ? 'none' : '';
+        right.style.width    = (m && !s) ? '100%' : '';
+        right.style.maxWidth = (m && !s) ? '100%' : '';
+      }
+    }
+
+    apply();
+    window.addEventListener('resize', apply);
+  })();
 
   // ── Theme toggle ──
   (function() {
