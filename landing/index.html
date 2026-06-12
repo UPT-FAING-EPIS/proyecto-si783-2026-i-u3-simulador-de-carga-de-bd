@@ -1056,70 +1056,69 @@
   }
 
   // ── Responsive layout ──
+  // Nota: en desktop se restauran los valores inline originales del HTML,
+  // no se limpia con '' (eso borraría los estilos inline del markup).
   (function() {
     var BP = 768, SM = 480;
     function apply() {
       var w = window.innerWidth;
       var m = w <= BP, s = w <= SM;
-      var nav = document.querySelector('nav');
-      var navLinks = document.querySelector('.nav-links');
-      var navCta = document.querySelector('.nav-cta');
+      // Hamburguesa (inline style en el botón → solo JS puede cambiarlo)
       var burger = document.getElementById('navHamburger');
-      if (nav) { nav.style.padding = m ? '0 16px' : ''; nav.style.height = m ? '56px' : ''; }
-      if (navLinks) navLinks.style.display = m ? 'none' : '';
-      if (navCta) navCta.style.display = m ? 'none' : '';
       if (burger) burger.style.display = m ? 'flex' : 'none';
       if (!m) closeMobileMenu();
+      // Hero section
       var sec = document.getElementById('heroSection');
-      var left = document.getElementById('heroLeft');
-      var right = document.getElementById('heroRight');
-      var p = document.getElementById('heroP');
-      var btns = document.getElementById('heroButtons');
-      var stats = document.getElementById('heroStats');
       if (sec) {
-        sec.style.flexDirection = m ? 'column' : '';
-        sec.style.alignItems = m ? 'flex-start' : '';
-        sec.style.padding = s ? '72px 16px 40px' : m ? '80px 20px 48px' : '';
-        sec.style.gap = m ? '32px' : '';
-        sec.style.maxWidth = m ? '100%' : '';
+        sec.style.flexDirection   = m ? 'column' : '';
+        sec.style.alignItems      = m ? 'flex-start' : 'center';
+        sec.style.padding         = s ? '72px 16px 40px' : m ? '80px 20px 48px' : '100px 32px 60px';
+        sec.style.gap             = m ? '32px' : '60px';
+        sec.style.maxWidth        = m ? '100%' : '1280px';
       }
-      if (left) { left.style.maxWidth = m ? '100%' : ''; left.style.width = m ? '100%' : ''; }
+      var left = document.getElementById('heroLeft');
+      if (left) { left.style.maxWidth = m ? '100%' : '540px'; left.style.width = m ? '100%' : ''; }
+      var p = document.getElementById('heroP');
       if (p) {
-        p.style.maxWidth = m ? '100%' : '';
-        p.style.fontSize = s ? '14px' : m ? '15px' : '';
+        p.style.maxWidth  = m ? '100%' : '420px';
+        p.style.fontSize  = s ? '14px' : m ? '15px' : '17px';
       }
+      var btns = document.getElementById('heroButtons');
       if (btns) {
         btns.style.flexDirection = m ? 'column' : '';
-        btns.style.alignItems = m ? 'stretch' : '';
-        btns.style.width = m ? '100%' : '';
+        btns.style.alignItems    = m ? 'stretch' : '';
+        btns.style.width         = m ? '100%' : '';
         btns.querySelectorAll('a').forEach(function(a) {
-          a.style.width = m ? '100%' : '';
+          a.style.width          = m ? '100%' : '';
           a.style.justifyContent = m ? 'center' : '';
-          a.style.boxSizing = m ? 'border-box' : '';
+          a.style.boxSizing      = m ? 'border-box' : '';
+          a.style.display        = m ? 'flex' : '';
         });
       }
+      var stats = document.getElementById('heroStats');
       if (stats) {
         if (m) {
-          stats.style.display = 'grid';
-          stats.style.gridTemplateColumns = '1fr 1fr';
-          stats.style.gap = '12px';
-          stats.style.width = '100%';
-          stats.querySelectorAll('div').forEach(function(d) {
+          stats.style.display              = 'grid';
+          stats.style.gridTemplateColumns  = '1fr 1fr';
+          stats.style.gap                  = '12px';
+          stats.style.width                = '100%';
+          stats.querySelectorAll(':scope > div').forEach(function(d) {
             if (d.style.width === '1px') d.style.display = 'none';
           });
         } else {
-          stats.style.display = '';
-          stats.style.gridTemplateColumns = '';
-          stats.style.gap = '';
-          stats.style.width = '';
-          stats.querySelectorAll('div').forEach(function(d) {
+          stats.style.display              = 'flex';
+          stats.style.gridTemplateColumns  = '';
+          stats.style.gap                  = '28px';
+          stats.style.width                = '';
+          stats.querySelectorAll(':scope > div').forEach(function(d) {
             if (d.style.width === '1px') d.style.display = '';
           });
         }
       }
+      var right = document.getElementById('heroRight');
       if (right) { right.style.display = s ? 'none' : ''; right.style.width = (m && !s) ? '100%' : ''; }
       var dlGrid = document.getElementById('downloadGrid');
-      if (dlGrid) dlGrid.style.gridTemplateColumns = m ? '1fr' : '';
+      if (dlGrid) dlGrid.style.gridTemplateColumns = m ? '1fr' : 'repeat(3,1fr)';
     }
     apply();
     window.addEventListener('resize', apply);
