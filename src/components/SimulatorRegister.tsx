@@ -30,6 +30,19 @@ export default function SimulatorRegister({ onRegister }: Props) {
 
       <div className="w-full max-w-lg relative z-10">
 
+        {/* Back to landing */}
+        <div className="mb-6">
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-slate-400 bg-surface-800 border border-surface-600 hover:bg-surface-700 hover:text-white hover:border-surface-500 transition-all group"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 group-hover:-translate-x-0.5 transition-transform">
+              <path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>
+            </svg>
+            Volver al inicio
+          </a>
+        </div>
+
         {/* Header */}
         <div className="flex flex-col items-center gap-5 mb-10">
           <div className="relative">
