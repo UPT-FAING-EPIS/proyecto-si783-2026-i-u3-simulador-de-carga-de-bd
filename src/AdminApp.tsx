@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   Activity, Users, Shield, Circle, Database,
-  Zap, LogOut, AlertTriangle, UserCog, ChevronDown,
+  Zap, LogOut, AlertTriangle, UserCog, ChevronDown, TrendingUp,
 } from 'lucide-react'
 import { signOut } from 'firebase/auth'
 import { auth } from './lib/firebase'
@@ -20,45 +20,92 @@ const ENGINE_LABELS: Record<string, string> = {
   oracle: 'Oracle', sqlite: 'SQLite', mongodb: 'MongoDB', redis: 'Redis',
 }
 
-const QT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  SELECT: { bg: '#1d3a6b', text: '#93c5fd', border: '#3b82f6' },
-  INSERT: { bg: '#14532d', text: '#86efac', border: '#22c55e' },
-  UPDATE: { bg: '#713f12', text: '#fde047', border: '#eab308' },
-  DELETE: { bg: '#7f1d1d', text: '#fca5a5', border: '#ef4444' },
+// Accent system
+const ACCENT = {
+  indigo: { color: '#818cf8', border: '#3730a3', bg: 'rgba(99,102,241,0.1)', glow: 'rgba(99,102,241,0.15)' },
+  green:  { color: '#34d399', border: '#065f46', bg: 'rgba(52,211,153,0.1)',  glow: 'rgba(52,211,153,0.12)' },
+  amber:  { color: '#fbbf24', border: '#92400e', bg: 'rgba(251,191,36,0.1)',  glow: 'rgba(251,191,36,0.12)' },
+  sky:    { color: '#38bdf8', border: '#075985', bg: 'rgba(56,189,248,0.1)',  glow: 'rgba(56,189,248,0.12)' },
+  violet: { color: '#c084fc', border: '#581c87', bg: 'rgba(192,132,252,0.1)', glow: 'rgba(192,132,252,0.12)' },
 }
+
+const QT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  SELECT: { bg: 'rgba(59,130,246,0.15)', text: '#93c5fd', border: 'rgba(59,130,246,0.35)' },
+  INSERT: { bg: 'rgba(34,197,94,0.12)',  text: '#86efac', border: 'rgba(34,197,94,0.3)'   },
+  UPDATE: { bg: 'rgba(234,179,8,0.12)',  text: '#fde047', border: 'rgba(234,179,8,0.3)'   },
+  DELETE: { bg: 'rgba(239,68,68,0.12)',  text: '#fca5a5', border: 'rgba(239,68,68,0.3)'   },
+}
+
+const CARD_BG    = '#0f1626'
+const CARD_BORD  = '#1b2640'
+const PAGE_BG    = '#080d18'
+const HEADER_BG  = '#0b1120'
+const ROW_HOVER  = 'rgba(255,255,255,0.025)'
+const TH_BG      = '#0a1020'
 
 function StatusDot({ status }: { status: SimulatorSession['status'] }) {
   if (status === 'running') return (
     <span className="relative flex h-2.5 w-2.5 shrink-0">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
       <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
     </span>
   )
-  if (status === 'completed') return <Circle size={10} style={{ color: '#64748b', fill: '#64748b' }} className="shrink-0" />
-  return <Circle size={10} style={{ color: '#334155', fill: '#334155' }} className="shrink-0" />
+  if (status === 'completed') return <Circle size={10} style={{ color: '#475569', fill: '#475569' }} className="shrink-0" />
+  return <Circle size={10} style={{ color: '#1e293b', fill: '#1e293b' }} className="shrink-0" />
 }
 
-interface StatCardProps {
+interface KpiCardProps {
   icon: React.ReactNode
   label: string
   value: string | number
   sub?: string
-  cardStyle: React.CSSProperties
-  numStyle: React.CSSProperties
+  accent: keyof typeof ACCENT
+  trend?: string
 }
 
-function StatCard({ icon, label, value, sub, cardStyle, numStyle }: StatCardProps) {
+function KpiCard({ icon, label, value, sub, accent, trend }: KpiCardProps) {
+  const a = ACCENT[accent]
   return (
-    <div style={cardStyle} className="rounded-2xl p-5 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.55)' }}>{label}</p>
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.12)' }}>
+    <div style={{
+      background: CARD_BG,
+      border: `1px solid ${CARD_BORD}`,
+      borderRadius: 16,
+      padding: '20px 22px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 14,
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Top accent line */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: 3,
+        background: `linear-gradient(90deg, ${a.color}, transparent)`,
+        borderRadius: '16px 16px 0 0',
+      }} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#475569', textTransform: 'uppercase' }}>
+          {label}
+        </p>
+        <div style={{
+          width: 32, height: 32, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: a.bg, border: `1px solid ${a.border}`,
+        }}>
           {icon}
         </div>
       </div>
       <div>
-        <p className="text-5xl font-black tabular-nums leading-none" style={numStyle}>{value}</p>
-        {sub && <p className="text-xs mt-1.5 font-semibold" style={{ color: 'rgba(255,255,255,0.45)' }}>{sub}</p>}
+        <p style={{ fontSize: 42, fontWeight: 900, lineHeight: 1, color: a.color, fontVariantNumeric: 'tabular-nums' }}>
+          {value}
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+          {trend && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 700, color: '#34d399' }}>
+              <TrendingUp size={11} /> {trend}
+            </span>
+          )}
+          {sub && <p style={{ fontSize: 11, fontWeight: 600, color: '#334155' }}>{sub}</p>}
+        </div>
       </div>
     </div>
   )
@@ -82,7 +129,7 @@ function TabMonitoreo() {
     if (!ts) return '—'
     const s = Math.floor((Date.now() - ts) / 1000)
     if (s < 60) return `${s}s`
-    if (s < 3600) return `${Math.floor(s / 60)}m`
+    if (s < 3600) return `${Math.floor(s / 60)}m ${s % 60}s`
     return `${Math.floor(s / 3600)}h`
   }
 
@@ -91,191 +138,137 @@ function TabMonitoreo() {
   const engines = new Set(sessions.filter(s => s.status === 'running').map(s => s.engine)).size
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard
-          icon={<Users size={15} style={{ color: '#a5b4fc' }} />}
-          label="Conectados"
-          value={sessions.length}
-          cardStyle={{ background: 'linear-gradient(135deg, #312e81, #1e1b4b)', border: '1px solid #4338ca' }}
-          numStyle={{ color: '#c7d2fe' }}
-        />
-        <StatCard
-          icon={<Activity size={15} style={{ color: '#6ee7b7' }} />}
-          label="Simulando"
-          value={running}
-          sub={`${sessions.filter(s => s.status === 'idle').length} inactivos`}
-          cardStyle={{ background: 'linear-gradient(135deg, #064e3b, #022c22)', border: '1px solid #059669' }}
-          numStyle={{ color: '#6ee7b7' }}
-        />
-        <StatCard
-          icon={<Zap size={15} style={{ color: '#fcd34d' }} />}
-          label="TPS promedio"
-          value={avgTps}
-          sub="trans / seg"
-          cardStyle={{ background: 'linear-gradient(135deg, #78350f, #451a03)', border: '1px solid #d97706' }}
-          numStyle={{ color: '#fcd34d' }}
-        />
-        <StatCard
-          icon={<Database size={15} style={{ color: '#7dd3fc' }} />}
-          label="Motores activos"
-          value={engines}
-          cardStyle={{ background: 'linear-gradient(135deg, #0c4a6e, #082f49)', border: '1px solid #0284c7' }}
-          numStyle={{ color: '#7dd3fc' }}
-        />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* KPI grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+        <KpiCard icon={<Users size={14} style={{ color: ACCENT.indigo.color }} />} accent="indigo" label="Conectados"      value={sessions.length} />
+        <KpiCard icon={<Activity size={14} style={{ color: ACCENT.green.color }} />} accent="green"  label="Simulando"      value={running}
+          sub={sessions.filter(s => s.status === 'idle').length + ' en espera'} />
+        <KpiCard icon={<Zap size={14} style={{ color: ACCENT.amber.color }} />} accent="amber"  label="TPS promedio"   value={avgTps} sub="transac / seg" />
+        <KpiCard icon={<Database size={14} style={{ color: ACCENT.sky.color }} />} accent="sky"    label="Motores activos" value={engines} />
       </div>
 
-      {sessions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-5 rounded-2xl"
-          style={{ background: '#131929', border: '1px solid #1e2d45' }}>
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
-            style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
-            <Activity size={28} style={{ color: '#4f46e5', opacity: 0.5 }} />
-          </div>
-          <div className="text-center">
-            <p className="font-bold text-base" style={{ color: '#e2e8f0' }}>Sin sesiones activas</p>
-            <p className="text-sm mt-1" style={{ color: '#64748b' }}>Los usuarios aparecerán aquí en tiempo real</p>
-          </div>
+      {/* Sessions panel */}
+      <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORD}`, borderRadius: 16, overflow: 'hidden' }}>
+        {/* Panel header */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, padding: '14px 22px',
+          borderBottom: `1px solid ${CARD_BORD}`, background: TH_BG,
+        }}>
+          <Activity size={14} style={{ color: ACCENT.indigo.color }} />
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>Sesiones activas</span>
+          {sessions.length > 0 && (
+            <span style={{
+              marginLeft: 4, padding: '2px 10px', borderRadius: 20,
+              background: ACCENT.indigo.bg, border: `1px solid ${ACCENT.indigo.border}`,
+              fontSize: 11, fontWeight: 800, color: ACCENT.indigo.color,
+            }}>{sessions.length}</span>
+          )}
+          <span style={{ marginLeft: 'auto', fontSize: 11, color: '#1e2d45', fontWeight: 600 }}>
+            Actualización en tiempo real
+          </span>
         </div>
-      ) : (
-        <>
-          <div className="flex flex-col gap-3 sm:hidden">
-            {sessions.map(s => {
-              const activeQTs = Object.entries(s.queryTypes).filter(([, v]) => v).map(([k]) => k)
-              return (
-                <div key={s.id} className="rounded-xl p-4 flex flex-col gap-3"
-                  style={{ background: '#131929', border: '1px solid #1e2d45' }}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <StatusDot status={s.status} />
-                      <span className="font-bold" style={{ color: '#f1f5f9' }}>{s.name}</span>
-                    </div>
-                    <span className="text-xs px-2.5 py-1 rounded-lg font-semibold"
-                      style={{ background: '#1e2d45', border: '1px solid #2d4163', color: '#94a3b8' }}>
-                      {ENGINE_LABELS[s.engine] ?? s.engine}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {activeQTs.length === 0
-                      ? <span className="text-xs" style={{ color: '#475569' }}>Sin operaciones</span>
-                      : activeQTs.map(qt => {
-                          const c = QT_COLORS[qt]
-                          return c ? (
-                            <span key={qt} className="text-[11px] px-2 py-0.5 rounded font-bold"
-                              style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}>{qt}</span>
-                          ) : null
-                        })
-                    }
-                  </div>
-                  {s.status === 'running' && (
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      {[
-                        ['TPS', s.tps, s.tps > 200 ? '#fcd34d' : '#6ee7b7'],
-                        ['CPU', `${s.cpuUsage.toFixed(0)}%`, s.cpuUsage >= 90 ? '#fca5a5' : '#e2e8f0'],
-                        ['Usuarios', `${s.currentUsers}/${s.maxUsers}`, '#e2e8f0'],
-                      ].map(([l, v, c]) => (
-                        <div key={String(l)} className="rounded-xl p-2.5"
-                          style={{ background: '#0f1a2e' }}>
-                          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#475569' }}>{l}</p>
-                          <p className="text-sm font-black mt-0.5" style={{ color: String(c) }}>{v}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <p className="text-[11px]" style={{ color: '#334155' }}>Conectado hace {sinceNow(s.connectedAt)}</p>
-                </div>
-              )
-            })}
-          </div>
 
-          <div className="hidden sm:block rounded-2xl overflow-hidden"
-            style={{ background: '#131929', border: '1px solid #1e2d45' }}>
-            <div className="px-6 py-4 flex items-center gap-3"
-              style={{ borderBottom: '1px solid #1e2d45' }}>
-              <Activity size={15} style={{ color: '#6366f1' }} className="shrink-0" />
-              <span className="text-sm font-bold" style={{ color: '#f1f5f9' }}>Sesiones en tiempo real</span>
-              <span className="ml-1 px-2.5 py-0.5 rounded-full text-xs font-bold"
-                style={{ background: 'rgba(99,102,241,0.2)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.35)' }}>
-                {sessions.length} activas
-              </span>
+        {sessions.length === 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px 0', gap: 14 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: ACCENT.indigo.bg, border: `1px solid ${ACCENT.indigo.border}`,
+            }}>
+              <Activity size={24} style={{ color: ACCENT.indigo.color, opacity: 0.6 }} />
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr style={{ borderBottom: '1px solid #1e2d45', background: '#0f1a2e' }}>
-                    {['Estado','Usuario','Motor','Operaciones','Usuarios','TPS','CPU','Latencia','Tiempo'].map(h => (
-                      <th key={h} className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider"
-                        style={{ color: '#475569' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {sessions.map((s, i) => {
-                    const activeQTs = Object.entries(s.queryTypes).filter(([, v]) => v).map(([k]) => k)
-                    return (
-                      <tr key={s.id}
-                        style={{ borderBottom: i < sessions.length - 1 ? '1px solid #1a2540' : 'none' }}
-                        className="transition-colors hover:bg-[#192038]">
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-2">
-                            <StatusDot status={s.status} />
-                            <span className="text-xs font-bold" style={{
-                              color: s.status === 'running' ? '#6ee7b7' : s.status === 'completed' ? '#64748b' : '#334155'
-                            }}>
-                              {s.status === 'running' ? 'Corriendo' : s.status === 'completed' ? 'Finalizado' : 'Inactivo'}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-4 font-bold" style={{ color: '#f1f5f9' }}>{s.name}</td>
-                        <td className="px-5 py-4">
-                          <span className="text-xs px-2.5 py-1 rounded-lg font-semibold"
-                            style={{ background: '#1e2d45', border: '1px solid #2d4163', color: '#94a3b8' }}>
-                            {ENGINE_LABELS[s.engine] ?? s.engine}
-                          </span>
-                        </td>
-                        <td className="px-5 py-4">
-                          <div className="flex gap-1.5 flex-wrap">
-                            {activeQTs.length === 0
-                              ? <span style={{ color: '#334155', fontSize: 12 }}>—</span>
-                              : activeQTs.map(qt => {
-                                  const c = QT_COLORS[qt]
-                                  return c ? (
-                                    <span key={qt} className="text-[11px] px-2 py-0.5 rounded font-bold"
-                                      style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}>{qt}</span>
-                                  ) : null
-                                })}
-                          </div>
-                        </td>
-                        <td className="px-5 py-4 tabular-nums">
-                          {s.status === 'running'
-                            ? <><span className="font-bold" style={{ color: '#f1f5f9' }}>{s.currentUsers}</span><span style={{ color: '#475569', fontSize: 12 }}>/{s.maxUsers}</span></>
-                            : <span style={{ color: '#334155' }}>—</span>}
-                        </td>
-                        <td className="px-5 py-4 tabular-nums">
-                          {s.status === 'running'
-                            ? <span className="font-black text-base" style={{ color: s.tps > 200 ? '#fcd34d' : '#6ee7b7' }}>{s.tps}</span>
-                            : <span style={{ color: '#334155' }}>—</span>}
-                        </td>
-                        <td className="px-5 py-4 tabular-nums">
-                          {s.status === 'running'
-                            ? <span className="font-bold" style={{ color: s.cpuUsage >= 90 ? '#fca5a5' : s.cpuUsage >= 70 ? '#fcd34d' : '#e2e8f0' }}>{s.cpuUsage.toFixed(0)}%</span>
-                            : <span style={{ color: '#334155' }}>—</span>}
-                        </td>
-                        <td className="px-5 py-4 tabular-nums">
-                          {s.status === 'running'
-                            ? <span className="font-bold" style={{ color: s.latency > 200 ? '#fca5a5' : '#e2e8f0' }}>{s.latency.toFixed(0)}ms</span>
-                            : <span style={{ color: '#334155' }}>—</span>}
-                        </td>
-                        <td className="px-5 py-4 text-xs tabular-nums" style={{ color: '#475569' }}>{sinceNow(s.connectedAt)}</td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ color: '#cbd5e1', fontWeight: 700, fontSize: 15 }}>Sin sesiones activas</p>
+              <p style={{ color: '#334155', fontSize: 13, marginTop: 4 }}>Los usuarios aparecerán aquí en tiempo real</p>
             </div>
           </div>
-        </>
-      )}
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
+                <tr style={{ background: TH_BG, borderBottom: `1px solid ${CARD_BORD}` }}>
+                  {['Estado','Usuario','Motor','Operaciones','Usuarios','TPS','CPU','Latencia','Tiempo'].map(h => (
+                    <th key={h} style={{
+                      padding: '10px 18px', textAlign: 'left',
+                      fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#334155',
+                    }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sessions.map((s, i) => {
+                  const activeQTs = Object.entries(s.queryTypes).filter(([, v]) => v).map(([k]) => k)
+                  return (
+                    <tr key={s.id}
+                      style={{ borderBottom: i < sessions.length - 1 ? `1px solid rgba(27,38,64,0.8)` : 'none' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = ROW_HOVER)}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                      <td style={{ padding: '14px 18px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <StatusDot status={s.status} />
+                          <span style={{
+                            fontSize: 11, fontWeight: 700,
+                            color: s.status === 'running' ? '#34d399' : s.status === 'completed' ? '#475569' : '#1e293b',
+                          }}>
+                            {s.status === 'running' ? 'Corriendo' : s.status === 'completed' ? 'Finalizado' : 'Inactivo'}
+                          </span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '14px 18px', fontWeight: 700, color: '#f1f5f9' }}>{s.name}</td>
+                      <td style={{ padding: '14px 18px' }}>
+                        <span style={{
+                          fontSize: 11, padding: '4px 10px', borderRadius: 8, fontWeight: 600,
+                          background: 'rgba(255,255,255,0.05)', border: `1px solid ${CARD_BORD}`, color: '#94a3b8',
+                        }}>{ENGINE_LABELS[s.engine] ?? s.engine}</span>
+                      </td>
+                      <td style={{ padding: '14px 18px' }}>
+                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                          {activeQTs.length === 0
+                            ? <span style={{ color: '#1e293b', fontSize: 12 }}>—</span>
+                            : activeQTs.map(qt => {
+                                const c = QT_COLORS[qt]
+                                return c ? (
+                                  <span key={qt} style={{
+                                    fontSize: 10, padding: '3px 8px', borderRadius: 6, fontWeight: 800,
+                                    background: c.bg, color: c.text, border: `1px solid ${c.border}`,
+                                  }}>{qt}</span>
+                                ) : null
+                              })}
+                        </div>
+                      </td>
+                      <td style={{ padding: '14px 18px', fontVariantNumeric: 'tabular-nums' }}>
+                        {s.status === 'running'
+                          ? <><span style={{ fontWeight: 700, color: '#e2e8f0' }}>{s.currentUsers}</span><span style={{ color: '#334155', fontSize: 11 }}>/{s.maxUsers}</span></>
+                          : <span style={{ color: '#1e293b' }}>—</span>}
+                      </td>
+                      <td style={{ padding: '14px 18px', fontVariantNumeric: 'tabular-nums' }}>
+                        {s.status === 'running'
+                          ? <span style={{ fontWeight: 900, fontSize: 15, color: s.tps > 200 ? '#fbbf24' : '#34d399' }}>{s.tps}</span>
+                          : <span style={{ color: '#1e293b' }}>—</span>}
+                      </td>
+                      <td style={{ padding: '14px 18px', fontVariantNumeric: 'tabular-nums' }}>
+                        {s.status === 'running'
+                          ? <span style={{ fontWeight: 700, color: s.cpuUsage >= 90 ? '#f87171' : s.cpuUsage >= 70 ? '#fbbf24' : '#94a3b8' }}>
+                              {s.cpuUsage.toFixed(0)}%
+                            </span>
+                          : <span style={{ color: '#1e293b' }}>—</span>}
+                      </td>
+                      <td style={{ padding: '14px 18px', fontVariantNumeric: 'tabular-nums' }}>
+                        {s.status === 'running'
+                          ? <span style={{ fontWeight: 700, color: s.latency > 200 ? '#f87171' : '#94a3b8' }}>{s.latency.toFixed(0)}ms</span>
+                          : <span style={{ color: '#1e293b' }}>—</span>}
+                      </td>
+                      <td style={{ padding: '14px 18px', fontSize: 11, color: '#334155', fontVariantNumeric: 'tabular-nums' }}>
+                        {sinceNow(s.connectedAt)}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -286,26 +279,37 @@ function RoleSelector({ uid, currentRole, loading, onChange }: {
 }) {
   const isAdmin = currentRole === 'Administrador'
   const busy    = loading === uid
-
   return (
-    <div className="relative">
+    <div style={{ position: 'relative', display: 'inline-block' }}>
       <select
         value={currentRole}
         disabled={busy}
         onChange={e => onChange(uid, e.target.value as 'Usuario' | 'Administrador')}
-        className="appearance-none pr-7 pl-3 py-1.5 rounded-lg text-xs font-bold border cursor-pointer outline-none transition-all disabled:opacity-60"
-        style={isAdmin
-          ? { background: 'rgba(99,102,241,0.18)', border: '1px solid rgba(99,102,241,0.45)', color: '#a5b4fc' }
-          : { background: '#1e2d45', border: '1px solid #2d4163', color: '#64748b' }
-        }
+        style={{
+          appearance: 'none', paddingLeft: 12, paddingRight: 28, paddingTop: 6, paddingBottom: 6,
+          borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', outline: 'none',
+          border: `1px solid ${isAdmin ? ACCENT.indigo.border : CARD_BORD}`,
+          background: isAdmin ? ACCENT.indigo.bg : 'rgba(255,255,255,0.03)',
+          color: isAdmin ? ACCENT.indigo.color : '#475569',
+          opacity: busy ? 0.6 : 1,
+        }}
       >
         <option value="Usuario">Usuario</option>
         <option value="Administrador">Administrador</option>
       </select>
-      <ChevronDown size={11} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#475569' }} />
+      <ChevronDown size={10} style={{
+        position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+        pointerEvents: 'none', color: '#334155',
+      }} />
       {busy && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-lg" style={{ background: 'rgba(19,25,41,0.8)' }}>
-          <div className="w-3.5 h-3.5 rounded-full animate-spin" style={{ border: '2px solid rgba(99,102,241,0.3)', borderTopColor: '#6366f1' }} />
+        <div style={{
+          position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: `${CARD_BG}cc`, borderRadius: 8,
+        }}>
+          <div style={{
+            width: 14, height: 14, borderRadius: '50%', animation: 'spin 0.7s linear infinite',
+            border: `2px solid ${ACCENT.indigo.border}`, borderTopColor: ACCENT.indigo.color,
+          }} />
         </div>
       )}
     </div>
@@ -342,120 +346,84 @@ function TabUsuarios() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <StatCard
-          icon={<Users size={15} style={{ color: '#a5b4fc' }} />}
-          label="Total usuarios"
-          value={users.length}
-          cardStyle={{ background: 'linear-gradient(135deg, #312e81, #1e1b4b)', border: '1px solid #4338ca' }}
-          numStyle={{ color: '#c7d2fe' }}
-        />
-        <StatCard
-          icon={<Shield size={15} style={{ color: '#d8b4fe' }} />}
-          label="Administradores"
-          value={admins}
-          cardStyle={{ background: 'linear-gradient(135deg, #4a1d96, #2e1065)', border: '1px solid #7c3aed' }}
-          numStyle={{ color: '#d8b4fe' }}
-        />
-        <StatCard
-          icon={<UserCog size={15} style={{ color: '#7dd3fc' }} />}
-          label="Usuarios regulares"
-          value={regular}
-          cardStyle={{ background: 'linear-gradient(135deg, #0c4a6e, #082f49)', border: '1px solid #0284c7' }}
-          numStyle={{ color: '#7dd3fc' }}
-        />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
+        <KpiCard icon={<Users size={14} style={{ color: ACCENT.indigo.color }} />} accent="indigo" label="Total usuarios"     value={users.length} />
+        <KpiCard icon={<Shield size={14} style={{ color: ACCENT.violet.color }} />} accent="violet" label="Administradores"    value={admins} />
+        <KpiCard icon={<UserCog size={14} style={{ color: ACCENT.sky.color }} />} accent="sky"    label="Usuarios regulares" value={regular} />
       </div>
 
-      <div className="rounded-2xl overflow-hidden" style={{ background: '#131929', border: '1px solid #1e2d45' }}>
-        <div className="px-6 py-4 flex items-center gap-3 flex-wrap" style={{ borderBottom: '1px solid #1e2d45' }}>
-          <UserCog size={15} style={{ color: '#6366f1' }} className="shrink-0" />
-          <span className="text-sm font-bold" style={{ color: '#f1f5f9' }}>Gestión de usuarios</span>
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar por nombre o correo..."
-            className="ml-auto rounded-xl px-3 py-2 text-xs outline-none transition-all w-full sm:w-64"
-            style={{
-              background: '#0f1a2e', border: '1px solid #1e2d45',
-              color: '#e2e8f0', fontWeight: 500,
-            }}
-          />
+      <div style={{ background: CARD_BG, border: `1px solid ${CARD_BORD}`, borderRadius: 16, overflow: 'hidden' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, padding: '14px 22px', flexWrap: 'wrap',
+          borderBottom: `1px solid ${CARD_BORD}`, background: TH_BG,
+        }}>
+          <UserCog size={14} style={{ color: ACCENT.indigo.color }} />
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>Gestión de usuarios</span>
+          <div style={{ marginLeft: 'auto' }}>
+            <input
+              type="text" value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar usuario o correo..."
+              style={{
+                background: PAGE_BG, border: `1px solid ${CARD_BORD}`,
+                borderRadius: 10, padding: '7px 14px', fontSize: 12, color: '#e2e8f0',
+                outline: 'none', width: 220, fontWeight: 500,
+              }}
+            />
+          </div>
         </div>
 
-        <div className="flex flex-col sm:hidden" style={{ borderColor: '#1a2540' }}>
-          {filtered.map(u => (
-            <div key={u.uid} className="p-4 flex flex-col gap-3" style={{ borderBottom: '1px solid #1a2540' }}>
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-extrabold text-white"
-                    style={{ background: u.color }}>
-                    {u.username[0]?.toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold truncate" style={{ color: '#f1f5f9' }}>{u.username}</p>
-                    <p className="text-xs truncate" style={{ color: '#64748b' }}>{u.email}</p>
-                  </div>
-                </div>
-                <RoleSelector uid={u.uid} currentRole={u.role} loading={loading} onChange={handleRoleChange} />
-              </div>
-              <div className="flex items-center justify-between text-xs" style={{ color: '#64748b' }}>
-                <span className="px-2.5 py-1 rounded-lg font-semibold"
-                  style={{ background: '#1e2d45', border: '1px solid #2d4163', color: '#94a3b8' }}>
-                  {u.provider === 'google' ? 'Google' : 'Email'}
-                </span>
-                <span>{formatDate(u.createdAt)}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr style={{ borderBottom: '1px solid #1e2d45', background: '#0f1a2e' }}>
-                {['Usuario','Correo','Proveedor','Registrado','Rol'].map(h => (
-                  <th key={h} className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider"
-                    style={{ color: '#475569' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((u, i) => (
-                <tr key={u.uid}
-                  style={{ borderBottom: i < filtered.length - 1 ? '1px solid #1a2540' : 'none' }}
-                  className="transition-colors hover:bg-[#192038]">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-extrabold text-white shrink-0"
-                        style={{ background: u.color }}>
-                        {u.username[0]?.toUpperCase()}
-                      </div>
-                      <span className="font-bold" style={{ color: '#f1f5f9' }}>{u.username}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4 text-xs font-medium" style={{ color: '#64748b' }}>{u.email}</td>
-                  <td className="px-5 py-4">
-                    <span className="text-xs px-2.5 py-1 rounded-lg font-semibold"
-                      style={{ background: '#1e2d45', border: '1px solid #2d4163', color: '#94a3b8' }}>
-                      {u.provider === 'google' ? 'Google' : 'Email'}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 text-xs font-medium" style={{ color: '#64748b' }}>{formatDate(u.createdAt)}</td>
-                  <td className="px-5 py-4">
-                    <RoleSelector uid={u.uid} currentRole={u.role} loading={loading} onChange={handleRoleChange} />
-                  </td>
+        {filtered.length === 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 0', gap: 10 }}>
+            <Users size={28} style={{ color: '#1e293b' }} />
+            <p style={{ fontSize: 13, color: '#334155' }}>No se encontraron usuarios</p>
+          </div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
+                <tr style={{ background: TH_BG, borderBottom: `1px solid ${CARD_BORD}` }}>
+                  {['Usuario','Correo','Proveedor','Registrado','Rol'].map(h => (
+                    <th key={h} style={{
+                      padding: '10px 18px', textAlign: 'left',
+                      fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#334155',
+                    }}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <Users size={30} style={{ color: '#1e2d45' }} />
-            <p className="text-sm" style={{ color: '#475569' }}>No se encontraron usuarios</p>
+              </thead>
+              <tbody>
+                {filtered.map((u, i) => (
+                  <tr key={u.uid}
+                    style={{ borderBottom: i < filtered.length - 1 ? `1px solid rgba(27,38,64,0.8)` : 'none' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = ROW_HOVER)}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                    <td style={{ padding: '14px 18px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{
+                          width: 36, height: 36, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 13, fontWeight: 900, color: '#fff', background: u.color, flexShrink: 0,
+                        }}>
+                          {u.username[0]?.toUpperCase()}
+                        </div>
+                        <span style={{ fontWeight: 700, color: '#f1f5f9' }}>{u.username}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '14px 18px', fontSize: 12, color: '#475569', fontWeight: 500 }}>{u.email}</td>
+                    <td style={{ padding: '14px 18px' }}>
+                      <span style={{
+                        fontSize: 11, padding: '4px 10px', borderRadius: 8, fontWeight: 700,
+                        background: 'rgba(255,255,255,0.05)', border: `1px solid ${CARD_BORD}`, color: '#94a3b8',
+                      }}>{u.provider === 'google' ? 'Google' : 'Email'}</span>
+                    </td>
+                    <td style={{ padding: '14px 18px', fontSize: 12, color: '#334155', fontWeight: 600 }}>{formatDate(u.createdAt)}</td>
+                    <td style={{ padding: '14px 18px' }}>
+                      <RoleSelector uid={u.uid} currentRole={u.role} loading={loading} onChange={handleRoleChange} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
@@ -486,34 +454,36 @@ export default function AdminApp() {
   }
 
   if (checking) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#080d18' }}>
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-10 h-10 rounded-full animate-spin"
-          style={{ border: '2px solid rgba(99,102,241,0.25)', borderTopColor: '#6366f1' }} />
-        <p className="text-sm font-semibold" style={{ color: '#94a3b8' }}>Verificando permisos...</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: PAGE_BG }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: '50%', animation: 'spin 0.8s linear infinite',
+          border: `2px solid ${ACCENT.indigo.border}`, borderTopColor: ACCENT.indigo.color,
+        }} />
+        <p style={{ fontSize: 13, color: '#475569', fontWeight: 600 }}>Verificando permisos…</p>
       </div>
     </div>
   )
 
   if (denied) return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#080d18' }}>
-      <div className="w-full max-w-sm rounded-2xl p-8 flex flex-col items-center gap-5 text-center"
-        style={{ background: '#131929', border: '1px solid rgba(239,68,68,0.3)' }}>
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
-          style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)' }}>
-          <AlertTriangle size={28} style={{ color: '#f87171' }} />
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: PAGE_BG, padding: 16 }}>
+      <div style={{
+        width: '100%', maxWidth: 360, background: CARD_BG, border: `1px solid rgba(239,68,68,0.25)`,
+        borderRadius: 20, padding: 36, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, textAlign: 'center',
+      }}>
+        <div style={{
+          width: 60, height: 60, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
+        }}>
+          <AlertTriangle size={26} style={{ color: '#f87171' }} />
         </div>
         <div>
-          <h2 className="font-extrabold text-xl" style={{ color: '#f1f5f9' }}>Acceso denegado</h2>
-          <p className="text-sm mt-2 leading-relaxed" style={{ color: '#64748b' }}>
-            Tu cuenta no tiene permisos para acceder al panel.
-          </p>
+          <h2 style={{ color: '#f1f5f9', fontWeight: 900, fontSize: 20, marginBottom: 8 }}>Acceso denegado</h2>
+          <p style={{ color: '#475569', fontSize: 14, lineHeight: 1.6 }}>Tu cuenta no tiene permisos para acceder al panel de control.</p>
         </div>
-        <button onClick={handleLogout}
-          className="text-sm font-semibold transition-colors"
-          style={{ color: '#818cf8' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#a5b4fc')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#818cf8')}>
+        <button onClick={handleLogout} style={{
+          fontSize: 13, fontWeight: 700, color: ACCENT.indigo.color, background: 'none', border: 'none', cursor: 'pointer',
+        }}>
           Intentar con otra cuenta
         </button>
       </div>
@@ -523,57 +493,81 @@ export default function AdminApp() {
   if (!adminEmail) return <AdminLogin onAuth={handleAuth} />
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#080d18' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: PAGE_BG }}>
 
-      {/* Header */}
-      <header className="px-5 sm:px-8 py-4 flex items-center gap-4 shrink-0"
-        style={{ background: '#0d1527', borderBottom: '1px solid #1a2740' }}>
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: 'linear-gradient(135deg, #6366f1, #4338ca)', boxShadow: '0 0 16px rgba(99,102,241,0.4)' }}>
-          <Shield size={16} className="text-white" />
+      {/* ── Header ── */}
+      <header style={{
+        display: 'flex', alignItems: 'center', gap: 14, padding: '0 28px', height: 58, flexShrink: 0,
+        background: HEADER_BG, borderBottom: `1px solid ${CARD_BORD}`,
+      }}>
+        <div style={{
+          width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          background: 'linear-gradient(135deg,#6366f1,#4338ca)',
+          boxShadow: '0 0 18px rgba(99,102,241,0.35)',
+        }}>
+          <Shield size={15} style={{ color: '#fff' }} />
         </div>
-        <div className="min-w-0 flex-1">
-          <h1 className="text-sm font-extrabold tracking-tight" style={{ color: '#f8fafc' }}>Centro de Control</h1>
-          <p className="text-[11px] truncate font-medium" style={{ color: '#475569' }}>{adminEmail}</p>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: 13, fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.01em' }}>Centro de Control</p>
+          <p style={{ fontSize: 11, color: '#334155', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{adminEmail}</p>
         </div>
-        <div className="flex items-center gap-2 mr-4">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginRight: 16 }}>
+          <span style={{ position: 'relative', display: 'flex', width: 8, height: 8 }}>
+            <span style={{
+              position: 'absolute', inset: 0, borderRadius: '50%', background: '#34d399', opacity: 0.7,
+              animation: 'ping 1.5s cubic-bezier(0,0,0.2,1) infinite',
+            }} />
+            <span style={{ position: 'relative', width: 8, height: 8, borderRadius: '50%', background: '#10b981', display: 'block' }} />
           </span>
-          <span className="text-xs font-bold" style={{ color: '#34d399' }}>En vivo</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#34d399' }}>En vivo</span>
         </div>
-        <button onClick={handleLogout}
-          className="flex items-center gap-2 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all"
-          style={{ color: '#64748b', border: '1px solid #1a2740', background: 'transparent' }}
-          onMouseEnter={e => { e.currentTarget.style.color = '#e2e8f0'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
-          onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'transparent' }}>
+        <button
+          onClick={handleLogout}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 7, padding: '7px 14px', borderRadius: 10,
+            border: `1px solid ${CARD_BORD}`, background: 'transparent', cursor: 'pointer',
+            fontSize: 12, fontWeight: 600, color: '#475569', transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#e2e8f0'; e.currentTarget.style.borderColor = '#334155' }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = CARD_BORD }}
+        >
           <LogOut size={13} />
-          <span className="hidden sm:inline">Salir</span>
+          Salir
         </button>
       </header>
 
-      {/* Tabs */}
-      <div className="px-5 sm:px-8 flex" style={{ background: '#0a1020', borderBottom: '1px solid #1a2740' }}>
+      {/* ── Tabs ── */}
+      <div style={{ display: 'flex', background: HEADER_BG, borderBottom: `1px solid ${CARD_BORD}`, padding: '0 28px' }}>
         {([
-          { key: 'monitor', label: 'Monitoreo', icon: <Activity size={13} /> },
-          { key: 'users',   label: 'Usuarios',  icon: <Users size={13} /> },
-        ] as const).map(tab => (
-          <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-            className="flex items-center gap-2 px-5 py-4 text-sm font-bold border-b-2 transition-all"
-            style={activeTab === tab.key
-              ? { borderColor: '#6366f1', color: '#818cf8' }
-              : { borderColor: 'transparent', color: '#475569' }
-            }>
-            {tab.icon}
-            {tab.label}
+          { key: 'monitor', label: 'Monitoreo', Icon: Activity },
+          { key: 'users',   label: 'Usuarios',  Icon: Users   },
+        ] as const).map(({ key, label, Icon }) => (
+          <button key={key} onClick={() => setActiveTab(key)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7, padding: '0 18px', height: 46,
+              fontSize: 13, fontWeight: 700, cursor: 'pointer', border: 'none', background: 'transparent',
+              borderBottom: `2px solid ${activeTab === key ? ACCENT.indigo.color : 'transparent'}`,
+              color: activeTab === key ? ACCENT.indigo.color : '#334155',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { if (activeTab !== key) e.currentTarget.style.color = '#64748b' }}
+            onMouseLeave={e => { if (activeTab !== key) e.currentTarget.style.color = '#334155' }}
+          >
+            <Icon size={13} />
+            {label}
           </button>
         ))}
       </div>
 
-      <main className="flex-1 overflow-auto p-5 sm:p-8 max-w-screen-xl mx-auto w-full">
+      {/* ── Content ── */}
+      <main style={{ flex: 1, overflowY: 'auto', padding: '24px 28px', maxWidth: 1440, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
         {activeTab === 'monitor' ? <TabMonitoreo /> : <TabUsuarios />}
       </main>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg) } }
+        @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0 } }
+      `}</style>
     </div>
   )
 }
