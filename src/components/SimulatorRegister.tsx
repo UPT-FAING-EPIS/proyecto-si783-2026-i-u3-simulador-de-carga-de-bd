@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Activity, User, Zap } from 'lucide-react'
+import { Activity, ArrowRight, Database, Zap, Users } from 'lucide-react'
 
 interface Props {
   onRegister: (name: string) => void
@@ -18,30 +18,60 @@ export default function SimulatorRegister({ onRegister }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-surface-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-surface-900 flex items-center justify-center p-4 relative overflow-hidden">
 
-        {/* Logo */}
-        <div className="flex flex-col items-center gap-4 mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-xl shadow-orange-900/40">
-            <Activity size={30} className="text-white" />
+      {/* Background glow */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(234,88,12,0.08) 0%, transparent 65%)' }} />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 65%)' }} />
+      </div>
+
+      <div className="w-full max-w-lg relative z-10">
+
+        {/* Header */}
+        <div className="flex flex-col items-center gap-5 mb-10">
+          <div className="relative">
+            <div className="w-20 h-20 rounded-3xl flex items-center justify-center shadow-2xl"
+              style={{ background: 'linear-gradient(135deg, #ea580c, #dc2626)' }}>
+              <Activity size={36} className="text-white" />
+            </div>
+            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-emerald-500 rounded-full border-2 border-surface-900 flex items-center justify-center">
+              <span className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse" />
+            </span>
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white">Simulador de Carga</h1>
-            <p className="text-slate-400 text-sm mt-1">Bases de Datos — Multi-Motor</p>
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">Simulador de Carga</h1>
+            <p className="text-slate-400 text-sm mt-1.5">Prueba de rendimiento en bases de datos · Multi-Motor</p>
           </div>
         </div>
 
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          {[
+            { icon: <Database size={14} />, value: '7', label: 'Motores BD' },
+            { icon: <Zap size={14} />,      value: '1K+', label: 'TPS máx.' },
+            { icon: <Users size={14} />,    value: '200', label: 'Usuarios sim.' },
+          ].map(s => (
+            <div key={s.label}
+              className="bg-surface-800 border border-surface-600 rounded-xl p-3 flex flex-col items-center gap-1.5 text-center">
+              <span className="text-orange-400">{s.icon}</span>
+              <span className="text-white font-bold text-lg leading-none">{s.value}</span>
+              <span className="text-slate-500 text-xs">{s.label}</span>
+            </div>
+          ))}
+        </div>
+
         {/* Card */}
-        <div className="bg-surface-800 border border-surface-600 rounded-2xl p-6 shadow-2xl">
-          <div className="flex items-center gap-2 mb-5">
-            <User size={16} className="text-orange-400" />
-            <span className="text-sm font-medium text-slate-300">Identifícate para comenzar</span>
-          </div>
+        <div className="bg-surface-800 border border-surface-600 rounded-2xl p-7 shadow-2xl">
+          <p className="text-slate-300 text-sm font-medium mb-5">
+            Ingresa tu nombre para registrar tu sesión y que el docente pueda monitorearte en tiempo real.
+          </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-slate-400 font-medium uppercase tracking-wide">
+              <label className="text-xs text-slate-400 font-semibold uppercase tracking-widest">
                 Nombre completo
               </label>
               <input
@@ -51,26 +81,30 @@ export default function SimulatorRegister({ onRegister }: Props) {
                 placeholder="Ej: Kevin Vargas"
                 autoFocus
                 maxLength={40}
-                className="bg-surface-700 border border-surface-500 rounded-lg px-3 py-2.5 text-white text-sm placeholder-slate-500 outline-none focus:border-orange-500 transition-colors"
+                className="bg-surface-700 border border-surface-500 rounded-xl px-4 py-3 text-white placeholder-slate-600 outline-none focus:border-orange-500 transition-colors text-sm"
               />
-              {error && (
-                <span className="text-xs text-red-400">{error}</span>
-              )}
+              {error && <span className="text-xs text-red-400">{error}</span>}
             </div>
 
             <button
               type="submit"
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white font-semibold py-2.5 rounded-lg transition-all shadow-lg shadow-orange-900/30 active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 text-white font-semibold py-3 rounded-xl transition-all shadow-lg active:scale-[0.98] group"
+              style={{ background: 'linear-gradient(135deg, #ea580c, #dc2626)' }}
             >
               <Zap size={15} />
-              Ingresar al Simulador
+              Comenzar simulación
+              <ArrowRight size={15} className="opacity-70 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-600 mt-4">
-          Tu actividad será visible en tiempo real para el administrador
-        </p>
+        {/* Footer note */}
+        <div className="flex items-center justify-center gap-2 mt-5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <p className="text-xs text-slate-500">
+            Actividad visible en tiempo real para el docente
+          </p>
+        </div>
       </div>
     </div>
   )
