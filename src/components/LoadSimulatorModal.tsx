@@ -241,6 +241,7 @@ export default function LoadSimulatorModal({
   const [logFilter,   setLogFilter]   = useState<'ALL' | QueryType>('ALL')
   const [logSearch,   setLogSearch]   = useState('')
   const [logSort,     setLogSort]     = useState<'TIME_DESC' | 'TIME_ASC' | 'SEVERITY'>('TIME_DESC')
+  const [mobileConfigOpen, setMobileConfigOpen] = useState(false)
   const engineCfg = ENGINE_CONFIGS[engine]
 
   const intervalRef  = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -1043,11 +1044,27 @@ export default function LoadSimulatorModal({
         )}
 
         {/* ── Body ───────────────────────────────────────────────────────────── */}
-        <div className="flex flex-1 overflow-hidden min-h-0">
+        <div className="flex flex-col sm:flex-row flex-1 overflow-hidden min-h-0">
 
           {/* ── Config panel (idle / completed) ──────────────────────────────── */}
           {status !== 'running' && (
-            <div className="w-60 border-r border-surface-600 flex flex-col shrink-0 overflow-y-auto bg-surface-800/40">
+            <>
+            <div className="sm:hidden border-b border-surface-600 shrink-0 bg-surface-800/40">
+              <button
+                onClick={() => setMobileConfigOpen(v => !v)}
+                className="w-full px-4 py-3 flex items-center justify-between text-xs font-semibold text-slate-300 hover:bg-surface-700 transition-colors"
+              >
+                <span className="flex items-center gap-2">
+                  <Database size={12} className="text-orange-400" />
+                  Configuración de prueba
+                </span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  style={{ transform: mobileConfigOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </button>
+            </div>
+            <div className={`sm:w-60 sm:border-r border-surface-600 flex-col shrink-0 sm:overflow-y-auto bg-surface-800/40 ${mobileConfigOpen ? 'flex' : 'hidden sm:flex'}`}>
               {standalone && onBack && status === 'idle' && (
                 <div className="px-4 pt-4 pb-0">
                   <button
@@ -1177,6 +1194,7 @@ export default function LoadSimulatorModal({
                 </button>
               </div>
             </div>
+            </>
           )}
 
           {/* ── Main area ─────────────────────────────────────────────────────── */}
@@ -1233,7 +1251,7 @@ export default function LoadSimulatorModal({
                 )}
 
                 {/* Charts grid */}
-                <div className="grid grid-cols-2 gap-3 shrink-0">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0">
                   <LiveChart data={latencyData} color="#3b82f6" label="Latencia (ms)"
                     unit="ms" warningLevel={200} criticalLevel={400} chartId="lat" />
                   <LiveChart data={tpsData}     color="#10b981" label="TPS (consultas/seg)"
@@ -1280,7 +1298,7 @@ export default function LoadSimulatorModal({
                   </div>
 
                   {/* Stat badges */}
-                  <div className="px-4 py-3 border-t border-surface-600 grid grid-cols-5 gap-2 divide-x divide-surface-700">
+                  <div className="px-4 py-3 border-t border-surface-600 grid grid-cols-3 sm:grid-cols-5 gap-2 divide-x divide-surface-700">
                     <StatBadge label="TPS actual"    value={metrics.tps}                        color="text-emerald-400" />
                     <StatBadge label="Pico TPS"      value={metrics.peakTps}                    color="text-blue-400" />
                     <StatBadge label="Latencia"      value={`${metrics.latency.toFixed(0)}ms`}  color="text-white" />
@@ -1297,7 +1315,7 @@ export default function LoadSimulatorModal({
                         Logs de scripts ejecutados
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap justify-end">
+                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
                       <div className="relative">
                         <input
                           value={logSearch}
@@ -1417,10 +1435,10 @@ export default function LoadSimulatorModal({
 
           {/* ── Mini config sidebar (while running) ───────────────────────────── */}
           {status === 'running' && (
-            <div className="w-44 border-l border-surface-600 flex flex-col shrink-0 bg-surface-800/30">
-              <div className="p-3 flex flex-col gap-3 flex-1">
-                <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider">Config activa</p>
-                <div className="space-y-2 text-[11px]">
+            <div className="sm:w-44 sm:border-l border-t sm:border-t-0 border-surface-600 flex sm:flex-col shrink-0 bg-surface-800/30">
+              <div className="p-3 flex sm:flex-col gap-3 flex-1 flex-wrap sm:flex-nowrap">
+                <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider w-full sm:block">Config activa</p>
+                <div className="flex sm:flex-col gap-3 sm:gap-2 flex-wrap text-[11px]">
                   {[
                     ['Motor',    `${engineCfg.emoji} ${engineCfg.name}`],
                     ['Usuarios', maxUsers],

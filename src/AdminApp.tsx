@@ -497,7 +497,7 @@ export default function AdminApp() {
 
       {/* ── Header ── */}
       <header style={{
-        display: 'flex', alignItems: 'center', gap: 14, padding: '0 28px', height: 58, flexShrink: 0,
+        display: 'flex', alignItems: 'center', gap: 14, padding: '0 clamp(12px, 3vw, 28px)', height: 58, flexShrink: 0,
         background: HEADER_BG, borderBottom: `1px solid ${CARD_BORD}`,
       }}>
         <div style={{
@@ -537,7 +537,7 @@ export default function AdminApp() {
       </header>
 
       {/* ── Tabs ── */}
-      <div style={{ display: 'flex', background: HEADER_BG, borderBottom: `1px solid ${CARD_BORD}`, padding: '0 28px' }}>
+      <div style={{ display: 'flex', background: HEADER_BG, borderBottom: `1px solid ${CARD_BORD}`, padding: '0 clamp(12px, 3vw, 28px)' }}>
         {([
           { key: 'monitor', label: 'Monitoreo', Icon: Activity },
           { key: 'users',   label: 'Usuarios',  Icon: Users   },
@@ -560,7 +560,7 @@ export default function AdminApp() {
       </div>
 
       {/* ── Content ── */}
-      <main style={{ flex: 1, overflowY: 'auto', padding: '24px 28px', maxWidth: 1440, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+      <main style={{ flex: 1, overflowY: 'auto', padding: 'clamp(16px, 4vw, 32px) clamp(12px, 3vw, 28px)', maxWidth: 1440, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
         {activeTab === 'monitor' ? <TabMonitoreo /> : <TabUsuarios />}
       </main>
 
