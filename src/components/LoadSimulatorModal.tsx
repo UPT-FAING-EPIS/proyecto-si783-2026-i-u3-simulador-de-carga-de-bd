@@ -210,10 +210,12 @@ export default function LoadSimulatorModal({
   onClose,
   standalone = false,
   onActivityChange,
+  userName,
 }: {
   onClose: () => void
   standalone?: boolean
   onActivityChange?: (data: ModalActivityUpdate) => void
+  userName?: string
 }) {
   const store = useStore()
 
@@ -952,6 +954,14 @@ export default function LoadSimulatorModal({
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-bold text-white">Simulador de Carga</span>
+              {standalone && userName && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-surface-700 text-slate-400 border border-surface-600 shrink-0 flex items-center gap-1.5">
+                  <span className="w-4 h-4 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-[8px] font-bold text-white shrink-0">
+                    {userName.charAt(0).toUpperCase()}
+                  </span>
+                  {userName}
+                </span>
+              )}
               {status === 'running' && (
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-900/20 text-amber-300 border border-amber-800/30 shrink-0">
                   EN EJECUCIÓN

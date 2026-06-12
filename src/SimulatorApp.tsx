@@ -47,6 +47,7 @@ export default function SimulatorApp() {
     <LoadSimulatorModal
       onClose={() => {}}
       standalone
+      userName={userName ?? undefined}
       onActivityChange={handleActivityChange}
     />
   )
