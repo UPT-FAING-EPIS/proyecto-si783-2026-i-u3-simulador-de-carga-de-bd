@@ -9,37 +9,23 @@ import { subscribeToSimulatorSessions, type SimulatorSession } from './lib/simul
 import { subscribeToUsers, updateUserRole, isAdminByUid, type ManagedUser } from './lib/adminUsers'
 import AdminLogin from './components/AdminLogin'
 
-// ─── Auth check: VITE_ADMIN_EMAILS OR role=Administrador in Firebase ──────────
-
 function isStaticAdmin(email: string): boolean {
   const raw = import.meta.env.VITE_ADMIN_EMAILS as string | undefined
   if (!raw) return false
   return raw.split(',').map(e => e.trim().toLowerCase()).includes(email.toLowerCase())
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
-const ENGINE_COLORS: Record<string, string> = {
-  sqlserver: 'bg-blue-900/40 text-blue-300 border-blue-700/50',
-  mysql: 'bg-orange-900/40 text-orange-300 border-orange-700/50',
-  postgresql: 'bg-sky-900/40 text-sky-300 border-sky-700/50',
-  oracle: 'bg-red-900/40 text-red-300 border-red-700/50',
-  sqlite: 'bg-teal-900/40 text-teal-300 border-teal-700/50',
-  mongodb: 'bg-green-900/40 text-green-300 border-green-700/50',
-  redis: 'bg-rose-900/40 text-rose-300 border-rose-700/50',
-}
 const ENGINE_LABELS: Record<string, string> = {
   sqlserver: 'SQL Server', mysql: 'MySQL', postgresql: 'PostgreSQL',
   oracle: 'Oracle', sqlite: 'SQLite', mongodb: 'MongoDB', redis: 'Redis',
 }
+
 const QT_COLORS: Record<string, string> = {
   SELECT: 'text-blue-400 border-blue-700/50 bg-blue-900/30',
   INSERT: 'text-green-400 border-green-700/50 bg-green-900/30',
   UPDATE: 'text-amber-400 border-amber-700/50 bg-amber-900/30',
   DELETE: 'text-red-400 border-red-700/50 bg-red-900/30',
 }
-
-// ─── Small components ─────────────────────────────────────────────────────────
 
 function StatusDot({ status }: { status: SimulatorSession['status'] }) {
   if (status === 'running') return (
@@ -48,14 +34,18 @@ function StatusDot({ status }: { status: SimulatorSession['status'] }) {
       <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
     </span>
   )
-  if (status === 'completed') return <Circle size={10} className="text-sky-400 fill-sky-400 shrink-0" />
+  if (status === 'completed') return <Circle size={10} className="text-slate-400 fill-slate-400 shrink-0" />
   return <Circle size={10} className="text-slate-600 fill-slate-600 shrink-0" />
 }
 
-function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string | number; sub?: string }) {
+function StatCard({ icon, label, value, sub }: {
+  icon: React.ReactNode; label: string; value: string | number; sub?: string
+}) {
   return (
     <div className="bg-surface-800 border border-surface-600 rounded-xl p-4 flex items-center gap-3">
-      <div className="w-9 h-9 rounded-lg bg-surface-700 flex items-center justify-center shrink-0">{icon}</div>
+      <div className="w-9 h-9 rounded-lg bg-surface-700 border border-surface-600 flex items-center justify-center shrink-0">
+        {icon}
+      </div>
       <div className="min-w-0">
         <p className="text-xs text-slate-500">{label}</p>
         <p className="text-lg font-bold text-white tabular-nums">{value}</p>
@@ -64,8 +54,6 @@ function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: s
     </div>
   )
 }
-
-// ─── Tab: Monitoreo ───────────────────────────────────────────────────────────
 
 function TabMonitoreo() {
   const [sessions, setSessions] = useState<SimulatorSession[]>([])
@@ -94,19 +82,16 @@ function TabMonitoreo() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard icon={<Users size={16} className="text-violet-400" />} label="Conectados" value={sessions.length} />
-        <StatCard icon={<Activity size={16} className="text-emerald-400" />} label="Simulando" value={running}
-          sub={`${sessions.filter(s => s.status === 'idle').length} inactivos`} />
-        <StatCard icon={<Zap size={16} className="text-amber-400" />} label="TPS promedio" value={avgTps} sub="trans/seg" />
-        <StatCard icon={<Database size={16} className="text-sky-400" />} label="Motores activos"
-          value={new Set(sessions.filter(s => s.status === 'running').map(s => s.engine)).size} />
+        <StatCard icon={<Users size={16} className="text-slate-300" />}   label="Conectados"     value={sessions.length} />
+        <StatCard icon={<Activity size={16} className="text-slate-300" />} label="Simulando"      value={running} sub={`${sessions.filter(s => s.status === 'idle').length} inactivos`} />
+        <StatCard icon={<Zap size={16} className="text-slate-300" />}     label="TPS promedio"   value={avgTps} sub="trans/seg" />
+        <StatCard icon={<Database size={16} className="text-slate-300" />} label="Motores activos" value={new Set(sessions.filter(s => s.status === 'running').map(s => s.engine)).size} />
       </div>
 
       {sessions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-500 bg-surface-800 border border-surface-600 rounded-2xl">
-          <Activity size={32} className="opacity-30" />
+        <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-600 bg-surface-800 border border-surface-600 rounded-2xl">
+          <Activity size={32} className="opacity-25" />
           <p className="text-sm">Sin usuarios simulando ahora mismo</p>
         </div>
       ) : (
@@ -122,7 +107,7 @@ function TabMonitoreo() {
                       <StatusDot status={s.status} />
                       <span className="font-semibold text-white">{s.name}</span>
                     </div>
-                    <span className={`text-xs px-2 py-0.5 rounded border font-medium ${ENGINE_COLORS[s.engine] ?? ''}`}>
+                    <span className="text-xs px-2 py-0.5 rounded border border-surface-500 bg-surface-700 text-slate-300 font-medium">
                       {ENGINE_LABELS[s.engine] ?? s.engine}
                     </span>
                   </div>
@@ -134,9 +119,10 @@ function TabMonitoreo() {
                   </div>
                   {s.status === 'running' && (
                     <div className="grid grid-cols-3 gap-2 text-center">
-                      {[['TPS', s.tps, s.tps > 200 ? 'text-amber-400' : 'text-emerald-400'],
-                        ['CPU', `${s.cpuUsage.toFixed(0)}%`, s.cpuUsage >= 90 ? 'text-red-400' : 'text-slate-300'],
-                        ['Usuarios', `${s.currentUsers}/${s.maxUsers}`, 'text-white']
+                      {[
+                        ['TPS',      s.tps,                         s.tps > 200     ? 'text-amber-400' : 'text-white'],
+                        ['CPU',      `${s.cpuUsage.toFixed(0)}%`,   s.cpuUsage >= 90 ? 'text-red-400' : 'text-white'],
+                        ['Usuarios', `${s.currentUsers}/${s.maxUsers}`, 'text-white'],
                       ].map(([l, v, c]) => (
                         <div key={String(l)} className="bg-surface-700 rounded-lg p-2">
                           <p className="text-[10px] text-slate-500">{l}</p>
@@ -161,9 +147,9 @@ function TabMonitoreo() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-surface-600">
+                  <tr className="border-b border-surface-600 bg-surface-900/40">
                     {['Estado','Usuario','Motor','Operaciones','Usuarios','TPS','CPU','Latencia','Tiempo'].map(h => (
-                      <th key={h} className="px-4 py-2.5 text-xs text-slate-500 font-medium text-left">{h}</th>
+                      <th key={h} className="px-4 py-2.5 text-xs text-slate-500 font-semibold text-left uppercase tracking-wide">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -171,18 +157,18 @@ function TabMonitoreo() {
                   {sessions.map(s => {
                     const activeQTs = Object.entries(s.queryTypes).filter(([, v]) => v).map(([k]) => k)
                     return (
-                      <tr key={s.id} className="border-b border-surface-700/50 hover:bg-surface-700/30 transition-colors">
+                      <tr key={s.id} className="border-b border-surface-700/50 hover:bg-surface-700/20 transition-colors">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <StatusDot status={s.status} />
-                            <span className={`text-xs ${s.status === 'running' ? 'text-emerald-400' : s.status === 'completed' ? 'text-sky-400' : 'text-slate-500'}`}>
+                            <span className={`text-xs font-medium ${s.status === 'running' ? 'text-emerald-400' : s.status === 'completed' ? 'text-slate-400' : 'text-slate-500'}`}>
                               {s.status === 'running' ? 'Corriendo' : s.status === 'completed' ? 'Finalizado' : 'Inactivo'}
                             </span>
                           </div>
                         </td>
-                        <td className="px-4 py-3 font-medium text-white">{s.name}</td>
+                        <td className="px-4 py-3 font-semibold text-white">{s.name}</td>
                         <td className="px-4 py-3">
-                          <span className={`text-xs px-2 py-0.5 rounded border font-medium ${ENGINE_COLORS[s.engine] ?? ''}`}>
+                          <span className="text-xs px-2 py-0.5 rounded border border-surface-500 bg-surface-700 text-slate-300 font-medium">
                             {ENGINE_LABELS[s.engine] ?? s.engine}
                           </span>
                         </td>
@@ -192,19 +178,25 @@ function TabMonitoreo() {
                               : activeQTs.map(qt => <span key={qt} className={`text-[11px] px-1.5 py-0.5 rounded border font-semibold ${QT_COLORS[qt] ?? ''}`}>{qt}</span>)}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-right tabular-nums">
-                          {s.status === 'running' ? <><span className="font-semibold text-white">{s.currentUsers}</span><span className="text-slate-500">/{s.maxUsers}</span></> : '—'}
+                        <td className="px-4 py-3 tabular-nums text-sm">
+                          {s.status === 'running' ? <><span className="font-semibold text-white">{s.currentUsers}</span><span className="text-slate-500">/{s.maxUsers}</span></> : <span className="text-slate-600">—</span>}
                         </td>
-                        <td className="px-4 py-3 text-right tabular-nums">
-                          <span className={`font-semibold ${s.tps > 200 ? 'text-amber-400' : 'text-emerald-400'}`}>{s.status === 'running' ? s.tps : '—'}</span>
+                        <td className="px-4 py-3 tabular-nums text-sm">
+                          <span className={`font-semibold ${s.tps > 200 ? 'text-amber-400' : 'text-white'}`}>
+                            {s.status === 'running' ? s.tps : <span className="text-slate-600">—</span>}
+                          </span>
                         </td>
-                        <td className="px-4 py-3 text-right tabular-nums">
-                          {s.status === 'running' ? <span className={`font-semibold ${s.cpuUsage >= 90 ? 'text-red-400' : s.cpuUsage >= 70 ? 'text-amber-400' : 'text-slate-300'}`}>{s.cpuUsage.toFixed(0)}%</span> : '—'}
+                        <td className="px-4 py-3 tabular-nums text-sm">
+                          {s.status === 'running'
+                            ? <span className={`font-semibold ${s.cpuUsage >= 90 ? 'text-red-400' : s.cpuUsage >= 70 ? 'text-amber-400' : 'text-white'}`}>{s.cpuUsage.toFixed(0)}%</span>
+                            : <span className="text-slate-600">—</span>}
                         </td>
-                        <td className="px-4 py-3 text-right tabular-nums">
-                          {s.status === 'running' ? <span className={`font-semibold ${s.latency > 200 ? 'text-red-400' : 'text-slate-300'}`}>{s.latency.toFixed(0)}ms</span> : '—'}
+                        <td className="px-4 py-3 tabular-nums text-sm">
+                          {s.status === 'running'
+                            ? <span className={`font-semibold ${s.latency > 200 ? 'text-red-400' : 'text-white'}`}>{s.latency.toFixed(0)}ms</span>
+                            : <span className="text-slate-600">—</span>}
                         </td>
-                        <td className="px-4 py-3 text-right text-xs text-slate-500">{sinceNow(s.connectedAt)}</td>
+                        <td className="px-4 py-3 text-xs text-slate-500">{sinceNow(s.connectedAt)}</td>
                       </tr>
                     )
                   })}
@@ -218,7 +210,37 @@ function TabMonitoreo() {
   )
 }
 
-// ─── Tab: Usuarios ────────────────────────────────────────────────────────────
+function RoleSelector({ uid, currentRole, loading, onChange }: {
+  uid: string; currentRole: string; loading: string | null
+  onChange: (uid: string, role: 'Usuario' | 'Administrador') => void
+}) {
+  const isAdmin = currentRole === 'Administrador'
+  const busy    = loading === uid
+
+  return (
+    <div className="relative">
+      <select
+        value={currentRole}
+        disabled={busy}
+        onChange={e => onChange(uid, e.target.value as 'Usuario' | 'Administrador')}
+        className={`appearance-none pr-7 pl-2.5 py-1 rounded-lg text-xs font-semibold border cursor-pointer outline-none transition-colors disabled:opacity-60
+          ${isAdmin
+            ? 'bg-white/10 border-white/20 text-white hover:bg-white/15'
+            : 'bg-surface-700 border-surface-500 text-slate-300 hover:bg-surface-600'
+          }`}
+      >
+        <option value="Usuario">Usuario</option>
+        <option value="Administrador">Administrador</option>
+      </select>
+      <ChevronDown size={11} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+      {busy && (
+        <div className="absolute inset-0 flex items-center justify-center bg-surface-800/70 rounded-lg">
+          <div className="w-3 h-3 border border-slate-400 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+    </div>
+  )
+}
 
 function TabUsuarios() {
   const [users,   setUsers]   = useState<ManagedUser[]>([])
@@ -232,11 +254,8 @@ function TabUsuarios() {
 
   async function handleRoleChange(uid: string, newRole: 'Usuario' | 'Administrador') {
     setLoading(uid)
-    try {
-      await updateUserRole(uid, newRole)
-    } finally {
-      setLoading(null)
-    }
+    try { await updateUserRole(uid, newRole) }
+    finally { setLoading(null) }
   }
 
   const filtered = users.filter(u =>
@@ -244,8 +263,8 @@ function TabUsuarios() {
     u.email.toLowerCase().includes(search.toLowerCase())
   )
 
-  const admins  = filtered.filter(u => u.role === 'Administrador').length
-  const regular = filtered.filter(u => u.role !== 'Administrador').length
+  const admins  = users.filter(u => u.role === 'Administrador').length
+  const regular = users.filter(u => u.role !== 'Administrador').length
 
   function formatDate(ts: number) {
     if (!ts) return '—'
@@ -254,14 +273,12 @@ function TabUsuarios() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        <StatCard icon={<Users size={16} className="text-violet-400" />} label="Total usuarios" value={users.length} />
-        <StatCard icon={<Shield size={16} className="text-amber-400" />} label="Administradores" value={admins} />
-        <StatCard icon={<UserCog size={16} className="text-sky-400" />} label="Usuarios regulares" value={regular} />
+        <StatCard icon={<Users size={16} className="text-slate-300" />}   label="Total usuarios"     value={users.length} />
+        <StatCard icon={<Shield size={16} className="text-slate-300" />}  label="Administradores"    value={admins} />
+        <StatCard icon={<UserCog size={16} className="text-slate-300" />} label="Usuarios regulares" value={regular} />
       </div>
 
-      {/* Search */}
       <div className="bg-surface-800 border border-surface-600 rounded-2xl overflow-hidden">
         <div className="px-5 py-3.5 border-b border-surface-600 flex items-center gap-3 flex-wrap">
           <UserCog size={14} className="text-slate-400 shrink-0" />
@@ -271,7 +288,7 @@ function TabUsuarios() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre o correo..."
-            className="ml-auto bg-surface-700 border border-surface-500 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-violet-500 transition-colors w-full sm:w-56"
+            className="ml-auto bg-surface-700 border border-surface-500 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-slate-400 transition-colors w-full sm:w-56"
           />
         </div>
 
@@ -290,7 +307,7 @@ function TabUsuarios() {
                     <p className="text-xs text-slate-500 truncate">{u.email}</p>
                   </div>
                 </div>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${u.provider === 'google' ? 'bg-blue-900/40 text-blue-300' : 'bg-slate-700 text-slate-300'}`}>
+                <span className="text-xs px-2 py-0.5 rounded-full font-medium border border-surface-500 bg-surface-700 text-slate-300 shrink-0">
                   {u.provider === 'google' ? 'Google' : 'Email'}
                 </span>
               </div>
@@ -306,9 +323,9 @@ function TabUsuarios() {
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-surface-600">
+              <tr className="border-b border-surface-600 bg-surface-900/40">
                 {['Usuario','Correo','Proveedor','Registrado','Rol'].map(h => (
-                  <th key={h} className="px-4 py-2.5 text-xs text-slate-500 font-medium text-left">{h}</th>
+                  <th key={h} className="px-4 py-2.5 text-xs text-slate-500 font-semibold text-left uppercase tracking-wide">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -316,7 +333,7 @@ function TabUsuarios() {
               {filtered.map(u => (
                 <tr key={u.uid} className="border-b border-surface-700/50 hover:bg-surface-700/20 transition-colors">
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
                         style={{ background: u.color }}>
                         {u.username[0]?.toUpperCase()}
@@ -326,7 +343,7 @@ function TabUsuarios() {
                   </td>
                   <td className="px-4 py-3 text-slate-400 text-xs">{u.email}</td>
                   <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${u.provider === 'google' ? 'bg-blue-900/40 text-blue-300' : 'bg-slate-700 text-slate-300'}`}>
+                    <span className="text-xs px-2 py-0.5 rounded-full font-medium border border-surface-500 bg-surface-700 text-slate-300">
                       {u.provider === 'google' ? 'Google' : 'Email'}
                     </span>
                   </td>
@@ -341,7 +358,7 @@ function TabUsuarios() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 gap-2 text-slate-500">
+          <div className="flex flex-col items-center justify-center py-12 gap-2 text-slate-600">
             <Users size={28} className="opacity-30" />
             <p className="text-sm">No se encontraron usuarios</p>
           </div>
@@ -350,42 +367,6 @@ function TabUsuarios() {
     </div>
   )
 }
-
-// ─── Role selector ────────────────────────────────────────────────────────────
-
-function RoleSelector({ uid, currentRole, loading, onChange }: {
-  uid: string
-  currentRole: string
-  loading: string | null
-  onChange: (uid: string, role: 'Usuario' | 'Administrador') => void
-}) {
-  const isAdmin = currentRole === 'Administrador'
-  const busy    = loading === uid
-
-  return (
-    <div className="relative">
-      <select
-        value={currentRole}
-        disabled={busy}
-        onChange={e => onChange(uid, e.target.value as 'Usuario' | 'Administrador')}
-        className={`appearance-none pr-7 pl-2.5 py-1 rounded-lg text-xs font-semibold border cursor-pointer outline-none transition-colors disabled:opacity-60
-          ${isAdmin
-            ? 'bg-amber-900/30 border-amber-700/50 text-amber-300 hover:bg-amber-900/50'
-            : 'bg-surface-700 border-surface-500 text-slate-300 hover:bg-surface-600'
-          }`}
-      >
-        <option value="Usuario">Usuario</option>
-        <option value="Administrador">Administrador</option>
-      </select>
-      <ChevronDown size={11} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
-      {busy && <div className="absolute inset-0 flex items-center justify-center bg-surface-800/70 rounded-lg">
-        <div className="w-3 h-3 border border-slate-400 border-t-transparent rounded-full animate-spin" />
-      </div>}
-    </div>
-  )
-}
-
-// ─── Admin App ────────────────────────────────────────────────────────────────
 
 export default function AdminApp() {
   const [adminEmail, setAdminEmail] = useState<string | null>(null)
@@ -412,7 +393,7 @@ export default function AdminApp() {
   if (checking) return (
     <div className="min-h-screen bg-surface-900 flex items-center justify-center">
       <div className="flex flex-col items-center gap-3 text-slate-400">
-        <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
         <p className="text-sm">Verificando permisos...</p>
       </div>
     </div>
@@ -426,7 +407,7 @@ export default function AdminApp() {
         </div>
         <div>
           <h2 className="text-white font-bold text-lg">Acceso denegado</h2>
-          <p className="text-slate-400 text-sm mt-1">Tu cuenta no tiene permisos para acceder al panel docente.</p>
+          <p className="text-slate-400 text-sm mt-1">Tu cuenta no tiene permisos para acceder al panel.</p>
         </div>
         <button onClick={handleLogout} className="text-sm text-slate-400 hover:text-white transition-colors underline">
           Intentar con otra cuenta
@@ -442,11 +423,11 @@ export default function AdminApp() {
 
       {/* Header */}
       <header className="bg-surface-800 border-b border-surface-600 px-4 sm:px-6 py-3.5 flex items-center gap-3 shrink-0">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shrink-0">
+        <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center shadow-lg shrink-0">
           <Shield size={15} className="text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-sm font-bold text-white">Panel Docente</h1>
+          <h1 className="text-sm font-bold text-white tracking-tight">Centro de Control</h1>
           <p className="text-[11px] text-slate-500 truncate">{adminEmail}</p>
         </div>
         <div className="flex items-center gap-2 text-xs text-emerald-400 mr-2">
@@ -454,16 +435,19 @@ export default function AdminApp() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <span className="hidden sm:inline">En vivo</span>
+          <span className="hidden sm:inline font-medium">En vivo</span>
         </div>
-        <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors px-2 py-1.5 rounded-lg hover:bg-surface-700">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors px-2.5 py-1.5 rounded-lg hover:bg-surface-700 border border-transparent hover:border-surface-500"
+        >
           <LogOut size={13} />
           <span className="hidden sm:inline">Salir</span>
         </button>
       </header>
 
       {/* Tabs */}
-      <div className="bg-surface-800 border-b border-surface-600 px-4 sm:px-6 flex gap-1">
+      <div className="bg-surface-800 border-b border-surface-600 px-4 sm:px-6 flex gap-0">
         {([
           { key: 'monitor', label: 'Monitoreo', icon: <Activity size={13} /> },
           { key: 'users',   label: 'Usuarios',  icon: <Users size={13} /> },
@@ -471,9 +455,9 @@ export default function AdminApp() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex items-center gap-1.5 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.key
-                ? 'border-violet-500 text-violet-400'
+                ? 'border-white text-white'
                 : 'border-transparent text-slate-500 hover:text-slate-300'
             }`}
           >
