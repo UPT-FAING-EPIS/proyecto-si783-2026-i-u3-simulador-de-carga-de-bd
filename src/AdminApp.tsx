@@ -20,11 +20,11 @@ const ENGINE_LABELS: Record<string, string> = {
   oracle: 'Oracle', sqlite: 'SQLite', mongodb: 'MongoDB', redis: 'Redis',
 }
 
-const QT_STYLE: Record<string, string> = {
-  SELECT: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-  INSERT: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
-  UPDATE: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
-  DELETE: 'bg-red-500/20 text-red-300 border-red-500/40',
+const QT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  SELECT: { bg: '#1d3a6b', text: '#93c5fd', border: '#3b82f6' },
+  INSERT: { bg: '#14532d', text: '#86efac', border: '#22c55e' },
+  UPDATE: { bg: '#713f12', text: '#fde047', border: '#eab308' },
+  DELETE: { bg: '#7f1d1d', text: '#fca5a5', border: '#ef4444' },
 }
 
 function StatusDot({ status }: { status: SimulatorSession['status'] }) {
@@ -34,8 +34,8 @@ function StatusDot({ status }: { status: SimulatorSession['status'] }) {
       <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
     </span>
   )
-  if (status === 'completed') return <Circle size={10} className="text-slate-500 fill-slate-500 shrink-0" />
-  return <Circle size={10} className="text-slate-700 fill-slate-700 shrink-0" />
+  if (status === 'completed') return <Circle size={10} style={{ color: '#64748b', fill: '#64748b' }} className="shrink-0" />
+  return <Circle size={10} style={{ color: '#334155', fill: '#334155' }} className="shrink-0" />
 }
 
 interface StatCardProps {
@@ -43,22 +43,22 @@ interface StatCardProps {
   label: string
   value: string | number
   sub?: string
-  iconBg: string
-  valueCls: string
+  cardStyle: React.CSSProperties
+  numStyle: React.CSSProperties
 }
 
-function StatCard({ icon, label, value, sub, iconBg, valueCls }: StatCardProps) {
+function StatCard({ icon, label, value, sub, cardStyle, numStyle }: StatCardProps) {
   return (
-    <div className="bg-[#161b27] border border-[#2a3042] rounded-2xl p-5 flex flex-col gap-4">
+    <div style={cardStyle} className="rounded-2xl p-5 flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">{label}</p>
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
+        <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.55)' }}>{label}</p>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.12)' }}>
           {icon}
         </div>
       </div>
       <div>
-        <p className={`text-4xl font-extrabold tabular-nums leading-none ${valueCls}`}>{value}</p>
-        {sub && <p className="text-xs text-slate-500 mt-1.5 font-medium">{sub}</p>}
+        <p className="text-5xl font-black tabular-nums leading-none" style={numStyle}>{value}</p>
+        {sub && <p className="text-xs mt-1.5 font-semibold" style={{ color: 'rgba(255,255,255,0.45)' }}>{sub}</p>}
       </div>
     </div>
   )
@@ -94,160 +94,179 @@ function TabMonitoreo() {
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard
-          icon={<Users size={16} className="text-indigo-300" />}
-          iconBg="bg-indigo-500/20"
+          icon={<Users size={15} style={{ color: '#a5b4fc' }} />}
           label="Conectados"
           value={sessions.length}
-          valueCls="text-indigo-400"
+          cardStyle={{ background: 'linear-gradient(135deg, #312e81, #1e1b4b)', border: '1px solid #4338ca' }}
+          numStyle={{ color: '#c7d2fe' }}
         />
         <StatCard
-          icon={<Activity size={16} className="text-emerald-300" />}
-          iconBg="bg-emerald-500/20"
+          icon={<Activity size={15} style={{ color: '#6ee7b7' }} />}
           label="Simulando"
           value={running}
           sub={`${sessions.filter(s => s.status === 'idle').length} inactivos`}
-          valueCls="text-emerald-400"
+          cardStyle={{ background: 'linear-gradient(135deg, #064e3b, #022c22)', border: '1px solid #059669' }}
+          numStyle={{ color: '#6ee7b7' }}
         />
         <StatCard
-          icon={<Zap size={16} className="text-amber-300" />}
-          iconBg="bg-amber-500/20"
+          icon={<Zap size={15} style={{ color: '#fcd34d' }} />}
           label="TPS promedio"
           value={avgTps}
-          sub="transacciones / seg"
-          valueCls="text-amber-400"
+          sub="trans / seg"
+          cardStyle={{ background: 'linear-gradient(135deg, #78350f, #451a03)', border: '1px solid #d97706' }}
+          numStyle={{ color: '#fcd34d' }}
         />
         <StatCard
-          icon={<Database size={16} className="text-sky-300" />}
-          iconBg="bg-sky-500/20"
+          icon={<Database size={15} style={{ color: '#7dd3fc' }} />}
           label="Motores activos"
           value={engines}
-          valueCls="text-sky-400"
+          cardStyle={{ background: 'linear-gradient(135deg, #0c4a6e, #082f49)', border: '1px solid #0284c7' }}
+          numStyle={{ color: '#7dd3fc' }}
         />
       </div>
 
       {sessions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-5 bg-[#161b27] border border-[#2a3042] rounded-2xl">
-          <div className="w-16 h-16 rounded-2xl bg-slate-700/40 flex items-center justify-center">
-            <Activity size={28} className="text-slate-500" />
+        <div className="flex flex-col items-center justify-center py-24 gap-5 rounded-2xl"
+          style={{ background: '#131929', border: '1px solid #1e2d45' }}>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+            style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
+            <Activity size={28} style={{ color: '#4f46e5', opacity: 0.5 }} />
           </div>
           <div className="text-center">
-            <p className="text-slate-300 font-semibold text-base">Sin sesiones activas</p>
-            <p className="text-slate-500 text-sm mt-1">Los usuarios aparecerán aquí en tiempo real</p>
+            <p className="font-bold text-base" style={{ color: '#e2e8f0' }}>Sin sesiones activas</p>
+            <p className="text-sm mt-1" style={{ color: '#64748b' }}>Los usuarios aparecerán aquí en tiempo real</p>
           </div>
         </div>
       ) : (
         <>
-          {/* Mobile cards */}
           <div className="flex flex-col gap-3 sm:hidden">
             {sessions.map(s => {
               const activeQTs = Object.entries(s.queryTypes).filter(([, v]) => v).map(([k]) => k)
               return (
-                <div key={s.id} className="bg-[#161b27] border border-[#2a3042] rounded-xl p-4 flex flex-col gap-3">
+                <div key={s.id} className="rounded-xl p-4 flex flex-col gap-3"
+                  style={{ background: '#131929', border: '1px solid #1e2d45' }}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <StatusDot status={s.status} />
-                      <span className="font-bold text-white">{s.name}</span>
+                      <span className="font-bold" style={{ color: '#f1f5f9' }}>{s.name}</span>
                     </div>
-                    <span className="text-xs px-2.5 py-1 rounded-lg bg-[#1e2436] border border-[#2a3042] text-slate-300 font-semibold">
+                    <span className="text-xs px-2.5 py-1 rounded-lg font-semibold"
+                      style={{ background: '#1e2d45', border: '1px solid #2d4163', color: '#94a3b8' }}>
                       {ENGINE_LABELS[s.engine] ?? s.engine}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {activeQTs.length === 0
-                      ? <span className="text-xs text-slate-600">Sin operaciones</span>
-                      : activeQTs.map(qt => <span key={qt} className={`text-[11px] px-2 py-0.5 rounded border font-bold ${QT_STYLE[qt] ?? ''}`}>{qt}</span>)
+                      ? <span className="text-xs" style={{ color: '#475569' }}>Sin operaciones</span>
+                      : activeQTs.map(qt => {
+                          const c = QT_COLORS[qt]
+                          return c ? (
+                            <span key={qt} className="text-[11px] px-2 py-0.5 rounded font-bold"
+                              style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}>{qt}</span>
+                          ) : null
+                        })
                     }
                   </div>
                   {s.status === 'running' && (
                     <div className="grid grid-cols-3 gap-2 text-center">
                       {[
-                        ['TPS', s.tps, s.tps > 200 ? 'text-amber-400' : 'text-emerald-400'],
-                        ['CPU', `${s.cpuUsage.toFixed(0)}%`, s.cpuUsage >= 90 ? 'text-red-400' : 'text-slate-200'],
-                        ['Usuarios', `${s.currentUsers}/${s.maxUsers}`, 'text-slate-200'],
+                        ['TPS', s.tps, s.tps > 200 ? '#fcd34d' : '#6ee7b7'],
+                        ['CPU', `${s.cpuUsage.toFixed(0)}%`, s.cpuUsage >= 90 ? '#fca5a5' : '#e2e8f0'],
+                        ['Usuarios', `${s.currentUsers}/${s.maxUsers}`, '#e2e8f0'],
                       ].map(([l, v, c]) => (
-                        <div key={String(l)} className="bg-[#1a2035] rounded-xl p-2.5">
-                          <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">{l}</p>
-                          <p className={`text-sm font-extrabold mt-0.5 ${c}`}>{v}</p>
+                        <div key={String(l)} className="rounded-xl p-2.5"
+                          style={{ background: '#0f1a2e' }}>
+                          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#475569' }}>{l}</p>
+                          <p className="text-sm font-black mt-0.5" style={{ color: String(c) }}>{v}</p>
                         </div>
                       ))}
                     </div>
                   )}
-                  <p className="text-[11px] text-slate-600">Conectado hace {sinceNow(s.connectedAt)}</p>
+                  <p className="text-[11px]" style={{ color: '#334155' }}>Conectado hace {sinceNow(s.connectedAt)}</p>
                 </div>
               )
             })}
           </div>
 
-          {/* Desktop table */}
-          <div className="hidden sm:block bg-[#161b27] border border-[#2a3042] rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#2a3042] flex items-center gap-3">
-              <Activity size={15} className="text-indigo-400 shrink-0" />
-              <span className="text-sm font-bold text-white">Sesiones en tiempo real</span>
-              <span className="ml-1 px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30">
+          <div className="hidden sm:block rounded-2xl overflow-hidden"
+            style={{ background: '#131929', border: '1px solid #1e2d45' }}>
+            <div className="px-6 py-4 flex items-center gap-3"
+              style={{ borderBottom: '1px solid #1e2d45' }}>
+              <Activity size={15} style={{ color: '#6366f1' }} className="shrink-0" />
+              <span className="text-sm font-bold" style={{ color: '#f1f5f9' }}>Sesiones en tiempo real</span>
+              <span className="ml-1 px-2.5 py-0.5 rounded-full text-xs font-bold"
+                style={{ background: 'rgba(99,102,241,0.2)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.35)' }}>
                 {sessions.length} activas
               </span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#2a3042] bg-[#111520]">
+                  <tr style={{ borderBottom: '1px solid #1e2d45', background: '#0f1a2e' }}>
                     {['Estado','Usuario','Motor','Operaciones','Usuarios','TPS','CPU','Latencia','Tiempo'].map(h => (
-                      <th key={h} className="px-5 py-3.5 text-[11px] text-slate-500 font-bold text-left uppercase tracking-wider">{h}</th>
+                      <th key={h} className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider"
+                        style={{ color: '#475569' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1e2436]">
-                  {sessions.map(s => {
+                <tbody>
+                  {sessions.map((s, i) => {
                     const activeQTs = Object.entries(s.queryTypes).filter(([, v]) => v).map(([k]) => k)
                     return (
-                      <tr key={s.id} className="hover:bg-[#1a2035] transition-colors">
+                      <tr key={s.id}
+                        style={{ borderBottom: i < sessions.length - 1 ? '1px solid #1a2540' : 'none' }}
+                        className="transition-colors hover:bg-[#192038]">
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-2">
                             <StatusDot status={s.status} />
-                            <span className={`text-xs font-bold ${
-                              s.status === 'running' ? 'text-emerald-400' :
-                              s.status === 'completed' ? 'text-slate-500' : 'text-slate-600'
-                            }`}>
+                            <span className="text-xs font-bold" style={{
+                              color: s.status === 'running' ? '#6ee7b7' : s.status === 'completed' ? '#64748b' : '#334155'
+                            }}>
                               {s.status === 'running' ? 'Corriendo' : s.status === 'completed' ? 'Finalizado' : 'Inactivo'}
                             </span>
                           </div>
                         </td>
-                        <td className="px-5 py-4 font-bold text-white">{s.name}</td>
+                        <td className="px-5 py-4 font-bold" style={{ color: '#f1f5f9' }}>{s.name}</td>
                         <td className="px-5 py-4">
-                          <span className="text-xs px-2.5 py-1 rounded-lg bg-[#1e2436] border border-[#2a3042] text-slate-300 font-semibold">
+                          <span className="text-xs px-2.5 py-1 rounded-lg font-semibold"
+                            style={{ background: '#1e2d45', border: '1px solid #2d4163', color: '#94a3b8' }}>
                             {ENGINE_LABELS[s.engine] ?? s.engine}
                           </span>
                         </td>
                         <td className="px-5 py-4">
                           <div className="flex gap-1.5 flex-wrap">
                             {activeQTs.length === 0
-                              ? <span className="text-xs text-slate-600">—</span>
-                              : activeQTs.map(qt => (
-                                <span key={qt} className={`text-[11px] px-2 py-0.5 rounded border font-bold ${QT_STYLE[qt] ?? ''}`}>{qt}</span>
-                              ))}
+                              ? <span style={{ color: '#334155', fontSize: 12 }}>—</span>
+                              : activeQTs.map(qt => {
+                                  const c = QT_COLORS[qt]
+                                  return c ? (
+                                    <span key={qt} className="text-[11px] px-2 py-0.5 rounded font-bold"
+                                      style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}>{qt}</span>
+                                  ) : null
+                                })}
                           </div>
                         </td>
                         <td className="px-5 py-4 tabular-nums">
                           {s.status === 'running'
-                            ? <><span className="font-bold text-white">{s.currentUsers}</span><span className="text-slate-500 text-xs">/{s.maxUsers}</span></>
-                            : <span className="text-slate-600">—</span>}
+                            ? <><span className="font-bold" style={{ color: '#f1f5f9' }}>{s.currentUsers}</span><span style={{ color: '#475569', fontSize: 12 }}>/{s.maxUsers}</span></>
+                            : <span style={{ color: '#334155' }}>—</span>}
                         </td>
                         <td className="px-5 py-4 tabular-nums">
                           {s.status === 'running'
-                            ? <span className={`font-extrabold text-base ${s.tps > 200 ? 'text-amber-400' : 'text-emerald-400'}`}>{s.tps}</span>
-                            : <span className="text-slate-600">—</span>}
+                            ? <span className="font-black text-base" style={{ color: s.tps > 200 ? '#fcd34d' : '#6ee7b7' }}>{s.tps}</span>
+                            : <span style={{ color: '#334155' }}>—</span>}
                         </td>
                         <td className="px-5 py-4 tabular-nums">
                           {s.status === 'running'
-                            ? <span className={`font-bold ${s.cpuUsage >= 90 ? 'text-red-400' : s.cpuUsage >= 70 ? 'text-amber-400' : 'text-slate-200'}`}>{s.cpuUsage.toFixed(0)}%</span>
-                            : <span className="text-slate-600">—</span>}
+                            ? <span className="font-bold" style={{ color: s.cpuUsage >= 90 ? '#fca5a5' : s.cpuUsage >= 70 ? '#fcd34d' : '#e2e8f0' }}>{s.cpuUsage.toFixed(0)}%</span>
+                            : <span style={{ color: '#334155' }}>—</span>}
                         </td>
                         <td className="px-5 py-4 tabular-nums">
                           {s.status === 'running'
-                            ? <span className={`font-bold ${s.latency > 200 ? 'text-red-400' : 'text-slate-200'}`}>{s.latency.toFixed(0)}ms</span>
-                            : <span className="text-slate-600">—</span>}
+                            ? <span className="font-bold" style={{ color: s.latency > 200 ? '#fca5a5' : '#e2e8f0' }}>{s.latency.toFixed(0)}ms</span>
+                            : <span style={{ color: '#334155' }}>—</span>}
                         </td>
-                        <td className="px-5 py-4 text-xs text-slate-500 tabular-nums">{sinceNow(s.connectedAt)}</td>
+                        <td className="px-5 py-4 text-xs tabular-nums" style={{ color: '#475569' }}>{sinceNow(s.connectedAt)}</td>
                       </tr>
                     )
                   })}
@@ -274,19 +293,19 @@ function RoleSelector({ uid, currentRole, loading, onChange }: {
         value={currentRole}
         disabled={busy}
         onChange={e => onChange(uid, e.target.value as 'Usuario' | 'Administrador')}
-        className={`appearance-none pr-7 pl-3 py-1.5 rounded-lg text-xs font-bold border cursor-pointer outline-none transition-all disabled:opacity-60
-          ${isAdmin
-            ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300 hover:bg-indigo-500/30'
-            : 'bg-[#1e2436] border-[#2a3042] text-slate-400 hover:bg-[#232b40] hover:text-slate-300'
-          }`}
+        className="appearance-none pr-7 pl-3 py-1.5 rounded-lg text-xs font-bold border cursor-pointer outline-none transition-all disabled:opacity-60"
+        style={isAdmin
+          ? { background: 'rgba(99,102,241,0.18)', border: '1px solid rgba(99,102,241,0.45)', color: '#a5b4fc' }
+          : { background: '#1e2d45', border: '1px solid #2d4163', color: '#64748b' }
+        }
       >
         <option value="Usuario">Usuario</option>
         <option value="Administrador">Administrador</option>
       </select>
-      <ChevronDown size={11} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500" />
+      <ChevronDown size={11} className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#475569' }} />
       {busy && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#161b27]/80 rounded-lg">
-          <div className="w-3.5 h-3.5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+        <div className="absolute inset-0 flex items-center justify-center rounded-lg" style={{ background: 'rgba(19,25,41,0.8)' }}>
+          <div className="w-3.5 h-3.5 rounded-full animate-spin" style={{ border: '2px solid rgba(99,102,241,0.3)', borderTopColor: '#6366f1' }} />
         </div>
       )}
     </div>
@@ -326,45 +345,48 @@ function TabUsuarios() {
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <StatCard
-          icon={<Users size={16} className="text-indigo-300" />}
-          iconBg="bg-indigo-500/20"
+          icon={<Users size={15} style={{ color: '#a5b4fc' }} />}
           label="Total usuarios"
           value={users.length}
-          valueCls="text-indigo-400"
+          cardStyle={{ background: 'linear-gradient(135deg, #312e81, #1e1b4b)', border: '1px solid #4338ca' }}
+          numStyle={{ color: '#c7d2fe' }}
         />
         <StatCard
-          icon={<Shield size={16} className="text-violet-300" />}
-          iconBg="bg-violet-500/20"
+          icon={<Shield size={15} style={{ color: '#d8b4fe' }} />}
           label="Administradores"
           value={admins}
-          valueCls="text-violet-400"
+          cardStyle={{ background: 'linear-gradient(135deg, #4a1d96, #2e1065)', border: '1px solid #7c3aed' }}
+          numStyle={{ color: '#d8b4fe' }}
         />
         <StatCard
-          icon={<UserCog size={16} className="text-sky-300" />}
-          iconBg="bg-sky-500/20"
+          icon={<UserCog size={15} style={{ color: '#7dd3fc' }} />}
           label="Usuarios regulares"
           value={regular}
-          valueCls="text-sky-400"
+          cardStyle={{ background: 'linear-gradient(135deg, #0c4a6e, #082f49)', border: '1px solid #0284c7' }}
+          numStyle={{ color: '#7dd3fc' }}
         />
       </div>
 
-      <div className="bg-[#161b27] border border-[#2a3042] rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#2a3042] flex items-center gap-3 flex-wrap">
-          <UserCog size={15} className="text-indigo-400 shrink-0" />
-          <span className="text-sm font-bold text-white">Gestión de usuarios</span>
+      <div className="rounded-2xl overflow-hidden" style={{ background: '#131929', border: '1px solid #1e2d45' }}>
+        <div className="px-6 py-4 flex items-center gap-3 flex-wrap" style={{ borderBottom: '1px solid #1e2d45' }}>
+          <UserCog size={15} style={{ color: '#6366f1' }} className="shrink-0" />
+          <span className="text-sm font-bold" style={{ color: '#f1f5f9' }}>Gestión de usuarios</span>
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Buscar por nombre o correo..."
-            className="ml-auto bg-[#111520] border border-[#2a3042] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 outline-none focus:border-indigo-500/60 transition-all w-full sm:w-64"
+            className="ml-auto rounded-xl px-3 py-2 text-xs outline-none transition-all w-full sm:w-64"
+            style={{
+              background: '#0f1a2e', border: '1px solid #1e2d45',
+              color: '#e2e8f0', fontWeight: 500,
+            }}
           />
         </div>
 
-        {/* Mobile cards */}
-        <div className="flex flex-col divide-y divide-[#1e2436] sm:hidden">
+        <div className="flex flex-col sm:hidden" style={{ borderColor: '#1a2540' }}>
           {filtered.map(u => (
-            <div key={u.uid} className="p-4 flex flex-col gap-3">
+            <div key={u.uid} className="p-4 flex flex-col gap-3" style={{ borderBottom: '1px solid #1a2540' }}>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-extrabold text-white"
@@ -372,14 +394,15 @@ function TabUsuarios() {
                     {u.username[0]?.toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-white truncate">{u.username}</p>
-                    <p className="text-xs text-slate-500 truncate">{u.email}</p>
+                    <p className="text-sm font-bold truncate" style={{ color: '#f1f5f9' }}>{u.username}</p>
+                    <p className="text-xs truncate" style={{ color: '#64748b' }}>{u.email}</p>
                   </div>
                 </div>
                 <RoleSelector uid={u.uid} currentRole={u.role} loading={loading} onChange={handleRoleChange} />
               </div>
-              <div className="flex items-center justify-between text-xs text-slate-500">
-                <span className="px-2.5 py-1 rounded-lg border border-[#2a3042] bg-[#1e2436] text-slate-400 font-semibold">
+              <div className="flex items-center justify-between text-xs" style={{ color: '#64748b' }}>
+                <span className="px-2.5 py-1 rounded-lg font-semibold"
+                  style={{ background: '#1e2d45', border: '1px solid #2d4163', color: '#94a3b8' }}>
                   {u.provider === 'google' ? 'Google' : 'Email'}
                 </span>
                 <span>{formatDate(u.createdAt)}</span>
@@ -388,35 +411,38 @@ function TabUsuarios() {
           ))}
         </div>
 
-        {/* Desktop table */}
         <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#2a3042] bg-[#111520]">
+              <tr style={{ borderBottom: '1px solid #1e2d45', background: '#0f1a2e' }}>
                 {['Usuario','Correo','Proveedor','Registrado','Rol'].map(h => (
-                  <th key={h} className="px-5 py-3.5 text-[11px] text-slate-500 font-bold text-left uppercase tracking-wider">{h}</th>
+                  <th key={h} className="px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wider"
+                    style={{ color: '#475569' }}>{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1e2436]">
-              {filtered.map(u => (
-                <tr key={u.uid} className="hover:bg-[#1a2035] transition-colors">
+            <tbody>
+              {filtered.map((u, i) => (
+                <tr key={u.uid}
+                  style={{ borderBottom: i < filtered.length - 1 ? '1px solid #1a2540' : 'none' }}
+                  className="transition-colors hover:bg-[#192038]">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-extrabold text-white shrink-0"
                         style={{ background: u.color }}>
                         {u.username[0]?.toUpperCase()}
                       </div>
-                      <span className="font-bold text-white">{u.username}</span>
+                      <span className="font-bold" style={{ color: '#f1f5f9' }}>{u.username}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-slate-400 text-xs font-medium">{u.email}</td>
+                  <td className="px-5 py-4 text-xs font-medium" style={{ color: '#64748b' }}>{u.email}</td>
                   <td className="px-5 py-4">
-                    <span className="text-xs px-2.5 py-1 rounded-lg bg-[#1e2436] border border-[#2a3042] text-slate-300 font-semibold">
+                    <span className="text-xs px-2.5 py-1 rounded-lg font-semibold"
+                      style={{ background: '#1e2d45', border: '1px solid #2d4163', color: '#94a3b8' }}>
                       {u.provider === 'google' ? 'Google' : 'Email'}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-xs text-slate-500 font-medium">{formatDate(u.createdAt)}</td>
+                  <td className="px-5 py-4 text-xs font-medium" style={{ color: '#64748b' }}>{formatDate(u.createdAt)}</td>
                   <td className="px-5 py-4">
                     <RoleSelector uid={u.uid} currentRole={u.role} loading={loading} onChange={handleRoleChange} />
                   </td>
@@ -428,8 +454,8 @@ function TabUsuarios() {
 
         {filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <Users size={30} className="text-slate-700" />
-            <p className="text-sm text-slate-500">No se encontraron usuarios</p>
+            <Users size={30} style={{ color: '#1e2d45' }} />
+            <p className="text-sm" style={{ color: '#475569' }}>No se encontraron usuarios</p>
           </div>
         )}
       </div>
@@ -460,26 +486,34 @@ export default function AdminApp() {
   }
 
   if (checking) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0b0f1a' }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#080d18' }}>
       <div className="flex flex-col items-center gap-4">
-        <div className="w-10 h-10 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-        <p className="text-sm text-slate-400 font-medium">Verificando permisos...</p>
+        <div className="w-10 h-10 rounded-full animate-spin"
+          style={{ border: '2px solid rgba(99,102,241,0.25)', borderTopColor: '#6366f1' }} />
+        <p className="text-sm font-semibold" style={{ color: '#94a3b8' }}>Verificando permisos...</p>
       </div>
     </div>
   )
 
   if (denied) return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#0b0f1a' }}>
-      <div className="w-full max-w-sm bg-[#161b27] border border-red-500/25 rounded-2xl p-8 flex flex-col items-center gap-5 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-red-500/15 border border-red-500/25 flex items-center justify-center">
-          <AlertTriangle size={28} className="text-red-400" />
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#080d18' }}>
+      <div className="w-full max-w-sm rounded-2xl p-8 flex flex-col items-center gap-5 text-center"
+        style={{ background: '#131929', border: '1px solid rgba(239,68,68,0.3)' }}>
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
+          style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)' }}>
+          <AlertTriangle size={28} style={{ color: '#f87171' }} />
         </div>
         <div>
-          <h2 className="text-white font-extrabold text-xl">Acceso denegado</h2>
-          <p className="text-slate-400 text-sm mt-2 leading-relaxed">Tu cuenta no tiene permisos para acceder al panel de control.</p>
+          <h2 className="font-extrabold text-xl" style={{ color: '#f1f5f9' }}>Acceso denegado</h2>
+          <p className="text-sm mt-2 leading-relaxed" style={{ color: '#64748b' }}>
+            Tu cuenta no tiene permisos para acceder al panel.
+          </p>
         </div>
         <button onClick={handleLogout}
-          className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors font-semibold">
+          className="text-sm font-semibold transition-colors"
+          style={{ color: '#818cf8' }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#a5b4fc')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#818cf8')}>
           Intentar con otra cuenta
         </button>
       </div>
@@ -489,45 +523,48 @@ export default function AdminApp() {
   if (!adminEmail) return <AdminLogin onAuth={handleAuth} />
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#0b0f1a' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#080d18' }}>
 
       {/* Header */}
-      <header className="border-b border-[#1e2740] px-5 sm:px-8 py-4 flex items-center gap-4 shrink-0"
-        style={{ background: '#0f1422' }}>
+      <header className="px-5 sm:px-8 py-4 flex items-center gap-4 shrink-0"
+        style={{ background: '#0d1527', borderBottom: '1px solid #1a2740' }}>
         <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: 'linear-gradient(135deg, #6366f1, #4338ca)' }}>
+          style={{ background: 'linear-gradient(135deg, #6366f1, #4338ca)', boxShadow: '0 0 16px rgba(99,102,241,0.4)' }}>
           <Shield size={16} className="text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="text-sm font-extrabold text-white tracking-tight">Centro de Control</h1>
-          <p className="text-[11px] text-slate-500 truncate font-medium">{adminEmail}</p>
+          <h1 className="text-sm font-extrabold tracking-tight" style={{ color: '#f8fafc' }}>Centro de Control</h1>
+          <p className="text-[11px] truncate font-medium" style={{ color: '#475569' }}>{adminEmail}</p>
         </div>
         <div className="flex items-center gap-2 mr-4">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <span className="text-xs text-emerald-400 font-semibold">En vivo</span>
+          <span className="text-xs font-bold" style={{ color: '#34d399' }}>En vivo</span>
         </div>
         <button onClick={handleLogout}
-          className="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-all px-3.5 py-2 rounded-xl border border-[#2a3042] hover:border-slate-500 hover:bg-white/5 font-semibold">
+          className="flex items-center gap-2 text-xs font-semibold px-3.5 py-2 rounded-xl transition-all"
+          style={{ color: '#64748b', border: '1px solid #1a2740', background: 'transparent' }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#e2e8f0'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'transparent' }}>
           <LogOut size={13} />
           <span className="hidden sm:inline">Salir</span>
         </button>
       </header>
 
       {/* Tabs */}
-      <div className="border-b border-[#1e2740] px-5 sm:px-8 flex" style={{ background: '#0d1220' }}>
+      <div className="px-5 sm:px-8 flex" style={{ background: '#0a1020', borderBottom: '1px solid #1a2740' }}>
         {([
           { key: 'monitor', label: 'Monitoreo', icon: <Activity size={13} /> },
           { key: 'users',   label: 'Usuarios',  icon: <Users size={13} /> },
         ] as const).map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-2 px-5 py-4 text-sm font-bold border-b-2 transition-all ${
-              activeTab === tab.key
-                ? 'border-indigo-500 text-indigo-400'
-                : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-600'
-            }`}>
+            className="flex items-center gap-2 px-5 py-4 text-sm font-bold border-b-2 transition-all"
+            style={activeTab === tab.key
+              ? { borderColor: '#6366f1', color: '#818cf8' }
+              : { borderColor: 'transparent', color: '#475569' }
+            }>
             {tab.icon}
             {tab.label}
           </button>
