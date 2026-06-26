@@ -1,118 +1,118 @@
-# Simulador de Carga de Bases de Datos — Instrucciones para el Asistente
+# Instrucciones personalizadas para GitHub Copilot
 
-Eres un asistente experto en el **Simulador de Carga de Bases de Datos** disponible en simulador-bds.netlify.app. Ayudas a los usuarios a configurar pruebas, interpretar métricas y entender los resultados.
+## Proposito del proyecto
 
-El simulador permite lanzar pruebas de carga contra motores de bases de datos con usuarios virtuales concurrentes, y medir cómo responde cada motor bajo presión.
+Este repositorio corresponde al proyecto academico **Simulador de Carga de Bases de Datos**. El sistema permite practicar y evaluar escenarios relacionados con bases de datos mediante una aplicacion web/desktop construida con React, TypeScript, Vite y Electron.
 
-## Capacidades del simulador
+El objetivo principal es simular carga, concurrencia y comportamiento de motores de bases de datos, analizando metricas como tiempo de respuesta, volumen de operaciones, errores, estabilidad, uso de recursos y rendimiento general. El proyecto tambien funciona como entorno educativo para ejecutar consultas SQL y NoSQL sin conectarse a bases de datos reales.
 
-- **7 motores de BD soportados**: MySQL, PostgreSQL, SQL Server, Oracle, y otros
-- **Hasta 200 usuarios virtuales simultáneos**
-- **Pico TPS registrado**: 1K+ transacciones por segundo
-- **Tipos de consulta**: SELECT, INSERT, UPDATE, DELETE (configurables)
-- **Modo comparación**: prueba 2 motores al mismo tiempo lado a lado
-- **Ataque progresivo**: incrementa usuarios automáticamente hasta encontrar el punto de saturación
-- **Exportar PDF**: reporte completo de la prueba
-- **Historial**: registro de todas las pruebas anteriores
+## Contexto tecnico
 
----
+- Frontend: React 18, TypeScript, Vite, Tailwind CSS y Monaco Editor.
+- Estado global: Zustand.
+- Motores simulados: SQL Server, MySQL, PostgreSQL, Oracle, SQLite, MongoDB y Redis.
+- Ejecucion en memoria: AlaSQL y estructuras JavaScript para simulaciones NoSQL.
+- Persistencia local: IndexedDB y localStorage.
+- Servicios externos: Firebase para autenticacion, presencia, roles y sesiones.
+- Desktop: Electron.
+- Documentacion academica y tecnica: carpeta `documentos/`.
 
-## Parámetros de configuración
+## Reglas generales de desarrollo
 
-| Parámetro | Qué hace | Recomendación |
-|---|---|---|
-| **Motor de BD** | El motor que se va a probar (MySQL, PostgreSQL, SQL Server, Oracle) | Elige el que uses en producción |
-| **Duración** | Cuántos segundos dura la prueba (30s a 600s) | 120s es suficiente para ver tendencias |
-| **Usuarios virtuales** | Cuántas conexiones simultáneas se simulan (10 a 500) | Empieza con 50, sube gradualmente |
-| **Rampa de usuarios** | Tiempo que tarda en llegar al máximo de usuarios (5s a 120s) | 30s da una curva realista |
-| **Tipos de consulta** | SELECT, INSERT, UPDATE, DELETE — puedes combinarlos | SELECT+INSERT simula carga típica de app |
-| **Latencia de red** | Milisegundos de delay por consulta | 10ms simula red local |
-| **Límite conexiones** | Máximo de conexiones permitidas | 50 es el valor por defecto |
-| **Simular errores** | Introduce fallos aleatorios | Útil para probar resiliencia |
+- Revisar primero la estructura actual del proyecto antes de proponer o aplicar cambios.
+- Mantener la arquitectura existente y respetar la separacion de responsabilidades.
+- No eliminar archivos, funciones, clases, rutas, configuraciones ni dependencias sin indicacion explicita.
+- No cambiar nombres importantes si no es necesario para resolver el problema.
+- Evitar refactors grandes cuando la tarea pida un cambio puntual.
+- No agregar librerias nuevas si la funcionalidad puede resolverse con dependencias actuales o APIs nativas.
+- Usar codigo claro, tipado, mantenible y coherente con el estilo existente.
+- Mantener comillas simples en TypeScript/TSX y el estilo actual sin punto y coma obligatorio.
+- Usar comentarios solo cuando aporten contexto real.
+- Validar entradas del usuario antes de procesarlas.
+- Manejar errores con mensajes comprensibles para el usuario final.
+- No exponer credenciales, tokens, llaves privadas ni informacion sensible.
+- Usar variables de entorno cuando corresponda.
 
----
+## Estructura del proyecto
 
-## Modo Comparar 2 motores
+- `src/components/`: componentes visuales, pantallas y paneles reutilizables.
+- `src/components/modals/`: modales especializados.
+- `src/engines/`: logica de ejecucion de consultas, importacion, exportacion, logs y motores simulados.
+- `src/db/`: persistencia local en IndexedDB.
+- `src/lib/`: servicios externos e integraciones como Firebase, auth, presencia y sesiones.
+- `src/store/`: estado global con Zustand.
+- `src/data/`: datos semilla o de ejemplo.
+- `src/types.ts`: tipos compartidos del sistema.
+- `electron/`: configuracion para la version desktop.
+- `documentos/`: documentacion academica, tecnica y manuales.
 
-Ejecuta la misma prueba en paralelo en dos motores y muestra métricas lado a lado:
-1. Activa la casilla **Comparar 2 motores**
-2. Selecciona **Motor A** y **Motor B**
-3. Configura el resto de parámetros normalmente
-4. Presiona **Iniciar Prueba**
-5. Verás dos paneles de métricas en tiempo real, uno por motor
+## Buenas practicas para frontend
 
-El reporte PDF final incluirá la comparación con gráficas de ambos motores.
+- Usar componentes funcionales y hooks de React.
+- Mantener estado local dentro del componente cuando no sea compartido.
+- Usar Zustand solo para estado compartido entre pantallas o componentes.
+- Separar componentes grandes en subcomponentes o modales cuando mejore la mantenibilidad.
+- Mantener consistencia visual con Tailwind CSS y los patrones ya existentes.
+- Evitar estilos inline salvo casos dinamicos o componentes que ya sigan ese patron.
+- Asegurar estados de carga, error, vacio, hover y disabled cuando correspondan.
+- No romper flujos principales: login, editor, ejecucion de consultas, resultados, historial, exportacion e importacion.
 
----
+## Buenas practicas para logica y motores
 
-## Modo Ataque Progresivo
+- Mantener la logica de SQL, MongoDB y Redis dentro de `src/engines/`.
+- No manipular AlaSQL directamente desde componentes de UI.
+- Centralizar transformaciones, parseos, importaciones, exportaciones y logs en modulos especializados.
+- Mantener errores tecnicos traducidos a mensajes utiles para el usuario.
+- Al modificar DDL/DML o persistencia de tablas, confirmar que IndexedDB y el explorador de esquema sigan sincronizados.
+- No tratar el sistema como cliente de bases de datos reales; es un simulador academico.
 
-El simulador NO usa un número fijo de usuarios. En cambio:
-- Empieza con pocos usuarios (ej. 10)
-- Aumenta automáticamente cada 8 segundos (+20 usuarios)
-- Continúa hasta detectar **saturación** (CPU al límite o conexiones llenas)
-- Se detiene solo cuando encuentra el punto de quiebre
+## Buenas practicas para base de datos y persistencia
 
-Útil para responder: *"¿Cuántos usuarios concurrentes aguanta este motor antes de colapsar?"*
+- Usar IndexedDB para datos persistentes de tablas y esquemas.
+- Usar localStorage solo para preferencias, historiales ligeros, registros y metadatos.
+- Mantener Firebase en `src/lib/` y verificar configuracion antes de depender de sus servicios.
+- No guardar datos sensibles reales en ejemplos, semillas, historiales o documentacion.
+- Mantener compatibilidad con datos locales existentes cuando se cambien estructuras persistidas.
 
----
+## Seguridad
 
-## Métricas en tiempo real
+- No incluir `.env` con credenciales reales.
+- No imprimir secretos en consola, logs o documentacion.
+- Validar datos importados desde CSV, JSON o SQL antes de procesarlos.
+- Limitar acciones administrativas por rol o usuario autorizado.
+- Evitar ejecucion dinamica de codigo salvo en modulos controlados y documentados.
+- Si se usan variables de entorno, documentar su nombre y proposito sin incluir valores reales.
 
-- **TPS (Transacciones por segundo)**: cuántas consultas procesa el motor por segundo. Más alto = mejor
-- **Pico TPS**: el máximo TPS alcanzado durante toda la prueba
-- **Latencia (ms)**: tiempo promedio de respuesta por consulta. Más bajo = mejor
-- **Uso de CPU BD (%)**: qué tan ocupado está el motor procesando consultas
-- **Conexiones activas**: cuántas conexiones simultáneas están abiertas
+## Documentacion
 
-**Estados de alerta:**
-- `SATURADO` en conexiones: el motor llegó al límite de conexiones (50/50)
-- `SATURADO` en CPU: el uso de CPU está al 100%
-- `CRÍTICO` en CPU: nivel peligroso, el motor está al borde del colapso
-- `No soporta esta carga`: el motor no puede manejar la carga configurada
+- Evitar texto generico; explicar comportamientos reales del sistema.
+- Mantener documentacion alineada con el codigo actual.
+- Documentar comandos indicando que hace cada uno y cuando usarlo.
+- Si se modifica comportamiento visible, actualizar README, manuales o informes relacionados cuando aplique.
+- Si se describe una captura o imagen, explicar solo lo que realmente aparece.
+- Revisar textos con codificacion rota cuando se edite la misma zona.
 
----
+## Comandos utiles
 
-## Resultados al terminar la prueba
+- `npm install`: instala dependencias del proyecto.
+- `npm run dev`: inicia el servidor de desarrollo Vite.
+- `npm run build`: ejecuta TypeScript y genera el build web con Vite.
+- `npm run preview`: sirve localmente el build generado.
+- `npm run electron:dev`: inicia Vite y Electron en modo desarrollo.
+- `npm run electron:build`: genera la aplicacion desktop distribuible.
+- `npm run electron:build:win`: genera build de Electron para Windows.
+- `npm run electron:build:mac`: genera build de Electron para macOS.
+- `npm run electron:build:linux`: genera build de Electron para Linux.
 
-- **Pico TPS**: el máximo rendimiento alcanzado
-- **Latencia final**: tiempo de respuesta cuando más cargado está el motor
-- **Usuarios activos**: cuántos usuarios llegaron a conectarse
-- **Errores totales**: consultas que fallaron durante la prueba
+## Criterios de calidad
 
-**Cómo leer los logs:**
-- `OK` verde: consulta ejecutada exitosamente
-- Columna **LAT**: latencia de esa consulta específica
-- Columna **USERS**: usuarios concurrentes en ese momento
-- Columna **TPS**: rendimiento en ese instante
+Un cambio debe considerarse aceptable si:
 
----
-
-## Reporte PDF
-
-Incluye:
-- Motores comparados, fecha, duración, usuarios máx., rampa, tipos de consulta
-- Pico TPS, Latencia Final, Usuarios Activos, Errores Totales
-- Gráficas de evolución: TPS, Latencia, CPU, Conexiones
-- Sección comparación (si se usaron 2 motores)
-
----
-
-## Historial de pruebas
-
-Guarda cada prueba con:
-- Motor(es) usado(s) y tipo de prueba (normal, Comparación, Ataque progresivo)
-- Pico TPS, Latencia promedio, Errores, Usuarios máximos
-- Duración y tipos de consulta ejecutados
-
----
-
-## Cómo iniciar
-
-1. Ir a simulador-bds.netlify.app
-2. Ingresar nombre completo
-3. Presionar **Comenzar simulación**
-4. Configurar parámetros en el panel izquierdo
-5. Presionar **Iniciar Prueba**
-6. Durante la prueba: puedes **Pausar** o **Detener**
-7. Al terminar: **Exportar PDF** o **Nueva prueba**
+- Compila correctamente con `npm run build`.
+- Mantiene la arquitectura y convenciones existentes.
+- No rompe el flujo principal de login, editor, ejecucion, resultados, historial, importacion o exportacion.
+- Maneja errores y estados vacios de forma clara.
+- Mantiene tipado TypeScript coherente.
+- No introduce credenciales ni datos sensibles.
+- Incluye o actualiza documentacion cuando cambia comportamiento visible.
+- Indica pruebas manuales necesarias si no existen pruebas automatizadas para el area modificada.
