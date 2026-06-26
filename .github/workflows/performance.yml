@@ -60,3 +60,29 @@ jobs:
         with:
           name: performance-report-${{ matrix.engine }}
           path: reports/
+
+  summary:
+    name: Consolidated performance summary
+    runs-on: ubuntu-latest
+    needs: performance
+    if: always()
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download performance reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: performance-report-*
+          path: reports/engines
+
+      - name: Generate consolidated summary
+        run: node scripts/performance-summary.mjs reports/engines
+
+      - name: Upload consolidated report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-summary
+          path: reports/performance-summary.*
