@@ -31,6 +31,7 @@ Integrantes:
 |:--:|:--:|:--:|:--:|:--:|:--|
 | 1.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-05-01 | Version inicial |
 | 2.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-06-21 | Actualizacion segun implementacion final del simulador |
+| 2.1 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-07-04 | Actualizacion con version actual, GitHub Actions y despliegue |
 
 ## 1. Antecedentes
 
@@ -73,6 +74,8 @@ Desarrollar un simulador academico de bases de datos que permita ejecutar consul
 - Agregar simulador de carga con TPS, latencia, CPU, conexiones y errores.
 - Implementar panel administrativo con monitoreo y roles.
 - Permitir ejecucion web y empaquetado desktop con Electron.
+- Automatizar validaciones de rendimiento con GitHub Actions.
+- Publicar la landing estatica mediante GitHub Pages.
 
 ## 4. Marco teorico
 
@@ -130,6 +133,10 @@ La simulacion de carga estima metricas como usuarios concurrentes, TPS, latencia
 | `src/lib/presence.ts` | Usuarios conectados. |
 | `src/lib/simulatorSession.ts` | Actividad del simulador. |
 | `electron/main.cjs` | Empaquetado desktop. |
+| `scripts/performance-test.mjs` | Prueba automatica de rendimiento por motor y escenario. |
+| `scripts/performance-summary.mjs` | Resumen consolidado de reportes de rendimiento. |
+| `.github/workflows/performance.yml` | Workflow Database Load Performance. |
+| `.github/workflows/pages.yml` | Workflow Deploy Landing Page. |
 
 ### 5.2 Motores implementados
 
@@ -212,6 +219,8 @@ flowchart LR
 | Simulacion carga | Modal simulador | Muestra TPS, latencia, CPU y errores. |
 | Comparacion | Modal simulador | Muestra metricas para dos motores. |
 | Admin | `admin.html` | Muestra usuarios y sesiones si Firebase esta configurado. |
+| CI rendimiento | GitHub Actions / `npm run test:performance` | Genera reportes por motor y valida umbrales. |
+| Landing | GitHub Pages / `landing/` | Publica pagina estatica del proyecto. |
 
 ## 8. Resultados
 
@@ -227,6 +236,10 @@ Los artefactos principales son:
 - Persistencia local: `src/db/idbStorage.ts`.
 - Configuracion de build: `vite.config.ts`.
 - Empaquetado desktop: `electron/main.cjs`.
+- Workflow de rendimiento: `.github/workflows/performance.yml`.
+- Workflow de landing: `.github/workflows/pages.yml`.
+
+La version actual del proyecto en `package.json` es **1.8.0**. La automatizacion principal es **Database Load Performance**, que ejecuta una matriz de 21 combinaciones: 7 motores por 3 escenarios (`light`, `medium`, `heavy`). Cada combinacion valida latencia promedio, latencia p95, TPS y tasa de errores. Al finalizar, se genera un artifact consolidado `performance-summary` en Markdown, JSON y CSV.
 
 ## 9. Presupuesto
 
@@ -248,7 +261,8 @@ Los artefactos principales son:
 5. El simulador de carga aporta una vista didactica de rendimiento, saturacion y comparacion entre motores.
 6. El panel administrativo y Firebase agregan capacidades de monitoreo y gestion de usuarios.
 7. Electron permite distribuir el sistema como aplicacion desktop.
-8. La solucion es viable para fines academicos, practicas guiadas y demostraciones.
+8. GitHub Actions mejora la calidad del proyecto al automatizar build, pruebas de rendimiento y publicacion de la landing.
+9. La solucion es viable para fines academicos, practicas guiadas y demostraciones.
 
 ## 11. Recomendaciones
 
@@ -278,6 +292,7 @@ Los artefactos principales son:
 - Firebase Documentation: https://firebase.google.com/docs
 - Electron Documentation: https://www.electronjs.org/docs
 - MDN IndexedDB: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
+- GitHub Actions Documentation: https://docs.github.com/actions
 
 ## 14. Anexos
 

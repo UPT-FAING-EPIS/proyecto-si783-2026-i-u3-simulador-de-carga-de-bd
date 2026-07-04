@@ -51,6 +51,14 @@ Este manual explica el uso del **Simulador de Bases de Datos**, una aplicacion a
 4. Al iniciar sesion, se muestra la pantalla de bienvenida.
 5. Presionar el boton de ingreso para abrir el entorno principal.
 
+Entradas disponibles en desarrollo:
+
+| Entrada | Uso |
+|---|---|
+| `/app.html` o `/app` | Aplicacion principal tipo IDE. |
+| `/simulator.html` o `/simulador` | Simulador de carga independiente. |
+| `/admin.html` o `/admin` | Panel administrativo. |
+
 ## 4. Pantalla principal
 
 La pantalla principal se organiza en:
@@ -264,3 +272,9 @@ Nota: requiere Firebase configurado.
 - Verificar el motor activo antes de ejecutar consultas.
 - Guardar sesiones cuando se trabaje con varios tabs.
 - Usar el simulador de carga solo con fines academicos.
+
+## 19. Validacion del proyecto en GitHub
+
+El repositorio incluye la accion **Database Load Performance**. Esta accion puede ejecutarse desde la pestana **Actions** de GitHub y valida automaticamente el rendimiento simulado de los siete motores en escenarios `light`, `medium` y `heavy`.
+
+Cuando el workflow termina correctamente, GitHub muestra la ejecucion con estado exitoso. Esto sirve como evidencia de que el proyecto compila y que las pruebas de carga automatizadas cumplen los umbrales definidos.

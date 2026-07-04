@@ -31,6 +31,12 @@
 
 Este manual describe el proceso para instalar, ejecutar, compilar y empaquetar el **Simulador de Bases de Datos** en modo web y desktop.
 
+Repositorio oficial:
+
+```text
+https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds.git
+```
+
 ## 2. Requisitos previos
 
 | Requisito | Version recomendada | Uso |
@@ -52,6 +58,9 @@ Este manual describe el proceso para instalar, ejecutar, compilar y empaquetar e
 | `src/lib/` | Firebase, auth, presencia y sesiones. |
 | `electron/` | Configuracion de aplicacion desktop. |
 | `public/` | Recursos publicos. |
+| `landing/` | Landing estatica publicada por GitHub Pages. |
+| `.github/workflows/` | Workflows de CI/CD. |
+| `scripts/` | Pruebas de rendimiento y resumen consolidado. |
 | `documentos/` | Documentacion del proyecto. |
 | `package.json` | Dependencias, scripts y configuracion Electron. |
 
@@ -94,6 +103,9 @@ Entradas disponibles:
 | `/app.html` | Aplicacion principal. |
 | `/simulator.html` | Simulador de carga independiente. |
 | `/admin.html` | Panel administrativo. |
+| `/app` | Ruta limpia para la aplicacion en Netlify. |
+| `/simulador` | Ruta limpia para el simulador en Netlify. |
+| `/admin` | Ruta limpia para el panel admin en Netlify. |
 
 Ejemplos:
 
@@ -209,13 +221,63 @@ npm run electron:build:linux
 | `npm run dev` | Inicia Vite en desarrollo. |
 | `npm run build` | Compila TypeScript y genera build web. |
 | `npm run preview` | Previsualiza el build. |
+| `npm run test:performance` | Ejecuta una prueba automatica de rendimiento del simulador. |
 | `npm run electron:dev` | Ejecuta Electron en desarrollo. |
 | `npm run electron:build` | Genera build desktop. |
 | `npm run electron:build:win` | Genera instalador Windows. |
 | `npm run electron:build:mac` | Genera build macOS. |
 | `npm run electron:build:linux` | Genera AppImage Linux. |
 
-## 11. Verificacion de instalacion
+## 11. CI/CD y rendimiento
+
+El proyecto incluye el workflow de GitHub Actions `Database Load Performance`, definido en:
+
+```text
+.github/workflows/performance.yml
+```
+
+Este pipeline se ejecuta en `push`, `pull_request` y manualmente desde la pestana Actions de GitHub. Su objetivo es validar que el simulador mantenga un comportamiento aceptable de rendimiento antes de integrar cambios al repositorio principal.
+
+El flujo realiza:
+
+1. Descarga del repositorio.
+2. Instalacion de Node.js 22.
+3. Instalacion de dependencias con `npm ci --legacy-peer-deps`.
+4. Compilacion con `npm run build`.
+5. Ejecucion de `npm run test:performance`.
+6. Prueba de los motores `sqlserver`, `mysql`, `postgresql`, `oracle`, `sqlite`, `mongodb` y `redis`.
+7. Ejecucion de escenarios `light`, `medium` y `heavy`.
+8. Aplicacion de umbrales especificos por motor y escenario.
+9. Generacion de reportes individuales por combinacion motor/escenario.
+10. Generacion de un resumen consolidado con ranking automatico.
+
+Escenarios configurados:
+
+| Escenario | Consultas | Concurrencia |
+|---|---:|---:|
+| `light` | 120 | 12 |
+| `medium` | 240 | 24 |
+| `heavy` | 600 | 60 |
+
+Los artifacts generados son:
+
+| Artifact | Contenido |
+|---|---|
+| `sqlserver-light-report`, `mysql-heavy-report`, etc. | Reporte individual de una combinacion motor/escenario. |
+| `performance-summary` | Reportes Markdown, JSON y CSV con todos los motores y escenarios, fecha, version, branch, commit, duracion total, TPS, latencia, tasa de errores, conclusion automatica, resumen por motor y ranking. |
+
+Criterios de aceptacion:
+
+| Metrica | Umbral |
+|---|---|
+| Latencia promedio | Definida por motor y ajustada por escenario. |
+| Latencia p95 | Definida por motor y ajustada por escenario. |
+| TPS | Definido por motor y ajustado por escenario. |
+| Tasa de errores | Definida por motor. |
+
+Si alguna combinacion motor/escenario supera los umbrales, el workflow falla y GitHub marca la ejecucion como no aprobada. En Pull Requests, el resumen consolidado se publica como comentario automatico para facilitar la revision.
+
+## 12. Verificacion de instalacion
 
 Luego de instalar, verificar:
 
@@ -225,8 +287,9 @@ Luego de instalar, verificar:
 4. `simulator.html` muestra registro del simulador.
 5. `admin.html` muestra login administrativo.
 6. `npm run build` genera carpeta `dist`.
+7. `npm run test:performance` genera reportes en `reports/` y muestra estado `PASS` si los umbrales se cumplen.
 
-## 12. Problemas comunes
+## 13. Problemas comunes
 
 | Problema | Causa probable | Solucion |
 |---|---|---|
@@ -236,10 +299,22 @@ Luego de instalar, verificar:
 | Admin no permite acceso | Usuario sin rol administrador. | Configurar `VITE_ADMIN_EMAILS` o cambiar rol en Firebase. |
 | IndexedDB no persiste | Navegador en modo privado o limpieza de datos. | Usar navegador normal y evitar limpiar almacenamiento. |
 
-## 13. Recomendaciones de despliegue
+## 14. Recomendaciones de despliegue
 
 - No subir `.env` con credenciales reales al repositorio.
 - Usar variables de entorno del proveedor de hosting.
 - Verificar `vite.config.ts` para la base de despliegue.
 - Probar `npm run build` antes de publicar.
 - Mantener Node.js actualizado.
+
+## 15. Despliegue de landing
+
+El proyecto incluye el workflow `Deploy Landing Page`, definido en:
+
+```text
+.github/workflows/pages.yml
+```
+
+Este flujo se ejecuta en `push` a `main` o manualmente desde GitHub Actions. Publica la carpeta `landing/` como artifact de GitHub Pages y despliega la pagina estatica del proyecto.
+
+La aplicacion completa se compila con Vite en `dist/`, mientras que la landing se mantiene separada para publicacion rapida en GitHub Pages.

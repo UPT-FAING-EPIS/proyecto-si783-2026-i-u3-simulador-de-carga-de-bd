@@ -41,6 +41,7 @@ Este documento describe las principales estructuras de datos utilizadas por el *
 | LocalStorage | Navegador | Preferencias, registros ligeros y logs de consultas. |
 | Firebase Auth | Firebase | Identidad de usuarios. |
 | Firebase RTDB | Firebase | Usuarios, presencia, sesiones y roles. |
+| GitHub Actions | CI/CD | Reportes de rendimiento y despliegue de landing. |
 
 ## 3. Enumeraciones principales
 
@@ -322,3 +323,30 @@ dbName
 - Las tablas creadas por usuarios son dinamicas y dependen de los archivos importados o consultas ejecutadas.
 - Firebase es opcional, pero necesario para login real, presencia y admin.
 - La persistencia principal de datos de prueba se realiza en IndexedDB.
+
+## 13. Reportes de rendimiento CI/CD
+
+Los scripts `scripts/performance-test.mjs` y `scripts/performance-summary.mjs` generan archivos dentro de `reports/`.
+
+### performance-report.json
+
+| Campo | Tipo | Descripcion |
+|---|---|---|
+| `generatedAt` | `string` | Fecha ISO de generacion. |
+| `simulatorVersion` | `string` | Version tomada de `package.json`. |
+| `repository` | `string` | Repositorio de GitHub o `local`. |
+| `branch` | `string` | Rama ejecutada. |
+| `commit` | `string` | Commit asociado. |
+| `engine` | `object` | Motor evaluado y `perfFactor`. |
+| `settings` | `object` | Motor, escenario, consultas, concurrencia y umbrales. |
+| `metrics` | `object` | Duracion, latencias, TPS y tasa de errores. |
+| `passed` | `boolean` | Indica si cumple los umbrales. |
+| `failures` | `string[]` | Lista de incumplimientos. |
+
+### performance-summary.*
+
+| Archivo | Contenido |
+|---|---|
+| `performance-summary.md` | Resumen legible para GitHub y Pull Requests. |
+| `performance-summary.json` | Resumen estructurado para analisis. |
+| `performance-summary.csv` | Tabla exportable para hojas de calculo. |

@@ -25,12 +25,13 @@ Integrantes:
 
 # Documento de Vision
 
-Version: **2.0**
+Version: **2.1**
 
 | Version | Hecha por | Revisada por | Aprobada por | Fecha | Motivo |
 |:--:|:--:|:--:|:--:|:--:|:--|
 | 1.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-04-14 | Version inicial |
 | 2.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-06-21 | Actualizacion segun implementacion final del simulador |
+| 2.1 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-07-04 | Actualizacion con version 1.8.0, CI/CD y rutas actuales |
 
 ## 1. Introduccion
 
@@ -55,6 +56,8 @@ La version actual incluye:
 - Modulo de simulacion de carga.
 - Panel administrativo con monitoreo de sesiones y gestion de usuarios.
 - Empaquetado web y desktop.
+- Entradas separadas para aplicacion principal, simulador y administracion: `app.html`, `simulator.html` y `admin.html`.
+- Validacion automatizada con GitHub Actions para rendimiento y despliegue de landing.
 
 No incluye conexion a bases de datos reales ni ejecucion exacta de todos los dialectos de cada motor.
 
@@ -70,6 +73,7 @@ No incluye conexion a bases de datos reales ni ejecucion exacta de todos los dia
 | TPS | Transacciones o consultas por segundo estimadas en el simulador de carga. |
 | Simulador de carga | Modulo que estima usuarios, latencia, CPU, conexiones y errores. |
 | Electron | Plataforma que permite empaquetar la aplicacion web como app de escritorio. |
+| GitHub Actions | Servicio de automatizacion usado para build, pruebas de rendimiento y despliegue. |
 
 ## 2. Posicionamiento
 
@@ -124,6 +128,19 @@ Las entradas principales son scripts SQL, comandos MongoDB, comandos Redis y arc
 | Simulacion de carga | Mide TPS, latencia, errores, CPU estimada y saturacion. |
 | Administracion | Permite monitorear usuarios y sesiones activas. |
 | Desktop | Puede ejecutarse como aplicacion Electron. |
+| CI/CD | Ejecuta validaciones de rendimiento y despliega la landing desde GitHub Actions. |
+
+### 4.3 Entradas y despliegue
+
+La version actual define tres entradas principales en `vite.config.ts`:
+
+| Entrada | Uso |
+|---|---|
+| `app.html` | IDE principal del simulador. |
+| `simulator.html` | Simulador de carga independiente. |
+| `admin.html` | Panel administrativo. |
+
+Para despliegue, el proyecto usa `netlify.toml` con rutas limpias `/app`, `/simulador` y `/admin`, y el workflow `Deploy Landing Page` para publicar la landing estatica alojada en `landing/`.
 
 ## 5. Caracteristicas del producto
 
@@ -201,4 +218,4 @@ El panel administrativo incluye:
 
 ## 8. Conclusion
 
-El **Simulador de Bases de Datos** cumple la vision de una herramienta academica para practicar consultas, explorar diferencias entre motores y simular condiciones de carga. La version actual es mas completa que un editor simple porque integra importacion, exportacion, persistencia local, simulacion de rendimiento, administracion y despliegue web/desktop.
+El **Simulador de Bases de Datos** cumple la vision de una herramienta academica para practicar consultas, explorar diferencias entre motores y simular condiciones de carga. La version actual es mas completa que un editor simple porque integra importacion, exportacion, persistencia local, simulacion de rendimiento, administracion, despliegue web/desktop y validacion automatizada con GitHub Actions.

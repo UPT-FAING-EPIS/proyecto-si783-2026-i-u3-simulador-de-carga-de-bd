@@ -25,12 +25,13 @@ Integrantes:
 
 # Informe de Factibilidad
 
-Version: **2.0**
+Version: **2.1**
 
 | Version | Hecha por | Revisada por | Aprobada por | Fecha | Motivo |
 |:--:|:--:|:--:|:--:|:--:|:--|
 | 1.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-04-05 | Version inicial |
 | 2.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-06-21 | Actualizacion segun implementacion final del simulador |
+| 2.1 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-07-04 | Actualizacion segun codigo actual, GitHub Actions y despliegue |
 
 ## 1. Descripcion del proyecto
 
@@ -56,6 +57,8 @@ La version actual incluye:
 - Simulador de carga con TPS, latencia, CPU estimada, errores, comparacion entre motores y modo progresivo.
 - Panel administrativo para monitoreo de sesiones y gestion de usuarios.
 - Version web con Vite y version desktop con Electron.
+- Landing publica en `landing/` y despliegue automatico a GitHub Pages.
+- Workflows de GitHub Actions para validar rendimiento y publicar la landing.
 
 Fuera de alcance:
 
@@ -95,14 +98,25 @@ El proyecto es tecnicamente viable porque utiliza tecnologias consolidadas, grat
 | Firebase Auth/Realtime Database | Autenticacion, presencia, roles y monitoreo en tiempo real. |
 | Electron | Empaquetado como aplicacion desktop. |
 | SheetJS | Exportacion de resultados a Excel. |
+| GitHub Actions | Automatizacion de build, pruebas de rendimiento y despliegue de landing. |
 
 El repositorio ya cuenta con scripts de ejecucion y construccion:
 
 - `npm run dev`: inicia la version web.
 - `npm run build`: compila TypeScript y genera build Vite.
 - `npm run preview`: previsualiza el build.
+- `npm run test:performance`: ejecuta la prueba automatica de carga del simulador.
 - `npm run electron:dev`: ejecuta modo desktop en desarrollo.
 - `npm run electron:build`: genera instaladores desktop.
+
+Ademas, el repositorio contiene los workflows:
+
+| Workflow | Archivo | Funcion |
+|---|---|---|
+| Database Load Performance | `.github/workflows/performance.yml` | Compila el proyecto, ejecuta pruebas de rendimiento por motor y escenario, genera artifacts y resumen consolidado. |
+| Deploy Landing Page | `.github/workflows/pages.yml` | Publica el contenido de `landing/` en GitHub Pages. |
+
+La prueba de rendimiento automatizada usa 7 motores y 3 escenarios: `light`, `medium` y `heavy`. Cada ejecucion valida latencia promedio, latencia p95, TPS y tasa de errores mediante umbrales definidos por motor.
 
 **Resultado:** Factibilidad tecnica alta.
 

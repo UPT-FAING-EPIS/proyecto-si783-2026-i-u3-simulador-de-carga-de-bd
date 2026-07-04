@@ -44,6 +44,7 @@ Definir reglas de codificacion, organizacion, estilo y buenas practicas para man
 | IndexedDB | Persistencia local. |
 | Firebase | Auth, presencia, roles y sesiones. |
 | Electron | Empaquetado desktop. |
+| GitHub Actions | CI/CD para build, rendimiento y despliegue. |
 
 ## 3. Estructura de carpetas
 
@@ -57,6 +58,9 @@ Definir reglas de codificacion, organizacion, estilo y buenas practicas para man
 | `src/store/` | Estado global. |
 | `src/data/` | Datos semilla o de ejemplo. |
 | `electron/` | Configuracion desktop. |
+| `.github/workflows/` | Workflows de CI/CD. |
+| `scripts/` | Scripts de pruebas de rendimiento y resumen consolidado. |
+| `landing/` | Landing page publicada por GitHub Pages. |
 | `documentos/` | Documentacion academica y tecnica. |
 
 ## 4. Convenciones de nombres
@@ -205,11 +209,23 @@ useEffect(() => {
 4. No versionar `node_modules`, `dist`, `release` ni credenciales.
 5. Documentar cambios relevantes en los informes o README.
 
+## 15.1 Reglas de CI/CD
+
+1. Mantener `.github/workflows/performance.yml` como validacion principal de rendimiento.
+2. El workflow de rendimiento debe compilar el proyecto antes de ejecutar la matriz de pruebas.
+3. Los escenarios soportados son `light`, `medium` y `heavy`.
+4. Los motores soportados por CI son `sqlserver`, `mysql`, `postgresql`, `oracle`, `sqlite`, `mongodb` y `redis`.
+5. Los artifacts de rendimiento deben conservar reportes individuales y resumen consolidado en Markdown, JSON y CSV.
+6. El workflow `.github/workflows/pages.yml` debe publicar solo la carpeta `landing/`.
+7. Los cambios en `scripts/performance-test.mjs`, `scripts/performance-summary.mjs` o `src/types.ts` deben revisarse juntos porque los perfiles de rendimiento toman datos desde `ENGINE_CONFIGS`.
+
 ## 16. Criterios para aceptar un cambio
 
 Un cambio debe considerarse aceptable si:
 
 - Compila correctamente.
+- Pasa `npm run build`.
+- Pasa `npm run test:performance` o justifica claramente si no se ejecuto localmente.
 - No rompe el flujo principal de login, editor y resultados.
 - Mantiene consistencia visual.
 - Actualiza tipos si cambia una estructura compartida.

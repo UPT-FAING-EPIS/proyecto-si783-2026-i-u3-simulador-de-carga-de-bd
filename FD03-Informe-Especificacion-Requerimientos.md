@@ -31,6 +31,7 @@
 |---|---|---|---|---|---|
 | 1.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-04-20 | Version inicial |
 | 2.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-06-21 | Adaptacion a la implementacion final |
+| 2.1 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-07-04 | Actualizacion con codigo actual, CI/CD y GitHub Actions |
 
 ---
 
@@ -38,7 +39,7 @@
 
 ## Documento de Especificacion de Requerimientos de Software
 
-**Version 2.0**
+**Version 2.1**
 
 ---
 
@@ -203,6 +204,7 @@ En cursos de bases de datos y desarrollo de software, los estudiantes suelen nec
 - Simulador de carga con metricas estimadas.
 - Panel administrativo con monitoreo de sesiones y roles.
 - Despliegue web y empaquetado Electron.
+- CI/CD con GitHub Actions para pruebas de rendimiento y despliegue de landing.
 
 ### No Incluido en el Proyecto
 
@@ -376,6 +378,7 @@ flowchart TD
 | RNF008 | Compatibilidad | Funcionamiento en navegadores modernos. | Chrome, Edge, Firefox. | Media |
 | RNF009 | Claridad | Comunicar que los motores son simulados. | README/documentacion. | Alta |
 | RNF010 | Persistencia local | Conservar tablas entre sesiones del navegador. | IndexedDB. | Media |
+| RNF011 | Integracion continua | Validar build y rendimiento simulado en GitHub Actions. | Workflow `Database Load Performance`. | Media |
 
 ## c) Cuadro de Requerimientos Funcionales Final
 
@@ -403,6 +406,8 @@ flowchart TD
 | RF020 | Panel admin | Monitorea sesiones y gestiona roles. | `AdminApp` | Implementado |
 | RF021 | Presencia | Muestra usuarios conectados y motor activo. | `presence.ts` | Implementado |
 | RF022 | Desktop | Empaqueta la aplicacion con Electron. | `electron/main.cjs` | Implementado |
+| RF023 | CI/CD rendimiento | Ejecuta matriz de carga para 7 motores y 3 escenarios. | `.github/workflows/performance.yml` | Implementado |
+| RF024 | Despliegue landing | Publica la landing estatica del proyecto en GitHub Pages. | `.github/workflows/pages.yml` | Implementado |
 
 ## d) Reglas de Negocio
 
@@ -443,6 +448,17 @@ flowchart TD
 | RS002 | El factor de rendimiento depende del motor seleccionado. |
 | RS003 | En modo comparacion se calculan metricas para dos motores. |
 | RS004 | En modo progresivo se incrementan usuarios hasta completar o detectar saturacion. |
+
+### Reglas de CI/CD
+
+| ID | Regla |
+|---|---|
+| RC001 | El workflow de rendimiento se ejecuta en `push`, `pull_request` y `workflow_dispatch`. |
+| RC002 | Antes de probar rendimiento se debe ejecutar `npm run build`. |
+| RC003 | La matriz de rendimiento debe cubrir `sqlserver`, `mysql`, `postgresql`, `oracle`, `sqlite`, `mongodb` y `redis`. |
+| RC004 | Cada motor debe probarse en escenarios `light`, `medium` y `heavy`. |
+| RC005 | Los resultados deben generar artifacts individuales y un resumen consolidado. |
+| RC006 | En Pull Requests el resumen consolidado debe publicarse como comentario automatico. |
 
 ---
 

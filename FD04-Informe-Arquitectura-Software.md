@@ -31,6 +31,7 @@
 |---|---|---|---|---|---|
 | 1.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-04-25 | Version inicial |
 | 2.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-06-21 | Adaptacion a la implementacion final |
+| 2.1 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-07-04 | Actualizacion con rutas, CI/CD y workflows actuales |
 
 ---
 
@@ -38,7 +39,7 @@
 
 ## Documento de Arquitectura de Software
 
-**Version 2.0**
+**Version 2.1**
 
 ---
 
@@ -81,6 +82,7 @@ El documento cubre:
 - Simulador de carga.
 - Panel administrativo.
 - Empaquetado desktop con Electron.
+- Workflows de GitHub Actions para rendimiento y despliegue.
 - Diagramas PlantUML de arquitectura, procesos y despliegue.
 
 No cubre una arquitectura de conexion a motores reales, porque la version actual ejecuta consultas de forma local y simulada.
@@ -99,6 +101,7 @@ No cubre una arquitectura de conexion a motores reales, porque la version actual
 | RTDB | Firebase Realtime Database. |
 | Electron | Plataforma para empaquetar aplicaciones web como desktop. |
 | TPS | Transacciones o consultas por segundo, estimadas en el simulador. |
+| CI/CD | Integracion y despliegue continuo mediante GitHub Actions. |
 
 ## 1.4 Organizacion del Documento
 
@@ -128,6 +131,7 @@ El documento se organiza en:
 | RF-A08 | Registrar presencia y sesiones cuando Firebase esta configurado. |
 | RF-A09 | Permitir panel administrativo con roles. |
 | RF-A10 | Construir version web y desktop. |
+| RF-A11 | Automatizar pruebas de rendimiento y despliegue de landing. |
 
 ## 2.2 Requerimientos No Funcionales - Atributos de Calidad
 
@@ -140,6 +144,7 @@ El documento se organiza en:
 | RNF-A05 | Auditabilidad | Historial, logs, exportaciones y sesiones de simulador. |
 | RNF-A06 | Seguridad | Firebase Auth y roles para administracion. |
 | RNF-A07 | Extensibilidad | Configuracion central de motores y exportadores por modulo. |
+| RNF-A08 | Integracion continua | GitHub Actions valida build, rendimiento y despliegue. |
 
 ## 2.3 Restricciones
 
@@ -445,6 +450,11 @@ flowchart TB
             simulatorSession["simulatorSession.ts"]
             adminUsers["adminUsers.ts"]
         end
+
+        subgraph Scripts["scripts"]
+            perfTest["performance-test.mjs"]
+            perfSummary["performance-summary.mjs"]
+        end
     end
 
     subgraph Electron["electron"]
@@ -452,11 +462,19 @@ flowchart TB
         preload["preload.cjs"]
     end
 
+    subgraph Workflows[".github/workflows"]
+        performance["performance.yml"]
+        pages["pages.yml"]
+    end
+
     TopBar --> useStore
     SQLEditor --> sqlEngine
     sqlEngine --> idbStorage
     LoadSimulatorModal --> simulatorSession
     AdminApp --> adminUsers
+    performance --> perfTest
+    performance --> perfSummary
+    pages --> landing["landing/"]
 ```
 
 ### 3.3.2 Diagrama de Arquitectura del Sistema
@@ -522,6 +540,8 @@ flowchart TB
 
     subgraph Hosting["Servidor de Desarrollo / Hosting"]
         Vite["Vite Dev Server o Build Dist"]
+        Pages["GitHub Pages<br/>landing/"]
+        Netlify["Netlify<br/>dist/"]
     end
 
     subgraph Firebase["Firebase"]
@@ -530,6 +550,8 @@ flowchart TB
     end
 
     ReactApp -->|carga assets| Vite
+    ReactApp -->|build produccion| Netlify
+    Pages -->|publica| Landing["Landing estatica"]
     ReactApp -->|tablas / esquemas| IDB
     ReactApp -->|preferencias / sesion| LS
     ReactApp -->|login| Auth
@@ -542,6 +564,8 @@ flowchart TB
 - La ejecucion de consultas ocurre en el cliente, reduciendo carga de servidor.
 - Firebase escala las funciones de presencia y sesiones.
 - El build estatico puede desplegarse en Netlify, Firebase Hosting u otro hosting.
+- La landing se despliega automaticamente en GitHub Pages desde `landing/`.
+- GitHub Actions ejecuta build y pruebas de rendimiento antes de integrar cambios.
 
 **Disponibilidad:**
 
@@ -590,6 +614,7 @@ flowchart TB
 | Persistencia | Guardar tablas sin backend propio. | IndexedDB es suficiente para laboratorio. |
 | Simulacion | Actualizar metricas en tiempo real. | Calculos internos ligeros. |
 | Build | Generar assets estaticos. | Vite optimiza salida. |
+| CI/CD | Validar rendimiento simulado. | Matriz de 7 motores por 3 escenarios en GitHub Actions. |
 
 ## 4.5 Escenario de Mantenibilidad
 
