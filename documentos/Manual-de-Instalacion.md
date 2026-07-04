@@ -31,6 +31,12 @@
 
 Este manual describe el proceso para instalar, ejecutar, compilar y empaquetar el **Simulador de Bases de Datos** en modo web y desktop.
 
+Repositorio oficial:
+
+```text
+https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds.git
+```
+
 ## 2. Requisitos previos
 
 | Requisito | Version recomendada | Uso |
@@ -52,6 +58,9 @@ Este manual describe el proceso para instalar, ejecutar, compilar y empaquetar e
 | `src/lib/` | Firebase, auth, presencia y sesiones. |
 | `electron/` | Configuracion de aplicacion desktop. |
 | `public/` | Recursos publicos. |
+| `landing/` | Landing estatica publicada por GitHub Pages. |
+| `.github/workflows/` | Workflows de CI/CD. |
+| `scripts/` | Pruebas de rendimiento y resumen consolidado. |
 | `documentos/` | Documentacion del proyecto. |
 | `package.json` | Dependencias, scripts y configuracion Electron. |
 
@@ -94,6 +103,9 @@ Entradas disponibles:
 | `/app.html` | Aplicacion principal. |
 | `/simulator.html` | Simulador de carga independiente. |
 | `/admin.html` | Panel administrativo. |
+| `/app` | Ruta limpia para la aplicacion en Netlify. |
+| `/simulador` | Ruta limpia para el simulador en Netlify. |
+| `/admin` | Ruta limpia para el panel admin en Netlify. |
 
 Ejemplos:
 
@@ -224,7 +236,7 @@ El proyecto incluye el workflow de GitHub Actions `Database Load Performance`, d
 .github/workflows/performance.yml
 ```
 
-Este pipeline se ejecuta en `push`, `pull_request` y manualmente desde la pestaña Actions de GitHub. Su objetivo es validar que el simulador mantenga un comportamiento aceptable de rendimiento antes de integrar cambios al repositorio principal.
+Este pipeline se ejecuta en `push`, `pull_request` y manualmente desde la pestana Actions de GitHub. Su objetivo es validar que el simulador mantenga un comportamiento aceptable de rendimiento antes de integrar cambios al repositorio principal.
 
 El flujo realiza:
 
@@ -294,3 +306,15 @@ Luego de instalar, verificar:
 - Verificar `vite.config.ts` para la base de despliegue.
 - Probar `npm run build` antes de publicar.
 - Mantener Node.js actualizado.
+
+## 15. Despliegue de landing
+
+El proyecto incluye el workflow `Deploy Landing Page`, definido en:
+
+```text
+.github/workflows/pages.yml
+```
+
+Este flujo se ejecuta en `push` a `main` o manualmente desde GitHub Actions. Publica la carpeta `landing/` como artifact de GitHub Pages y despliega la pagina estatica del proyecto.
+
+La aplicacion completa se compila con Vite en `dist/`, mientras que la landing se mantiene separada para publicacion rapida en GitHub Pages.
