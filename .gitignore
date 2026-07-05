@@ -2,6 +2,7 @@ node_modules/
 dist/
 release/
 reports/
+landing/reportes-calidad/
 tmp/
 *.local
 .env
