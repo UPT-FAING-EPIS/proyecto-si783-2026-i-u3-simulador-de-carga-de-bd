@@ -46,6 +46,30 @@ const testRows = testSuites
     })),
   )
 
+const suiteRows = testSuites.map((suite) => {
+  const tests = suite.assertionResults ?? []
+  const file = path.relative(root, suite.name ?? '').replaceAll('\\', '/')
+  return {
+    file,
+    passed: tests.filter((test) => test.status === 'passed').length,
+    failed: tests.filter((test) => test.status === 'failed').length,
+    skipped: tests.filter((test) => test.status === 'pending' || test.status === 'skipped').length,
+    total: tests.length,
+    duration: tests.reduce((sum, test) => sum + Number(test.duration ?? 0), 0),
+  }
+})
+
+const coverageRows = Object.entries(coverage)
+  .filter(([file]) => file !== 'total')
+  .map(([file, metrics]) => ({
+    file: path.relative(root, file).replaceAll('\\', '/'),
+    lines: metrics.lines ?? {},
+    statements: metrics.statements ?? {},
+    functions: metrics.functions ?? {},
+    branches: metrics.branches ?? {},
+  }))
+  .sort((a, b) => Number(a.lines.pct ?? 0) - Number(b.lines.pct ?? 0))
+
 const sharedStyles = `
   body {
     color: #111827;
@@ -175,6 +199,104 @@ const unitHtml = `<!doctype html>
 </html>
 `
 
+const suitesHtml = `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reporte de Suites de Prueba</title>
+  <style>${sharedStyles}</style>
+</head>
+<body>
+  <h1>Reporte de Suites de Prueba</h1>
+  <p><a href="../index.html">Volver a reportes de calidad</a></p>
+
+  <h2>Resumen</h2>
+  <div class="grid">
+    <div class="metric"><strong>${stats.suites}</strong> suites</div>
+    <div class="metric"><strong>${stats.total}</strong> pruebas</div>
+    <div class="metric"><strong class="ok">${stats.passed}</strong> aprobadas</div>
+    <div class="metric"><strong class="${stats.failed > 0 ? 'bad' : 'ok'}">${stats.failed}</strong> fallidas</div>
+  </div>
+
+  <h2>Detalle por suite</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Archivo</th>
+        <th>Total</th>
+        <th>Aprobadas</th>
+        <th>Fallidas</th>
+        <th>Omitidas</th>
+        <th>Duracion</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${suiteRows.map((suite) => `
+      <tr>
+        <td><code>${escapeHtml(suite.file)}</code></td>
+        <td>${suite.total}</td>
+        <td class="ok">${suite.passed}</td>
+        <td class="${suite.failed > 0 ? 'bad' : 'ok'}">${suite.failed}</td>
+        <td>${suite.skipped}</td>
+        <td>${suite.duration.toFixed(2)} ms</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>
+
+  <p>Generado: ${generatedAt}</p>
+</body>
+</html>
+`
+
+const coverageFilesHtml = `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reporte de Cobertura por Archivo</title>
+  <style>${sharedStyles}</style>
+</head>
+<body>
+  <h1>Reporte de Cobertura por Archivo</h1>
+  <p><a href="../index.html">Volver a reportes de calidad</a></p>
+
+  <h2>Resumen</h2>
+  <div class="grid">
+    <div class="metric"><strong>${pct(total.lines?.pct)}</strong> lineas</div>
+    <div class="metric"><strong>${pct(total.statements?.pct)}</strong> sentencias</div>
+    <div class="metric"><strong>${pct(total.functions?.pct)}</strong> funciones</div>
+    <div class="metric"><strong>${pct(total.branches?.pct)}</strong> ramas</div>
+  </div>
+
+  <h2>Archivos</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Archivo</th>
+        <th>Lineas</th>
+        <th>Sentencias</th>
+        <th>Funciones</th>
+        <th>Ramas</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${coverageRows.map((item) => `
+      <tr>
+        <td><code>${escapeHtml(item.file)}</code></td>
+        <td>${pct(item.lines.pct)} (${item.lines.covered ?? 0}/${item.lines.total ?? 0})</td>
+        <td>${pct(item.statements.pct)} (${item.statements.covered ?? 0}/${item.statements.total ?? 0})</td>
+        <td>${pct(item.functions.pct)} (${item.functions.covered ?? 0}/${item.functions.total ?? 0})</td>
+        <td>${pct(item.branches.pct)} (${item.branches.covered ?? 0}/${item.branches.total ?? 0})</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>
+
+  <p>Generado: ${generatedAt}</p>
+</body>
+</html>
+`
+
 const html = `<!doctype html>
 <html lang="es">
 <head>
@@ -188,6 +310,8 @@ const html = `<!doctype html>
   <ul>
     <li><a href="./coverage/index.html">Reporte de Cobertura (Vitest)</a></li>
     <li><a href="./unit/index.html">Reporte de Pruebas Unitarias</a></li>
+    <li><a href="./suites/index.html">Reporte de Suites de Prueba</a></li>
+    <li><a href="./coverage-files/index.html">Reporte de Cobertura por Archivo</a></li>
   </ul>
 
   <h2>Resumen</h2>
@@ -213,6 +337,10 @@ const html = `<!doctype html>
 
 await fs.mkdir(reportsDir, { recursive: true })
 await fs.mkdir(path.join(reportsDir, 'unit'), { recursive: true })
+await fs.mkdir(path.join(reportsDir, 'suites'), { recursive: true })
+await fs.mkdir(path.join(reportsDir, 'coverage-files'), { recursive: true })
 await fs.writeFile(path.join(reportsDir, 'index.html'), html, 'utf8')
 await fs.writeFile(path.join(reportsDir, 'unit', 'index.html'), unitHtml, 'utf8')
+await fs.writeFile(path.join(reportsDir, 'suites', 'index.html'), suitesHtml, 'utf8')
+await fs.writeFile(path.join(reportsDir, 'coverage-files', 'index.html'), coverageFilesHtml, 'utf8')
 console.log('Reporte generado: reports/index.html')

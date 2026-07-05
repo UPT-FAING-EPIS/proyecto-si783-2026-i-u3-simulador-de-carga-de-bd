@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Reportes de Calidad</title>
+  <title>Reporte de Suites de Prueba</title>
   <style>
   body {
     color: #111827;
@@ -86,29 +86,65 @@
 </style>
 </head>
 <body>
-  <h1>Reportes de Calidad</h1>
-  <ul>
-    <li><a href="./coverage/index.html">Reporte de Cobertura (Vitest)</a></li>
-    <li><a href="./unit/index.html">Reporte de Pruebas Unitarias</a></li>
-    <li><a href="./suites/index.html">Reporte de Suites de Prueba</a></li>
-    <li><a href="./coverage-files/index.html">Reporte de Cobertura por Archivo</a></li>
-  </ul>
+  <h1>Reporte de Suites de Prueba</h1>
+  <p><a href="../index.html">Volver a reportes de calidad</a></p>
 
   <h2>Resumen</h2>
   <div class="grid">
+    <div class="metric"><strong>12</strong> suites</div>
     <div class="metric"><strong>15</strong> pruebas</div>
     <div class="metric"><strong class="ok">15</strong> aprobadas</div>
     <div class="metric"><strong class="ok">0</strong> fallidas</div>
-    <div class="metric"><strong>12</strong> suites</div>
   </div>
 
-  <h2>Cobertura</h2>
-  <div class="grid">
-    <div class="metric"><strong>13.24%</strong> lineas</div>
-    <div class="metric"><strong>12.18%</strong> sentencias</div>
-    <div class="metric"><strong>6.78%</strong> funciones</div>
-    <div class="metric"><strong>5.64%</strong> ramas</div>
-  </div>
+  <h2>Detalle por suite</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Archivo</th>
+        <th>Total</th>
+        <th>Aprobadas</th>
+        <th>Fallidas</th>
+        <th>Omitidas</th>
+        <th>Duracion</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr>
+        <td><code>src/engines/exportHelper.test.ts</code></td>
+        <td>3</td>
+        <td class="ok">3</td>
+        <td class="ok">0</td>
+        <td>0</td>
+        <td>20.10 ms</td>
+      </tr>
+      <tr>
+        <td><code>src/engines/queryLogger.test.ts</code></td>
+        <td>2</td>
+        <td class="ok">2</td>
+        <td class="ok">0</td>
+        <td>0</td>
+        <td>5.39 ms</td>
+      </tr>
+      <tr>
+        <td><code>src/engines/sqlEngine.test.ts</code></td>
+        <td>7</td>
+        <td class="ok">7</td>
+        <td class="ok">0</td>
+        <td>0</td>
+        <td>26.82 ms</td>
+      </tr>
+      <tr>
+        <td><code>src/utils/loadHistory.test.ts</code></td>
+        <td>3</td>
+        <td class="ok">3</td>
+        <td class="ok">0</td>
+        <td>0</td>
+        <td>11.58 ms</td>
+      </tr>
+    </tbody>
+  </table>
 
   <p>Generado: 5/7/2026, 3:48:49 a. m.</p>
 </body>
