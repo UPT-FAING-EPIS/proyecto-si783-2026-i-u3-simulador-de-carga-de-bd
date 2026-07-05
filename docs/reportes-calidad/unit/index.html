@@ -91,10 +91,10 @@
 
   <h2>Resumen</h2>
   <div class="grid">
-    <div class="metric"><strong>13</strong> pruebas</div>
-    <div class="metric"><strong class="ok">13</strong> aprobadas</div>
+    <div class="metric"><strong>15</strong> pruebas</div>
+    <div class="metric"><strong class="ok">15</strong> aprobadas</div>
     <div class="metric"><strong class="ok">0</strong> fallidas</div>
-    <div class="metric"><strong>10</strong> suites</div>
+    <div class="metric"><strong>12</strong> suites</div>
   </div>
 
   <h2>Detalle</h2>
@@ -115,95 +115,109 @@
         <td>generateEngineExport</td>
         <td>genera SQL compatible con MySQL respetando columnas identity</td>
         <td><code>src/engines/exportHelper.test.ts</code></td>
-        <td>63.65 ms</td>
+        <td>24.58 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>generateEngineExport</td>
         <td>genera scripts de MongoDB con insertMany</td>
         <td><code>src/engines/exportHelper.test.ts</code></td>
-        <td>1.07 ms</td>
+        <td>1.01 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>generateEngineExport</td>
         <td>genera comandos Redis con hashes por fila</td>
         <td><code>src/engines/exportHelper.test.ts</code></td>
-        <td>0.63 ms</td>
+        <td>0.53 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>queryLogger</td>
         <td>registra consultas y devuelve primero la mas reciente</td>
         <td><code>src/engines/queryLogger.test.ts</code></td>
-        <td>12.61 ms</td>
+        <td>5.96 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>queryLogger</td>
         <td>limpia la bitacora persistida</td>
         <td><code>src/engines/queryLogger.test.ts</code></td>
-        <td>1.95 ms</td>
+        <td>0.60 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>preprocessSQL</td>
         <td>convierte SQL Server a una sintaxis compatible con el simulador</td>
         <td><code>src/engines/sqlEngine.test.ts</code></td>
-        <td>8.15 ms</td>
+        <td>5.94 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>parseCSV</td>
         <td>lee comas y comillas escapadas dentro de campos</td>
         <td><code>src/engines/sqlEngine.test.ts</code></td>
-        <td>1.20 ms</td>
+        <td>1.43 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>parseCSV</td>
         <td>devuelve una lista vacia cuando no hay filas de datos</td>
         <td><code>src/engines/sqlEngine.test.ts</code></td>
-        <td>0.32 ms</td>
+        <td>0.18 ms</td>
+      </tr>
+      <tr>
+        <td class="ok">passed</td>
+        <td>importTableFromJSON</td>
+        <td>crea una tabla desde un objeto JSON y permite previsualizar sus datos</td>
+        <td><code>src/engines/sqlEngine.test.ts</code></td>
+        <td>9.91 ms</td>
+      </tr>
+      <tr>
+        <td class="ok">passed</td>
+        <td>explainQuery</td>
+        <td>genera un plan para SELECT con filtro, orden y limite</td>
+        <td><code>src/engines/sqlEngine.test.ts</code></td>
+        <td>3.24 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>executeRedisCommand</td>
         <td>ejecuta comandos basicos de string</td>
         <td><code>src/engines/sqlEngine.test.ts</code></td>
-        <td>2.17 ms</td>
+        <td>1.26 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>executeRedisCommand</td>
         <td>maneja hashes, listas y conjuntos</td>
         <td><code>src/engines/sqlEngine.test.ts</code></td>
-        <td>0.66 ms</td>
+        <td>0.70 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>loadHistory</td>
         <td>devuelve una lista vacia si localStorage no tiene datos validos</td>
         <td><code>src/utils/loadHistory.test.ts</code></td>
-        <td>5.40 ms</td>
+        <td>3.09 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>loadHistory</td>
         <td>guarda las entradas nuevas al inicio y permite eliminarlas</td>
         <td><code>src/utils/loadHistory.test.ts</code></td>
-        <td>4.29 ms</td>
+        <td>3.22 ms</td>
       </tr>
       <tr>
         <td class="ok">passed</td>
         <td>loadHistory</td>
         <td>limita el historial a las 20 ejecuciones mas recientes</td>
         <td><code>src/utils/loadHistory.test.ts</code></td>
-        <td>3.15 ms</td>
+        <td>1.36 ms</td>
       </tr>
     </tbody>
   </table>
 
-  <p>Generado: 5/7/2026, 3:10:00 a. m.</p>
+  <p>Generado: 5/7/2026, 3:41:25 a. m.</p>
 </body>
 </html>

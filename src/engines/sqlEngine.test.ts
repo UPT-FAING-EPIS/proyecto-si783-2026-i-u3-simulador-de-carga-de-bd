@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  dropDatabaseTables,
   executeRedisCommand,
+  explainQuery,
+  getTablePreview,
+  importTableFromJSON,
   parseCSV,
   preprocessSQL,
 } from './sqlEngine'
@@ -41,6 +45,57 @@ describe('parseCSV', () => {
 
   it('devuelve una lista vacia cuando no hay filas de datos', () => {
     expect(parseCSV('id,nombre')).toEqual([])
+  })
+})
+
+describe('importTableFromJSON', () => {
+  it('crea una tabla desde un objeto JSON y permite previsualizar sus datos', () => {
+    importTableFromJSON('clientes_json_test', '{"id":1,"nombre":"Ana","activo":true}')
+
+    const preview = getTablePreview('clientes_json_test')
+
+    expect(preview.rowCount).toBe(1)
+    expect(preview.columns).toEqual(['id', 'nombre', 'activo'])
+    expect(preview.rows[0]).toEqual({ id: 1, nombre: 'Ana', activo: true })
+
+    dropDatabaseTables(['clientes_json_test'])
+  })
+})
+
+describe('explainQuery', () => {
+  it('genera un plan para SELECT con filtro, orden y limite', () => {
+    importTableFromJSON('ventas_plan_test', JSON.stringify([
+      { id: 1, cliente: 'Ana', total: 80 },
+      { id: 2, cliente: 'Luis', total: 45 },
+      { id: 3, cliente: 'Rosa', total: 120 },
+    ]))
+
+    const steps = explainQuery(`
+      SELECT cliente, total
+      FROM ventas_plan_test
+      WHERE total > 50
+      ORDER BY total DESC
+      LIMIT 2
+    `)
+
+    expect(steps.map((step) => step.type)).toEqual([
+      'scan',
+      'filter',
+      'sort',
+      'limit',
+      'projection',
+    ])
+    expect(steps[0]).toMatchObject({
+      operation: 'SEQ SCAN',
+      table: 'ventas_plan_test',
+      estimatedRows: 3,
+    })
+    expect(steps.at(-1)).toMatchObject({
+      operation: 'PROJECTION',
+      estimatedRows: 1,
+    })
+
+    dropDatabaseTables(['ventas_plan_test'])
   })
 })
 
