@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -26,6 +26,9 @@ jobs:
 
       - name: Validate landing files
         run: test -f landing/index.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -43,10 +46,8 @@ jobs:
         run: |
           mkdir -p landing/reportes-calidad
           cp -R reports/. landing/reportes-calidad/
+          touch landing/.nojekyll
           test -f landing/reportes-calidad/index.html
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
 
       - name: Upload landing folder
         uses: actions/upload-pages-artifact@v4
