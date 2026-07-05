@@ -1,4 +1,4 @@
-name: Deploy Landing Page
+name: Validate GitHub Pages Content
 
 on:
   push:
@@ -7,28 +7,23 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate landing files
-        run: test -f landing/index.html
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: Validate Pages files
+        run: |
+          test -f docs/index.html
+          test -f docs/.nojekyll
+          test -f docs/reportes-calidad/index.html
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -42,18 +37,8 @@ jobs:
       - name: Generate quality reports
         run: npm run reports:quality
 
-      - name: Copy quality reports into landing
+      - name: Validate generated quality reports
         run: |
-          mkdir -p landing/reportes-calidad
-          cp -R reports/. landing/reportes-calidad/
-          touch landing/.nojekyll
-          test -f landing/reportes-calidad/index.html
-
-      - name: Upload landing folder
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: './landing'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+          test -f reports/index.html
+          test -f reports/unit/index.html
+          test -f reports/coverage/index.html

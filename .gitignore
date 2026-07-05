@@ -3,6 +3,8 @@ dist/
 release/
 reports/
 landing/reportes-calidad/
+docs/reportes-calidad/unit/results.json
+docs/reportes-calidad/unit/junit.xml
 tmp/
 *.local
 .env

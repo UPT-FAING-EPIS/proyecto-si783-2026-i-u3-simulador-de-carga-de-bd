@@ -1,0 +1,277 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/data/tiendaDB.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/data</a> tiendaDB.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/7</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/0</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/7</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">export const clientes = <span class="cstat-no" title="statement not covered" >[</span>
+  { id: 1, nombre: 'Juan Pérez',    email: 'juan@email.com',    ciudad: 'Madrid',    telefono: '+34 600 111 222' },
+  { id: 2, nombre: 'María López',   email: 'maria@email.com',   ciudad: 'Barcelona', telefono: '+34 600 333 444' },
+  { id: 3, nombre: 'Carlos Ruiz',   email: 'carlos@email.com',  ciudad: 'Valencia',  telefono: '+34 600 555 666' },
+  { id: 4, nombre: 'Ana Torres',    email: 'ana@email.com',     ciudad: 'Sevilla',   telefono: '+34 600 777 888' },
+  { id: 5, nombre: 'Luis Gómez',    email: 'luis@email.com',    ciudad: 'Bilbao',    telefono: '+34 600 999 000' },
+  { id: 6, nombre: 'Carmen Silva',  email: 'carmen@email.com',  ciudad: 'Madrid',    telefono: '+34 600 112 233' },
+  { id: 7, nombre: 'Pedro Martín',  email: 'pedro@email.com',   ciudad: 'Granada',   telefono: '+34 600 445 566' },
+]
+&nbsp;
+export const productos = <span class="cstat-no" title="statement not covered" >[</span>
+  { id: 1,  nombre: 'Laptop Gamer',       precio: 1200.00, categoria: 'Electrónica',   stock: 15 },
+  { id: 2,  nombre: 'Teclado Mecánico',   precio: 45.00,   categoria: 'Periféricos',   stock: 50 },
+  { id: 3,  nombre: 'Mouse Inalámbrico',  precio: 25.00,   categoria: 'Periféricos',   stock: 80 },
+  { id: 4,  nombre: 'Monitor 24"',        precio: 150.00,  categoria: 'Electrónica',   stock: 20 },
+  { id: 5,  nombre: 'Auriculares',        precio: 80.00,   categoria: 'Audio',         stock: 35 },
+  { id: 6,  nombre: 'Webcam HD',          precio: 60.00,   categoria: 'Periféricos',   stock: 25 },
+  { id: 7,  nombre: 'SSD 1TB',            precio: 95.00,   categoria: 'Almacenamiento',stock: 40 },
+  { id: 8,  nombre: 'RAM 16GB',           precio: 65.00,   categoria: 'Memoria',       stock: 30 },
+  { id: 9,  nombre: 'Mousepad XL',        precio: 20.00,   categoria: 'Periféricos',   stock: 60 },
+  { id: 10, nombre: 'Hub USB 4 puertos',  precio: 18.00,   categoria: 'Periféricos',   stock: 45 },
+]
+&nbsp;
+export const ordenes = <span class="cstat-no" title="statement not covered" >[</span>
+  { id: 1,  id_cliente: 1, fecha: '2024-03-15', estado: 'Completado' },
+  { id: 2,  id_cliente: 2, fecha: '2024-03-14', estado: 'Completado' },
+  { id: 3,  id_cliente: 3, fecha: '2024-03-13', estado: 'Completado' },
+  { id: 4,  id_cliente: 4, fecha: '2024-03-12', estado: 'Completado' },
+  { id: 5,  id_cliente: 5, fecha: '2024-03-11', estado: 'Completado' },
+  { id: 6,  id_cliente: 1, fecha: '2024-03-10', estado: 'Pendiente'  },
+  { id: 7,  id_cliente: 6, fecha: '2024-03-09', estado: 'Pendiente'  },
+  { id: 8,  id_cliente: 7, fecha: '2024-03-08', estado: 'Cancelado'  },
+  { id: 9,  id_cliente: 2, fecha: '2024-03-07', estado: 'Completado' },
+  { id: 10, id_cliente: 3, fecha: '2024-03-06', estado: 'Completado' },
+]
+&nbsp;
+export const orden_detalle = <span class="cstat-no" title="statement not covered" >[</span>
+  { id: 1, id_orden: 1,  id_producto: 1,  cantidad: 1, precio_unitario: 1200.00 },
+  { id: 2, id_orden: 2,  id_producto: 2,  cantidad: 2, precio_unitario: 45.00   },
+  { id: 3, id_orden: 3,  id_producto: 3,  cantidad: 1, precio_unitario: 25.00   },
+  { id: 4, id_orden: 4,  id_producto: 4,  cantidad: 1, precio_unitario: 150.00  },
+  { id: 5, id_orden: 5,  id_producto: 5,  cantidad: 1, precio_unitario: 80.00   },
+  { id: 6, id_orden: 6,  id_producto: 6,  cantidad: 1, precio_unitario: 60.00   },
+  { id: 7, id_orden: 7,  id_producto: 8,  cantidad: 1, precio_unitario: 65.00   },
+  { id: 8, id_orden: 9,  id_producto: 7,  cantidad: 1, precio_unitario: 95.00   },
+  { id: 9, id_orden: 10, id_producto: 10, cantidad: 1, precio_unitario: 18.00   },
+]
+&nbsp;
+export const vistas = <span class="cstat-no" title="statement not covered" >[</span>
+  { nombre: 'v_ordenes_completas',  descripcion: 'Órdenes con datos de cliente y productos' },
+  { nombre: 'v_productos_stock',    descripcion: 'Productos con stock menor a 20 unidades'  },
+  { nombre: 'v_clientes_activos',   descripcion: 'Clientes con al menos una orden completada'},
+]
+&nbsp;
+export const procedimientos = <span class="cstat-no" title="statement not covered" >[</span>
+  { nombre: 'sp_procesar_orden',    descripcion: 'Procesa y valida una orden completa'  },
+  { nombre: 'sp_actualizar_stock',  descripcion: 'Actualiza inventario tras venta'      },
+  { nombre: 'sp_reporte_mensual',   descripcion: 'Genera reporte de ventas mensual'     },
+]
+&nbsp;
+export const funciones = <span class="cstat-no" title="statement not covered" >[</span>
+  { nombre: 'fn_calcular_total',    descripcion: 'Calcula el total de una orden'        },
+  { nombre: 'fn_descuento_cliente', descripcion: 'Calcula descuento para clientes VIP'  },
+]
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-07-05T08:10:00.055Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    
