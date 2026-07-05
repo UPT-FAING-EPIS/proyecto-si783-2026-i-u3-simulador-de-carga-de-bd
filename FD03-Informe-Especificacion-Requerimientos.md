@@ -47,10 +47,44 @@
 
 1. [INTRODUCCION](#introduccion)
 2. [I. GENERALIDADES DEL PROYECTO](#i-generalidades-del-proyecto)
+   1. [Nombre del Proyecto](#1-nombre-del-proyecto)
+   2. [Vision](#2-vision)
+   3. [Mision](#3-mision)
+   4. [Organigrama del Proyecto](#4-organigrama-del-proyecto)
 3. [II. VISIONAMIENTO DEL SISTEMA](#ii-visionamiento-del-sistema)
+   1. [Descripcion del Problema](#1-descripcion-del-problema)
+   2. [Objetivos de Negocio](#2-objetivos-de-negocio)
+   3. [Objetivos de Diseno](#3-objetivos-de-diseno)
+   4. [Alcance del Proyecto](#4-alcance-del-proyecto)
+   5. [Viabilidad del Sistema](#5-viabilidad-del-sistema)
+   6. [Informacion Obtenida del Levantamiento de Informacion](#6-informacion-obtenida-del-levantamiento-de-informacion)
 4. [III. ANALISIS DE PROCESOS](#iii-analisis-de-procesos)
+   1. [Diagrama del Proceso Actual](#a-diagrama-del-proceso-actual---diagrama-de-actividades)
+   2. [Diagrama del Proceso Propuesto](#b-diagrama-del-proceso-propuesto---diagrama-de-actividades)
 5. [IV. ESPECIFICACION DE REQUERIMIENTOS DE SOFTWARE](#iv-especificacion-de-requerimientos-de-software)
+   1. [Cuadro de Requerimientos Funcionales Inicial](#a-cuadro-de-requerimientos-funcionales-inicial)
+   2. [Cuadro de Requerimientos No Funcionales](#b-cuadro-de-requerimientos-no-funcionales)
+   3. [Cuadro de Requerimientos Funcionales Final](#c-cuadro-de-requerimientos-funcionales-final)
+   4. [Reglas de Negocio](#d-reglas-de-negocio)
 6. [V. FASE DE DESARROLLO](#v-fase-de-desarrollo)
+   1. [Perfiles de Usuario](#1-perfiles-de-usuario)
+   2. [Modelo Conceptual](#2-modelo-conceptual)
+      1. [Diagrama de Paquetes](#a-diagrama-de-paquetes)
+      2. [Diagrama de Contexto](#a1-diagrama-de-contexto)
+      3. [Diagrama de Casos de Uso](#b-diagrama-de-casos-de-uso)
+      4. [Diagramas de Casos de Uso Especificos](#b1-diagramas-de-casos-de-uso-especificos)
+      5. [Escenarios de Caso de Uso](#c-escenarios-de-caso-de-uso)
+   3. [Modelo Logico](#3-modelo-logico)
+      1. [Analisis de Objetos](#a-analisis-de-objetos)
+      2. [Diagrama de Actividades con Objetos](#b-diagrama-de-actividades-con-objetos)
+      3. [Diagrama de Flujo de Datos](#b1-diagrama-de-flujo-de-datos)
+      4. [Diagrama de Secuencia General](#c-diagrama-de-secuencia-general)
+      5. [Diagrama de Clases](#d-diagrama-de-clases)
+   4. [Artefactos de requisitos complementarios](#4-artefactos-de-requisitos-complementarios)
+      1. [Diagrama Entidad-Relacion Preliminar](#a-diagrama-entidad-relacion-preliminar)
+      2. [Diagrama de Estados](#b-diagrama-de-estados)
+      3. [Matriz de Trazabilidad de Requisitos](#c-matriz-de-trazabilidad-de-requisitos)
+      4. [Prototipos o Wireframes de Pantallas Principales](#d-prototipos-o-wireframes-de-pantallas-principales)
 7. [CONCLUSIONES](#conclusiones)
 8. [RECOMENDACIONES](#recomendaciones)
 9. [REFERENCIAS BIBLIOGRAFICAS](#referencias-bibliograficas)
@@ -541,6 +575,36 @@ flowchart LR
     UI --> Servicios
 ```
 
+### a.1) Diagrama de Contexto
+
+```mermaid
+flowchart LR
+    Estudiante((Estudiante))
+    Docente((Docente))
+    Administrador((Administrador))
+
+    Sistema["Simulador de Bases de Datos"]
+
+    Browser["Navegador / Electron"]
+    IDB[("IndexedDB")]
+    LS[("LocalStorage")]
+    Firebase["Firebase Auth / Realtime Database"]
+    Archivos["Archivos SQL / CSV / JSON"]
+    Exportaciones["CSV / JSON / Excel / DDL"]
+    GitHub["GitHub Actions"]
+
+    Estudiante --> Sistema
+    Docente --> Sistema
+    Administrador --> Sistema
+    Sistema --> Browser
+    Sistema --> IDB
+    Sistema --> LS
+    Sistema --> Firebase
+    Archivos --> Sistema
+    Sistema --> Exportaciones
+    GitHub --> Sistema
+```
+
 ### b) Diagrama de Casos de Uso
 
 ```mermaid
@@ -574,9 +638,95 @@ flowchart LR
     Administrador --> UC10
 ```
 
+### b.1) Diagramas de Casos de Uso Especificos
+
+#### Caso de uso especifico: Practica de consultas
+
+```mermaid
+flowchart LR
+    Usuario((Usuario))
+    subgraph Practica["Practica SQL/NoSQL"]
+        UC1["Seleccionar motor"]
+        UC2["Escribir consulta"]
+        UC3["Ejecutar consulta"]
+        UC4["Ver resultados"]
+        UC5["Guardar historial"]
+    end
+
+    Usuario --> UC1 --> UC2 --> UC3 --> UC4 --> UC5
+```
+
+#### Caso de uso especifico: Gestion de datos
+
+```mermaid
+flowchart LR
+    Usuario((Usuario))
+    subgraph Datos["Gestion de datos"]
+        UC1["Importar SQL/CSV/JSON"]
+        UC2["Registrar tablas"]
+        UC3["Explorar esquema"]
+        UC4["Exportar evidencias"]
+    end
+
+    Usuario --> UC1
+    UC1 --> UC2
+    Usuario --> UC3
+    Usuario --> UC4
+```
+
+#### Caso de uso especifico: Administracion y monitoreo
+
+```mermaid
+flowchart LR
+    Administrador((Administrador))
+    Firebase["Firebase"]
+
+    subgraph Admin["Panel administrativo"]
+        UC1["Iniciar sesion admin"]
+        UC2["Monitorear sesiones"]
+        UC3["Ver usuarios conectados"]
+        UC4["Gestionar roles"]
+    end
+
+    Administrador --> UC1 --> UC2
+    UC2 --> UC3
+    Administrador --> UC4
+    UC2 --> Firebase
+    UC4 --> Firebase
+```
+
 ### c) Escenarios de Caso de Uso
 
-#### Caso de Uso 1: Ejecutar Consulta
+#### Caso de Uso 1: Iniciar sesion
+
+| Campo | Descripcion |
+|---|---|
+| Actor | Usuario |
+| Precondicion | Usuario registrado o con credenciales validas. |
+| Flujo principal | Ingresa credenciales, el sistema valida autenticacion y carga la sesion. |
+| Flujo alterno | Si las credenciales son invalidas, se muestra mensaje de error. |
+| Postcondicion | Usuario autenticado accede al IDE, simulador o panel segun su rol. |
+
+**Diagrama de secuencia**
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Login as LoginScreen
+    participant Auth as auth.ts
+    participant Firebase as Firebase Auth
+    participant Store as useStore
+
+    Usuario->>Login: Ingresa correo y contrasena
+    Login->>Auth: Solicita autenticacion
+    Auth->>Firebase: Valida credenciales
+    Firebase-->>Auth: Usuario autenticado
+    Auth-->>Login: Datos de sesion
+    Login->>Store: Guarda usuario activo
+    Store-->>Usuario: Muestra pantalla principal
+```
+
+#### Caso de Uso 2: Ejecutar consultas
 
 | Campo | Descripcion |
 |---|---|
@@ -586,25 +736,213 @@ flowchart LR
 | Flujo alterno | Si selecciona texto, solo se ejecuta la seleccion. |
 | Postcondicion | Resultado y mensajes quedan visibles; la consulta puede registrarse en historial. |
 
-#### Caso de Uso 2: Importar Datos
+**Diagrama de secuencia**
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Editor as SQLEditor
+    participant Store as useStore
+    participant Engine as sqlEngine
+    participant Runtime as AlaSQL / Simuladores
+    participant IDB as IndexedDB
+    participant Logger as queryLogger
+    participant Results as ResultsPanel
+
+    Usuario->>Editor: Ejecutar consulta
+    Editor->>Store: Lee pestana y seleccion activa
+    Editor->>Engine: Envia consulta y motor
+    Engine->>Runtime: Procesa SQL, MongoDB o Redis
+    Runtime-->>Engine: Devuelve resultado
+    Engine->>IDB: Persiste cambios si aplica
+    Engine->>Logger: Registra ejecucion
+    Engine-->>Editor: QueryResult
+    Editor->>Store: Actualiza resultados
+    Store-->>Results: Notifica cambios
+    Results-->>Usuario: Muestra tabla o mensaje
+```
+
+#### Caso de Uso 3: Importar datos
 
 | Campo | Descripcion |
 |---|---|
 | Actor | Usuario |
 | Precondicion | Usuario dentro del IDE. |
 | Flujo principal | Abre modal, elige SQL/CSV/JSON, carga archivo y confirma. |
-| Postcondicion | Las tablas aparecen en el explorador de esquema. |
+| Flujo alterno | Si el archivo no tiene formato valido, se muestra error de importacion. |
+| Postcondicion | Las tablas aparecen en el explorador de esquema y quedan disponibles para consulta. |
 
-#### Caso de Uso 3: Simular Carga
+**Diagrama de secuencia**
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Modal as ImportModal
+    participant Importer as ImportHelper
+    participant Engine as sqlEngine
+    participant IDB as IndexedDB
+    participant Store as useStore
+    participant Schema as SchemaExplorer
+
+    Usuario->>Modal: Selecciona archivo
+    Modal->>Importer: Lee y valida contenido
+    Importer->>Engine: Convierte datos a tablas
+    Engine->>IDB: Guarda tablas y esquema
+    IDB-->>Engine: Confirmacion
+    Engine-->>Store: Registra base importada
+    Store-->>Schema: Actualiza explorador
+    Schema-->>Usuario: Muestra tablas importadas
+```
+
+#### Caso de Uso 4: Exportar resultados
+
+| Campo | Descripcion |
+|---|---|
+| Actor | Usuario |
+| Precondicion | Existe un resultado, esquema o base disponible para exportar. |
+| Flujo principal | Abre modal de exportacion, selecciona formato y descarga el archivo. |
+| Flujo alterno | Si no hay datos disponibles, el sistema informa que no se puede exportar. |
+| Postcondicion | El usuario obtiene el archivo de evidencia en el formato seleccionado. |
+
+**Diagrama de secuencia**
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Modal as ExportModal
+    participant Store as useStore
+    participant Exporter as exportHelper
+    participant Browser as Navegador
+
+    Usuario->>Modal: Solicita exportacion
+    Modal->>Store: Lee resultados o esquema
+    Store-->>Modal: Devuelve datos disponibles
+    Modal->>Exporter: Genera archivo segun formato
+    Exporter-->>Modal: Blob o contenido exportable
+    Modal->>Browser: Inicia descarga
+    Browser-->>Usuario: Archivo descargado
+```
+
+#### Caso de Uso 5: Explorar esquema
+
+| Campo | Descripcion |
+|---|---|
+| Actor | Usuario |
+| Precondicion | Existen tablas creadas o importadas. |
+| Flujo principal | Abre el explorador, selecciona base/tabla y revisa columnas o vista previa. |
+| Flujo alterno | Si no hay tablas, el sistema muestra estado vacio. |
+| Postcondicion | Usuario identifica estructuras disponibles para nuevas consultas. |
+
+**Diagrama de secuencia**
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Schema as SchemaExplorer
+    participant Store as useStore
+    participant IDB as IndexedDB
+    participant Preview as ResultsPanel
+
+    Usuario->>Schema: Abre explorador de esquema
+    Schema->>Store: Solicita bases registradas
+    Store->>IDB: Carga metadatos y tablas
+    IDB-->>Store: Devuelve esquema
+    Store-->>Schema: Lista bases, tablas y columnas
+    Usuario->>Schema: Selecciona tabla
+    Schema->>Preview: Solicita vista previa
+    Preview-->>Usuario: Muestra datos de muestra
+```
+
+#### Caso de Uso 6: Simular carga
 
 | Campo | Descripcion |
 |---|---|
 | Actor | Usuario |
 | Precondicion | Usuario dentro del IDE o simulador standalone. |
 | Flujo principal | Configura motor, usuarios, duracion y tipos de consulta; inicia prueba. |
+| Flujo alterno | Si los parametros son invalidos, se solicita corregir la configuracion. |
 | Postcondicion | Se muestran metricas y logs; puede guardarse historial. |
 
-#### Caso de Uso 4: Monitorear Sesiones
+**Diagrama de secuencia**
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Modal as LoadSimulatorModal
+    participant Engine as SimuladorCarga
+    participant Session as simulatorSession
+    participant Store as useStore
+
+    Usuario->>Modal: Configura prueba de carga
+    Modal->>Engine: Inicia simulacion
+    loop Durante la prueba
+        Engine-->>Modal: Actualiza TPS, latencia, CPU y errores
+        Modal->>Session: Publica sesion si Firebase esta activo
+    end
+    Engine-->>Modal: Entrega resumen final
+    Modal->>Store: Guarda historial de simulacion
+    Modal-->>Usuario: Muestra metricas y logs
+```
+
+#### Caso de Uso 7: Comparar motores
+
+| Campo | Descripcion |
+|---|---|
+| Actor | Usuario |
+| Precondicion | Usuario accede al modulo de simulacion de carga. |
+| Flujo principal | Selecciona dos motores, ejecuta comparacion y revisa metricas. |
+| Flujo alterno | Si ambos motores son iguales, se solicita seleccionar motores distintos. |
+| Postcondicion | Se muestran diferencias estimadas de TPS, latencia, errores y CPU. |
+
+**Diagrama de secuencia**
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Modal as LoadSimulatorModal
+    participant Engine as SimuladorCarga
+    participant Charts as PanelMetricas
+
+    Usuario->>Modal: Selecciona motores a comparar
+    Modal->>Engine: Ejecuta simulacion motor A
+    Engine-->>Modal: Metricas motor A
+    Modal->>Engine: Ejecuta simulacion motor B
+    Engine-->>Modal: Metricas motor B
+    Modal->>Charts: Calcula comparacion visual
+    Charts-->>Usuario: Muestra diferencias estimadas
+```
+
+#### Caso de Uso 8: Ver historial
+
+| Campo | Descripcion |
+|---|---|
+| Actor | Usuario |
+| Precondicion | Existen consultas o simulaciones registradas. |
+| Flujo principal | Abre historial y revisa consultas, resultados o logs previos. |
+| Flujo alterno | Si no hay registros, se muestra historial vacio. |
+| Postcondicion | Usuario puede reutilizar consultas o revisar evidencias anteriores. |
+
+**Diagrama de secuencia**
+
+```mermaid
+sequenceDiagram
+    actor Usuario
+    participant Modal as HistoryModal
+    participant Logger as queryLogger
+    participant Storage as LocalStorage / IndexedDB
+    participant Store as useStore
+
+    Usuario->>Modal: Abre historial
+    Modal->>Logger: Solicita registros
+    Logger->>Storage: Lee consultas y logs
+    Storage-->>Logger: Devuelve historial
+    Logger-->>Modal: Lista registros
+    Usuario->>Modal: Selecciona consulta
+    Modal->>Store: Restaura consulta seleccionada
+    Store-->>Usuario: Consulta disponible en editor
+```
+
+#### Caso de Uso 9: Monitorear sesiones
 
 | Campo | Descripcion |
 |---|---|
@@ -612,6 +950,55 @@ flowchart LR
 | Precondicion | Usuario con rol administrador y Firebase configurado. |
 | Flujo principal | Ingresa a `admin.html`, revisa sesiones y usuarios. |
 | Postcondicion | Puede cambiar roles y observar actividad en vivo. |
+
+**Diagrama de secuencia**
+
+```mermaid
+sequenceDiagram
+    actor Administrador
+    participant Admin as AdminApp
+    participant Auth as auth.ts
+    participant Sessions as simulatorSession
+    participant RTDB as Firebase RTDB
+    participant Dashboard as PanelAdmin
+
+    Administrador->>Admin: Ingresa al panel
+    Admin->>Auth: Verifica sesion y rol
+    Auth-->>Admin: Rol administrador
+    Admin->>Sessions: Solicita sesiones activas
+    Sessions->>RTDB: Escucha datos en tiempo real
+    RTDB-->>Sessions: Sesiones y usuarios activos
+    Sessions-->>Dashboard: Actualiza KPIs y tabla
+    Dashboard-->>Administrador: Muestra monitoreo
+```
+
+#### Caso de Uso 10: Gestionar roles
+
+| Campo | Descripcion |
+|---|---|
+| Actor | Administrador |
+| Precondicion | Usuario administrador autenticado y Firebase configurado. |
+| Flujo principal | Selecciona usuario, cambia rol y confirma actualizacion. |
+| Flujo alterno | Si no tiene permisos, se bloquea la operacion. |
+| Postcondicion | El usuario seleccionado queda con el rol actualizado. |
+
+**Diagrama de secuencia**
+
+```mermaid
+sequenceDiagram
+    actor Administrador
+    participant Admin as AdminApp
+    participant Users as adminUsers
+    participant RTDB as Firebase RTDB
+    participant Table as TablaUsuarios
+
+    Administrador->>Admin: Selecciona usuario
+    Admin->>Users: Solicita cambio de rol
+    Users->>RTDB: Actualiza rol del usuario
+    RTDB-->>Users: Confirma actualizacion
+    Users-->>Table: Refresca lista de usuarios
+    Table-->>Administrador: Muestra rol actualizado
+```
 
 ## 3. Modelo Logico
 
@@ -647,7 +1034,35 @@ flowchart TD
     K --> L["queryLogger registra ejecucion"]
 ```
 
-### c) Diagrama de Secuencia
+### b.1) Diagrama de Flujo de Datos
+
+```mermaid
+flowchart LR
+    Usuario((Usuario))
+    Admin((Administrador))
+    Importacion["Importacion de archivos"]
+    Editor["Editor de consultas"]
+    Motor["Motor de ejecucion simulado"]
+    Resultados["Panel de resultados"]
+    Exportador["Exportador de evidencias"]
+    IDB[("IndexedDB")]
+    Firebase[("Firebase RTDB/Auth")]
+    Historial[("Historial local")]
+
+    Usuario --> Importacion
+    Importacion --> IDB
+    Usuario --> Editor
+    Editor --> Motor
+    Motor --> Resultados
+    Motor --> IDB
+    Resultados --> Exportador
+    Exportador --> Usuario
+    Motor --> Historial
+    Admin --> Firebase
+    Firebase --> Admin
+```
+
+### c) Diagrama de Secuencia General
 
 ```mermaid
 sequenceDiagram
@@ -729,6 +1144,157 @@ classDiagram
     Store --> SimulationSettings
     SqlEngine --> QueryResult
     SqlEngine --> IndexedDbStorage
+```
+
+## 4. Artefactos de requisitos complementarios
+
+### a) Diagrama Entidad-Relacion Preliminar
+
+```mermaid
+erDiagram
+    USUARIO ||--o{ ENGINE_TAB : crea
+    ENGINE_TAB ||--o{ QUERY_PANE : contiene
+    ENGINE_TAB ||--o{ QUERY_RESULT : genera
+    ENGINE_TAB ||--o{ SCHEMA_ENTRY : registra
+    USUARIO ||--o{ QUERY_HISTORY : conserva
+    USUARIO ||--o{ SIMULATOR_SESSION : publica
+    SIMULATOR_SESSION ||--o{ LOAD_METRIC : produce
+
+    USUARIO {
+        string id
+        string email
+        string role
+    }
+
+    ENGINE_TAB {
+        string id
+        string engine
+        string database
+    }
+
+    QUERY_PANE {
+        string id
+        string query
+    }
+
+    QUERY_RESULT {
+        string id
+        int rowCount
+        int executionTime
+    }
+
+    SCHEMA_ENTRY {
+        string dbName
+        string tableName
+        string columns
+    }
+
+    QUERY_HISTORY {
+        string id
+        string query
+        string executedAt
+    }
+
+    SIMULATOR_SESSION {
+        string id
+        string engine
+        string status
+    }
+
+    LOAD_METRIC {
+        string id
+        float tps
+        float latency
+        float errorRate
+    }
+```
+
+### b) Diagrama de Estados
+
+```mermaid
+stateDiagram-v2
+    [*] --> NoAutenticado
+    NoAutenticado --> Autenticado: login correcto
+    NoAutenticado --> NoAutenticado: credenciales invalidas
+    Autenticado --> IDEListo: cargar aplicacion
+    IDEListo --> EditandoConsulta: seleccionar motor
+    EditandoConsulta --> EjecutandoConsulta: ejecutar
+    EjecutandoConsulta --> MostrandoResultados: exito
+    EjecutandoConsulta --> MostrandoError: error
+    MostrandoResultados --> Exportando: exportar evidencia
+    MostrandoResultados --> EditandoConsulta: nueva consulta
+    MostrandoError --> EditandoConsulta: corregir consulta
+    Exportando --> IDEListo: descarga generada
+    Autenticado --> Cerrado: cerrar sesion
+    Cerrado --> [*]
+```
+
+### c) Matriz de Trazabilidad de Requisitos
+
+| Requisito | Caso de uso relacionado | Modulo | Evidencia / diagrama |
+|---|---|---|---|
+| RF001 Autenticacion | Iniciar sesion | `LoginScreen`, `auth.ts` | Secuencia CU1 |
+| RF002 Editor Monaco | Ejecutar consultas | `SQLEditor` | Secuencia CU2 |
+| RF003 Tabs por motor | Ejecutar consultas | `EngineTabs`, `useStore` | Casos de uso general |
+| RF004 SQL relacional | Ejecutar consultas | `sqlEngine.ts` | DFD, secuencia general |
+| RF006 MongoDB simulado | Ejecutar consultas | `executeMongoQuery` | Secuencia CU2 |
+| RF007 Redis simulado | Ejecutar consultas | `executeRedisCommand` | Secuencia CU2 |
+| RF008 Importar CSV | Importar datos | `ImportModal`, `importTableFromCSV` | Secuencia CU3 |
+| RF009 Importar JSON | Importar datos | `ImportModal`, `importTableFromJSON` | Secuencia CU3 |
+| RF010 Importar SQL | Importar datos | `ImportModal`, `importTableFromSQL` | Secuencia CU3 |
+| RF011 Persistencia local | Importar datos / Explorar esquema | `idbStorage.ts` | ER preliminar, DFD |
+| RF013 Exportacion | Exportar resultados | `ExportModal`, `exportHelper` | Secuencia CU4 |
+| RF014 Explorador de esquema | Explorar esquema | `SchemaExplorer` | Secuencia CU5 |
+| RF015 Historial y logs | Ver historial | `HistoryModal`, `queryLogger` | Secuencia CU8 |
+| RF017 Simulador de carga | Simular carga | `LoadSimulatorModal` | Secuencia CU6 |
+| RF018 Comparacion de motores | Comparar motores | `LoadSimulatorModal` | Secuencia CU7 |
+| RF020 Panel admin | Monitorear sesiones | `AdminApp` | Secuencia CU9 |
+| RF021 Presencia | Monitorear sesiones | `presence.ts`, Firebase | Secuencia CU9 |
+| RF022 Desktop | Uso general | Electron | Diagrama de contexto |
+
+### d) Prototipos o Wireframes de Pantallas Principales
+
+#### Pantalla principal del IDE
+
+```mermaid
+flowchart TB
+    Top["Barra superior: ejecutar / importar / exportar / ayuda"]
+    Side["Sidebar: esquema / historial / configuracion"]
+    Tabs["Tabs por motor"]
+    Editor["Editor Monaco SQL/NoSQL"]
+    Results["Panel de resultados"]
+
+    Top --> Tabs
+    Tabs --> Editor
+    Side --> Editor
+    Editor --> Results
+```
+
+#### Modal de importacion y exportacion
+
+```mermaid
+flowchart TB
+    Modal["Modal"]
+    Tipo["Seleccion de tipo: SQL / CSV / JSON / Resultado"]
+    Archivo["Selector de archivo o formato"]
+    Validacion["Validacion"]
+    Confirmar["Confirmar accion"]
+
+    Modal --> Tipo --> Archivo --> Validacion --> Confirmar
+```
+
+#### Panel administrativo
+
+```mermaid
+flowchart TB
+    Login["Login administrador"]
+    KPIs["KPIs: usuarios, sesiones, TPS, motores"]
+    Tabla["Tabla de usuarios y sesiones"]
+    Roles["Gestion de roles"]
+
+    Login --> KPIs
+    KPIs --> Tabla
+    Tabla --> Roles
 ```
 
 ---

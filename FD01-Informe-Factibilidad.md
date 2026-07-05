@@ -33,6 +33,18 @@ Version: **2.1**
 | 2.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-06-21 | Actualizacion segun implementacion final del simulador |
 | 2.1 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-07-04 | Actualizacion segun codigo actual, GitHub Actions y despliegue |
 
+## INDICE GENERAL
+
+1. [Descripcion del proyecto](#1-descripcion-del-proyecto)
+2. [Alcance actual](#2-alcance-actual)
+3. [Riesgos](#3-riesgos)
+4. [Factibilidad tecnica](#4-factibilidad-tecnica)
+5. [Factibilidad economica](#5-factibilidad-economica)
+6. [Factibilidad operativa](#6-factibilidad-operativa)
+7. [Factibilidad legal](#7-factibilidad-legal)
+8. [Factibilidad social y ambiental](#8-factibilidad-social-y-ambiental)
+9. [Conclusiones](#9-conclusiones)
+
 ## 1. Descripcion del proyecto
 
 **Simulador de Bases de Datos** es una aplicacion web y desktop orientada al aprendizaje y practica de consultas SQL y NoSQL sin instalar motores reales de base de datos. El sistema ofrece un entorno tipo IDE con editor Monaco, multiples pestanas de consulta, explorador de esquema, panel de resultados, importacion/exportacion de datos y simulacion de carga.

@@ -45,18 +45,60 @@
 
 ## INDICE GENERAL
 
-1. [INTRODUCCION](#introduccion)
-2. [OBJETIVOS Y RESTRICCIONES ARQUITECTONICAS](#objetivos-y-restricciones-arquitectonicas)
-3. [REPRESENTACION DE LA ARQUITECTURA DEL SISTEMA](#representacion-de-la-arquitectura-del-sistema)
-4. [ATRIBUTOS DE CALIDAD DEL SOFTWARE](#atributos-de-calidad-del-software)
-5. [CONCLUSIONES](#conclusiones)
-6. [RECOMENDACIONES](#recomendaciones)
+I. [INTRODUCCION](#i-introduccion)
+   A. [Proposito](#a-proposito-diagrama-41)
+   B. [Alcance](#b-alcance)
+   C. [Definicion, siglas y abreviaturas](#c-definicion-siglas-y-abreviaturas)
+   D. [Referencias](#d-referencias)
+II. [Representacion Arquitectonica](#ii-representacion-arquitectonica)
+   - [Diagrama de arquitectura general](#diagrama-de-arquitectura-general)
+   A. [Vista Escenarios](#a-vista-escenarios)
+      - [Diagrama C4 de contexto](#diagrama-c4-de-contexto)
+   B. [Vista Logica](#b-vista-logica)
+   C. [Vista del Proceso](#c-vista-del-proceso)
+      - [Diagrama de Actividades del Sistema](#diagrama-de-actividades-del-sistema)
+      - [Diagrama de flujo tecnico](#diagrama-de-flujo-tecnico)
+   D. [Vista del desarrollo](#d-vista-del-desarrollo)
+      - [Diagrama de Capas del Sistema Web](#diagrama-de-capas-del-sistema-web)
+      - [Diagrama de Capas del Sistema Desktop](#diagrama-de-capas-del-sistema-desktop)
+      - [Diagrama de paquetes o modulos](#diagrama-de-paquetes-o-modulos)
+   E. [Vista Fisica](#e-vista-fisica)
+      - [Diagrama C4 de contenedores](#diagrama-c4-de-contenedores)
+      - [Diagrama de integracion con servicios externos](#diagrama-de-integracion-con-servicios-externos)
+III. [Objetivos y limitaciones arquitectonicas](#iii-objetivos-y-limitaciones-arquitectonicas)
+   A. [Disponibilidad](#a-disponibilidad)
+   B. [Seguridad](#b-seguridad)
+      - [Diagrama de seguridad](#diagrama-de-seguridad)
+IV. [Analisis de Requerimientos](#iv-analisis-de-requerimientos)
+   4.1 [Priorizacion de requerimientos](#41-priorizacion-de-requerimientos)
+      A. [Requerimientos funcionales](#a-requerimientos-funcionales)
+      B. [Requerimientos no funcionales](#b-requerimientos-no-funcionales)
+V. [Vistas de Caso de Uso](#v-vistas-de-caso-de-uso)
+   [Diagrama de Caso de Uso](#diagrama-de-caso-de-uso)
+VI. [Vista Logica](#vi-vista-logica)
+   A. [Diagrama Contextual](#a-diagrama-contextual)
+VII. [Vista de Procesos](#vii-vista-de-procesos)
+   A. [Diagrama de Proceso Actual](#a-diagrama-de-proceso-actual)
+   B. [Diagrama de Proceso Propuesto](#b-diagrama-de-proceso-propuesto)
+VIII. [Vista de Despliegue](#viii-vista-de-despliegue)
+   A. [Diagrama de Contenedor](#a-diagrama-de-contenedor)
+IX. [Vista de Implementacion](#ix-vista-de-implementacion)
+   A. [Diagrama de Componentes - Sistema Web](#a-diagrama-de-componentes---sistema-web)
+   B. [Diagrama de Componentes - Sistema Desktop](#b-diagrama-de-componentes---sistema-desktop)
+X. [Vista de Datos](#x-vista-de-datos)
+   A. [Diagrama Entidad Relacion](#a-diagrama-entidad-relacion)
+XI. [Calidad](#xi-calidad)
+   A. [Escenario de Seguridad](#a-escenario-de-seguridad)
+   B. [Escenario de Usabilidad](#b-escenario-de-usabilidad)
+   C. [Escenario de Adaptabilidad](#c-escenario-de-adaptabilidad)
+   D. [Escenario de Disponibilidad](#d-escenario-de-disponibilidad)
+   E. [Escenario de Escalabilidad](#e-escenario-de-escalabilidad)
 
 ---
 
-# INTRODUCCION
+# I. INTRODUCCION
 
-## 1.1 Proposito
+## A. Proposito (Diagrama 4+1)
 
 Este documento describe la arquitectura del **Simulador de Bases de Datos**, una aplicacion web y desktop desarrollada con React, TypeScript, Vite, AlaSQL, IndexedDB, Firebase y Electron.
 
@@ -70,7 +112,7 @@ La arquitectura se presenta con un enfoque inspirado en el modelo **4+1 vistas**
 
 El objetivo es mostrar como se organizan los componentes, como interactuan entre si y que decisiones tecnicas sostienen los atributos de calidad del sistema.
 
-## 1.2 Alcance
+## B. Alcance
 
 El documento cubre:
 
@@ -87,7 +129,7 @@ El documento cubre:
 
 No cubre una arquitectura de conexion a motores reales, porque la version actual ejecuta consultas de forma local y simulada.
 
-## 1.3 Definicion, Siglas y Abreviaturas
+## C. Definicion, siglas y abreviaturas
 
 | Termino | Definicion |
 |---|---|
@@ -103,79 +145,87 @@ No cubre una arquitectura de conexion a motores reales, porque la version actual
 | TPS | Transacciones o consultas por segundo, estimadas en el simulador. |
 | CI/CD | Integracion y despliegue continuo mediante GitHub Actions. |
 
-## 1.4 Organizacion del Documento
+## D. Referencias
 
-El documento se organiza en:
+- FD01-EPIS. Informe de Factibilidad del Proyecto Simulador de Bases de Datos. Universidad Privada de Tacna, 2026.
+- FD02-EPIS. Informe Vision del Proyecto Simulador de Bases de Datos. Universidad Privada de Tacna, 2026.
+- FD03-EPIS. Informe SRS del Proyecto Simulador de Bases de Datos. Universidad Privada de Tacna, 2026.
+- React Documentation: https://react.dev/
+- TypeScript Documentation: https://www.typescriptlang.org/docs/
+- Vite Documentation: https://vitejs.dev/
+- Firebase Documentation: https://firebase.google.com/docs
+- Electron Documentation: https://www.electronjs.org/docs/latest/
 
-1. Introduccion y alcance.
-2. Objetivos, requerimientos y restricciones.
-3. Representacion arquitectonica con vistas.
-4. Atributos de calidad.
-5. Conclusiones y recomendaciones.
+# II. REPRESENTACION ARQUITECTONICA
 
----
+### Diagrama de arquitectura general
 
-# OBJETIVOS Y RESTRICCIONES ARQUITECTONICAS
+```mermaid
+flowchart TB
+    Usuario((Usuario))
+    Admin((Administrador))
 
-## 2.1 Requerimientos Funcionales
+    subgraph Cliente["Cliente"]
+        Web["Aplicacion Web React"]
+        Desktop["Electron Desktop"]
+        IDB[("IndexedDB")]
+        LS[("LocalStorage")]
+    end
 
-| ID | Requerimiento Arquitectonico |
-|---|---|
-| RF-A01 | Ejecutar consultas SQL en memoria mediante un motor local. |
-| RF-A02 | Simular operaciones MongoDB y Redis. |
-| RF-A03 | Persistir tablas y esquemas en IndexedDB. |
-| RF-A04 | Gestionar estado de tabs, consultas, resultados y simulacion. |
-| RF-A05 | Importar archivos SQL, CSV y JSON. |
-| RF-A06 | Exportar resultados y esquemas en multiples formatos. |
-| RF-A07 | Simular carga con metricas de TPS, latencia, CPU, conexiones y errores. |
-| RF-A08 | Registrar presencia y sesiones cuando Firebase esta configurado. |
-| RF-A09 | Permitir panel administrativo con roles. |
-| RF-A10 | Construir version web y desktop. |
-| RF-A11 | Automatizar pruebas de rendimiento y despliegue de landing. |
+    subgraph Dominio["Dominio de aplicacion"]
+        Store["Zustand Store"]
+        Engine["Motor SQL/NoSQL simulado"]
+        ImportExport["Importacion / Exportacion"]
+        Simulator["Simulador de carga"]
+    end
 
-## 2.2 Requerimientos No Funcionales - Atributos de Calidad
+    subgraph Externo["Servicios externos"]
+        Firebase["Firebase Auth / RTDB"]
+        GitHub["GitHub Actions"]
+        Pages["GitHub Pages / Hosting"]
+    end
 
-| ID | Atributo | Decisiones Arquitectonicas |
-|---|---|---|
-| RNF-A01 | Usabilidad | Layout tipo IDE, Monaco Editor, modales y acciones visibles. |
-| RNF-A02 | Rendimiento | Ejecucion local en memoria e IndexedDB para persistencia. |
-| RNF-A03 | Mantenibilidad | Separacion por componentes, motores, store, librerias y servicios. |
-| RNF-A04 | Portabilidad | Vite para web y Electron para desktop. |
-| RNF-A05 | Auditabilidad | Historial, logs, exportaciones y sesiones de simulador. |
-| RNF-A06 | Seguridad | Firebase Auth y roles para administracion. |
-| RNF-A07 | Extensibilidad | Configuracion central de motores y exportadores por modulo. |
-| RNF-A08 | Integracion continua | GitHub Actions valida build, rendimiento y despliegue. |
+    Usuario --> Web
+    Usuario --> Desktop
+    Admin --> Web
+    Web --> Store
+    Desktop --> Store
+    Store --> Engine
+    Store --> Simulator
+    Engine --> IDB
+    Store --> LS
+    ImportExport --> IDB
+    Web --> Firebase
+    Simulator --> Firebase
+    GitHub --> Pages
+```
 
-## 2.3 Restricciones
+## A. Vista Escenarios
 
-### Restricciones Tecnicas
+### Diagrama C4 de contexto
 
-- La ejecucion SQL depende de AlaSQL.
-- IndexedDB depende del navegador.
-- Firebase requiere variables de entorno configuradas.
-- Electron depende del sistema operativo objetivo.
-- MongoDB y Redis son simulaciones, no servidores reales.
+```mermaid
+flowchart LR
+    Estudiante((Estudiante))
+    Docente((Docente))
+    Administrador((Administrador))
 
-### Restricciones Operacionales
+    Sistema["Sistema: Simulador de Bases de Datos"]
+    Firebase["Sistema externo: Firebase"]
+    Hosting["Sistema externo: Hosting / GitHub Pages"]
+    Archivos["Archivos externos: SQL / CSV / JSON"]
+    Evidencias["Evidencias exportadas: CSV / JSON / Excel"]
 
-- El usuario debe ejecutar `npm install` y `npm run dev` para desarrollo.
-- Los datos locales pueden perderse si el navegador limpia IndexedDB.
-- Las funciones admin requieren conexion y configuracion Firebase.
-- El rendimiento de consultas depende del equipo cliente.
+    Estudiante -->|Practica consultas| Sistema
+    Docente -->|Revisa evidencias| Sistema
+    Administrador -->|Monitorea sesiones y roles| Sistema
+    Sistema -->|Autenticacion / presencia| Firebase
+    Sistema -->|Publicacion landing/build| Hosting
+    Archivos -->|Importacion| Sistema
+    Sistema -->|Exportacion| Evidencias
+```
 
-### Restricciones del Negocio
-
-- El sistema es academico y no reemplaza motores reales.
-- Las metricas de carga son didacticas.
-- No debe presentarse como benchmark real de bases de datos.
-
----
-
-# REPRESENTACION DE LA ARQUITECTURA DEL SISTEMA
-
-## 3.1 Vista de Caso de Uso
-
-### 3.1.1 Diagrama de Casos de Uso
+### Diagrama de Caso de Uso
 
 ```mermaid
 flowchart LR
@@ -212,9 +262,9 @@ flowchart LR
     Administrador --> UC10
 ```
 
-## 3.2 Vista Logica
+## B. Vista Logica
 
-### 3.2.1 Diagrama de Subsistemas
+### Diagrama de subsistemas
 
 ```mermaid
 flowchart LR
@@ -257,7 +307,7 @@ flowchart LR
     Presentacion --> Servicios
 ```
 
-### 3.2.2 Diagrama de Secuencia
+### Diagrama de secuencia general
 
 ```mermaid
 sequenceDiagram
@@ -283,7 +333,7 @@ sequenceDiagram
     Results-->>Usuario: Muestra resultados
 ```
 
-### 3.2.3 Diagrama de Colaboracion
+### Diagrama de colaboracion
 
 ```mermaid
 flowchart LR
@@ -296,7 +346,7 @@ flowchart LR
     ResultsPanel -->|7. Mostrar datos| Usuario
 ```
 
-### 3.2.4 Diagrama de Objetos
+### Diagrama de objetos
 
 ```mermaid
 flowchart TD
@@ -312,7 +362,7 @@ flowchart TD
     Store --> Settings
 ```
 
-### 3.2.5 Diagrama de Clases
+### Diagrama de clases
 
 ```mermaid
 classDiagram
@@ -388,7 +438,7 @@ classDiagram
     SimulatorSession --> SimulationSettings
 ```
 
-### 3.2.6 Diagrama de Base de Datos / Persistencia
+### Diagrama de datos y persistencia
 
 ```mermaid
 flowchart LR
@@ -413,9 +463,56 @@ flowchart LR
     RTDB -->|sesion activa local| LS
 ```
 
-## 3.3 Vista de Implementacion
+## C. Vista del Proceso
 
-### 3.3.1 Diagrama de Arquitectura Software
+### Diagrama de Actividades del Sistema
+
+```mermaid
+flowchart TD
+    A["Usuario abre aplicacion"] --> B["React monta App"]
+    B --> C{"Sesion activa?"}
+    C -->|Si| D["Mostrar bienvenida / IDE"]
+    C -->|No| E["Mostrar LoginScreen"]
+    E --> F["Autenticar usuario"]
+    F --> D
+    D --> G["Inicializar base local"]
+    G --> H["Registrar presencia si Firebase existe"]
+    H --> I["Usuario selecciona motor"]
+    I --> J["Usuario ejecuta consulta"]
+    J --> K{"Motor SQL?"}
+    K -->|Si| L["executeSQL con AlaSQL"]
+    K -->|No| M{"MongoDB?"}
+    M -->|Si| N["executeMongoQuery"]
+    M -->|No| O["executeRedisCommand"]
+    L --> P["Actualizar resultados"]
+    N --> P
+    O --> P
+    P --> Q["Persistir cambios si aplica"]
+    Q --> R["Exportar o continuar practica"]
+```
+
+### Diagrama de flujo tecnico
+
+```mermaid
+flowchart TD
+    A["Evento UI: ejecutar/importar/exportar/simular"] --> B["useStore recibe accion"]
+    B --> C{"Tipo de accion"}
+    C -->|Consulta| D["sqlEngine procesa motor activo"]
+    C -->|Importacion| E["Import helper normaliza archivo"]
+    C -->|Exportacion| F["exportHelper genera salida"]
+    C -->|Simulacion| G["LoadSimulator calcula metricas"]
+    D --> H["Actualizar QueryResult"]
+    E --> I["Guardar tablas en IndexedDB"]
+    F --> J["Descargar archivo"]
+    G --> K["Publicar sesion si Firebase esta activo"]
+    H --> L["Renderizar ResultsPanel"]
+    I --> M["Actualizar SchemaExplorer"]
+    K --> N["Actualizar panel admin"]
+```
+
+## D. Vista del desarrollo
+
+### Diagrama de Capas del Sistema Web
 
 ```mermaid
 flowchart TB
@@ -477,7 +574,7 @@ flowchart TB
     pages --> landing["landing/"]
 ```
 
-### 3.3.2 Diagrama de Arquitectura del Sistema
+### Diagrama de Capas del Sistema Desktop
 
 ```mermaid
 flowchart LR
@@ -493,37 +590,92 @@ flowchart LR
     UI --> RTDB[("Firebase RTDB")]
 ```
 
-## 3.4 Vista de Procesos
-
-### 3.4.1 Diagrama de Procesos del Sistema
+### Diagrama de paquetes o modulos
 
 ```mermaid
-flowchart TD
-    A["Usuario abre aplicacion"] --> B["React monta App"]
-    B --> C{"Sesion activa?"}
-    C -->|Si| D["Mostrar bienvenida / IDE"]
-    C -->|No| E["Mostrar LoginScreen"]
-    E --> F["Autenticar usuario"]
-    F --> D
-    D --> G["Inicializar base local"]
-    G --> H["Registrar presencia si Firebase existe"]
-    H --> I["Usuario selecciona motor"]
-    I --> J["Usuario ejecuta consulta"]
-    J --> K{"Motor SQL?"}
-    K -->|Si| L["executeSQL con AlaSQL"]
-    K -->|No| M{"MongoDB?"}
-    M -->|Si| N["executeMongoQuery"]
-    M -->|No| O["executeRedisCommand"]
-    L --> P["Actualizar resultados"]
-    N --> P
-    O --> P
-    P --> Q["Persistir cambios si aplica"]
-    Q --> R["Exportar o continuar practica"]
+flowchart LR
+    subgraph UI["src/components"]
+        LoginScreen
+        TopBar
+        EngineTabs
+        SQLEditor
+        ResultsPanel
+        SchemaExplorer
+        LoadSimulatorModal
+        AdminApp
+    end
+
+    subgraph Store["src/store"]
+        useStore
+    end
+
+    subgraph Engines["src/engines"]
+        sqlEngine
+        exportHelper
+        queryLogger
+    end
+
+    subgraph DB["src/db"]
+        idbStorage
+    end
+
+    subgraph Lib["src/lib"]
+        firebase
+        auth
+        presence
+        simulatorSession
+        adminUsers
+    end
+
+    UI --> Store
+    UI --> Engines
+    Engines --> DB
+    UI --> Lib
+    Store --> DB
 ```
 
-## 3.5 Vista de Despliegue
+## E. Vista Fisica
 
-### 3.5.1 Diagrama de Despliegue
+### Diagrama C4 de contenedores
+
+```mermaid
+flowchart TB
+    Usuario((Usuario))
+    Admin((Administrador))
+
+    subgraph ContainerWeb["Container: React Web App"]
+        UI["UI React"]
+        Store["Zustand Store"]
+        Engine["AlaSQL + simuladores MongoDB/Redis"]
+    end
+
+    subgraph ContainerDesktop["Container: Electron App"]
+        Shell["Electron shell"]
+        WebBundle["Build web embebido"]
+    end
+
+    subgraph ContainerStorage["Container: almacenamiento local"]
+        IDB[("IndexedDB")]
+        LS[("LocalStorage")]
+    end
+
+    subgraph ContainerFirebase["Container externo: Firebase"]
+        Auth["Authentication"]
+        RTDB[("Realtime Database")]
+    end
+
+    Usuario --> UI
+    Admin --> UI
+    Shell --> WebBundle
+    WebBundle --> UI
+    UI --> Store --> Engine
+    Engine --> IDB
+    Store --> LS
+    UI --> Auth
+    UI --> RTDB
+```
+
+### Diagrama de Contenedor
 
 ```mermaid
 flowchart TB
@@ -559,6 +711,26 @@ flowchart TB
     Electron -->|carga UI| ReactApp
 ```
 
+### Diagrama de integracion con servicios externos
+
+```mermaid
+flowchart LR
+    App["React / Electron App"]
+    FirebaseAuth["Firebase Auth"]
+    FirebaseRTDB["Firebase Realtime Database"]
+    GitHubActions["GitHub Actions"]
+    Hosting["GitHub Pages / Netlify"]
+    Files["Archivos locales SQL/CSV/JSON"]
+    Downloads["Descargas CSV/JSON/Excel/DDL"]
+
+    Files -->|importar| App
+    App -->|exportar| Downloads
+    App -->|login y roles| FirebaseAuth
+    App -->|presencia, sesiones, usuarios| FirebaseRTDB
+    GitHubActions -->|build y pruebas de rendimiento| App
+    GitHubActions -->|publica landing| Hosting
+```
+
 **Escalabilidad:**
 
 - La ejecucion de consultas ocurre en el cliente, reduciendo carga de servidor.
@@ -575,20 +747,226 @@ flowchart TB
 
 ---
 
-# ATRIBUTOS DE CALIDAD DEL SOFTWARE
+# III. OBJETIVOS Y LIMITACIONES ARQUITECTONICAS
 
-## 4.1 Escenario de Funcionalidad
+## A. Disponibilidad
 
-| Escenario | Descripcion | Implementacion | Estado |
-|---|---|---|---|
-| EF001 | Ejecutar SQL local | AlaSQL + `executeSQL` | Implementado |
-| EF002 | Simular MongoDB | `executeMongoQuery` | Implementado |
-| EF003 | Simular Redis | `executeRedisCommand` | Implementado |
-| EF004 | Importar datos | CSV, JSON y SQL | Implementado |
-| EF005 | Exportar evidencias | CSV, JSON, Excel, DDL y DB completa | Implementado |
-| EF006 | Simular carga | TPS, latencia, CPU, conexiones y errores | Implementado |
+El IDE puede operar parcialmente sin Firebase para consultas locales, importacion, exportacion y persistencia en IndexedDB. Las funciones de login, presencia y administracion dependen de la disponibilidad de Firebase.
 
-## 4.2 Escenario de Usabilidad
+## B. Seguridad
+
+La arquitectura separa las funciones administrativas mediante autenticacion y roles. Las credenciales y variables de entorno de Firebase deben mantenerse fuera del repositorio publico.
+
+### Diagrama de seguridad
+
+```mermaid
+flowchart TD
+    Usuario((Usuario))
+    Admin((Administrador))
+    Login["LoginScreen"]
+    Auth["Firebase Auth"]
+    Roles["Validacion de rol"]
+    IDE["IDE principal"]
+    AdminPanel["Panel administrativo"]
+    RTDB[("Firebase RTDB")]
+    Local[("IndexedDB / LocalStorage")]
+
+    Usuario --> Login
+    Admin --> Login
+    Login --> Auth
+    Auth --> Roles
+    Roles -->|rol usuario| IDE
+    Roles -->|rol admin| AdminPanel
+    IDE --> Local
+    AdminPanel --> RTDB
+    AdminPanel -->|gestiona roles| RTDB
+```
+
+## Restricciones Tecnicas
+
+- La ejecucion SQL depende de AlaSQL.
+- IndexedDB depende del navegador.
+- Firebase requiere variables de entorno configuradas.
+- Electron depende del sistema operativo objetivo.
+- MongoDB y Redis son simulaciones, no servidores reales.
+
+## Restricciones Operacionales
+
+- El usuario debe ejecutar `npm install` y `npm run dev` para desarrollo.
+- Los datos locales pueden perderse si el navegador limpia IndexedDB.
+- Las funciones admin requieren conexion y configuracion Firebase.
+- El rendimiento de consultas depende del equipo cliente.
+
+## Restricciones del Negocio
+
+- El sistema es academico y no reemplaza motores reales.
+- Las metricas de carga son didacticas.
+- No debe presentarse como benchmark real de bases de datos.
+
+---
+
+# IV. ANALISIS DE REQUERIMIENTOS
+
+## 4.1 Priorizacion de requerimientos
+
+### A. Requerimientos funcionales
+
+| ID | Requerimiento Arquitectonico |
+|---|---|
+| RF-A01 | Ejecutar consultas SQL en memoria mediante un motor local. |
+| RF-A02 | Simular operaciones MongoDB y Redis. |
+| RF-A03 | Persistir tablas y esquemas en IndexedDB. |
+| RF-A04 | Gestionar estado de tabs, consultas, resultados y simulacion. |
+| RF-A05 | Importar archivos SQL, CSV y JSON. |
+| RF-A06 | Exportar resultados y esquemas en multiples formatos. |
+| RF-A07 | Simular carga con metricas de TPS, latencia, CPU, conexiones y errores. |
+| RF-A08 | Registrar presencia y sesiones cuando Firebase esta configurado. |
+| RF-A09 | Permitir panel administrativo con roles. |
+| RF-A10 | Construir version web y desktop. |
+| RF-A11 | Automatizar pruebas de rendimiento y despliegue de landing. |
+
+### B. Requerimientos no funcionales
+
+| ID | Atributo | Decisiones Arquitectonicas |
+|---|---|---|
+| RNF-A01 | Usabilidad | Layout tipo IDE, Monaco Editor, modales y acciones visibles. |
+| RNF-A02 | Rendimiento | Ejecucion local en memoria e IndexedDB para persistencia. |
+| RNF-A03 | Mantenibilidad | Separacion por componentes, motores, store, librerias y servicios. |
+| RNF-A04 | Portabilidad | Vite para web y Electron para desktop. |
+| RNF-A05 | Auditabilidad | Historial, logs, exportaciones y sesiones de simulador. |
+| RNF-A06 | Seguridad | Firebase Auth y roles para administracion. |
+| RNF-A07 | Extensibilidad | Configuracion central de motores y exportadores por modulo. |
+| RNF-A08 | Integracion continua | GitHub Actions valida build, rendimiento y despliegue. |
+
+---
+
+# V. VISTAS DE CASO DE USO
+
+El diagrama de caso de uso principal se presenta en la seccion [Vista Escenarios](#a-vista-escenarios). Resume las interacciones de Usuario, Docente y Administrador con el simulador.
+
+# VI. VISTA LOGICA
+
+## A. Diagrama Contextual
+
+La vista logica se detalla en la seccion [Vista Logica](#b-vista-logica), donde se presentan subsistemas, secuencia general, colaboracion, objetos y clases.
+
+# VII. VISTA DE PROCESOS
+
+## A. Diagrama de Proceso Actual
+
+El proceso actual corresponde a la practica tradicional con instalacion de motores reales, configuracion manual y uso de herramientas separadas por tecnologia.
+
+## B. Diagrama de Proceso Propuesto
+
+El proceso propuesto se representa en la seccion [Vista del Proceso](#c-vista-del-proceso), donde el usuario accede al simulador, selecciona motor, ejecuta consultas, revisa resultados y exporta evidencias.
+
+# VIII. VISTA DE DESPLIEGUE
+
+## A. Diagrama de Contenedor
+
+La vista fisica y de contenedores se presenta en la seccion [Vista Fisica](#e-vista-fisica), considerando navegador, Electron, hosting estatico, IndexedDB, LocalStorage y Firebase.
+
+# IX. VISTA DE IMPLEMENTACION
+
+## A. Diagrama de Componentes - Sistema Web
+
+El sistema web se organiza en componentes React, store Zustand, motores simulados, persistencia local, servicios Firebase, scripts de rendimiento y workflows de GitHub Actions.
+
+## B. Diagrama de Componentes - Sistema Desktop
+
+El sistema desktop usa Electron como contenedor de la aplicacion web, reutilizando la interfaz React y los servicios locales del navegador.
+
+# X. VISTA DE DATOS
+
+## A. Diagrama Entidad Relacion
+
+La vista de datos se representa mediante IndexedDB para tablas y esquemas locales, LocalStorage para preferencias y metadatos de sesion, y Firebase Realtime Database para usuarios, presencia y sesiones del simulador.
+
+```mermaid
+erDiagram
+    USUARIO ||--o{ ENGINE_TAB : crea
+    ENGINE_TAB ||--o{ QUERY_PANE : contiene
+    ENGINE_TAB ||--o{ QUERY_RESULT : genera
+    ENGINE_TAB ||--o{ SCHEMA_ENTRY : registra
+    USUARIO ||--o{ QUERY_HISTORY : consulta
+    USUARIO ||--o{ SIMULATOR_SESSION : publica
+    SIMULATOR_SESSION ||--o{ LOAD_METRIC : produce
+    SIMULATION_SETTINGS ||--o{ LOAD_METRIC : configura
+
+    USUARIO {
+        string id
+        string email
+        string role
+        string displayName
+    }
+
+    ENGINE_TAB {
+        string id
+        string engine
+        string database
+        string activeQueryPaneId
+    }
+
+    QUERY_PANE {
+        string id
+        string query
+        string engine
+    }
+
+    QUERY_RESULT {
+        string id
+        int rowCount
+        int executionTime
+        string status
+    }
+
+    SCHEMA_ENTRY {
+        string dbName
+        string tableName
+        string columns
+    }
+
+    QUERY_HISTORY {
+        string id
+        string query
+        string engine
+        string executedAt
+    }
+
+    SIMULATION_SETTINGS {
+        int networkLatency
+        int connectionLimit
+        boolean simulateErrors
+        float errorProbability
+    }
+
+    SIMULATOR_SESSION {
+        string id
+        string userId
+        string engine
+        string status
+    }
+
+    LOAD_METRIC {
+        string id
+        int users
+        float tps
+        float latency
+        float errorRate
+    }
+```
+
+# XI. CALIDAD
+
+## A. Escenario de Seguridad
+
+| Escenario | Descripcion | Implementacion |
+|---|---|---|
+| ES001 | Acceso administrativo controlado | Firebase Auth y roles para administracion. |
+| ES002 | Proteccion de credenciales | Variables de entorno fuera del repositorio publico. |
+| ES003 | Separacion de alcance | El simulador no se conecta a motores reales. |
+
+## B. Escenario de Usabilidad
 
 | Escenario | Descripcion | Implementacion |
 |---|---|---|
@@ -597,48 +975,31 @@ flowchart TB
 | EU003 | Aprendizaje guiado | Pantalla de bienvenida, plantillas y ayuda. |
 | EU004 | Visualizacion clara | Resultados tabulares, metricas y graficos de carga. |
 
-## 4.3 Escenario de Confiabilidad
+## C. Escenario de Adaptabilidad
 
 | Escenario | Descripcion | Implementacion |
 |---|---|---|
-| EC001 | Persistencia local | IndexedDB conserva tablas y esquemas. |
-| EC002 | Registro de ejecucion | Query logger guarda resultados y errores. |
-| EC003 | Manejo de Firebase | La app verifica configuracion antes de usar servicios. |
-| EC004 | Exportacion | El usuario puede respaldar resultados y sesiones. |
+| EA001 | Nuevos motores | Configuracion central de motores y exportadores. |
+| EA002 | Web y desktop | Vite para web y Electron para escritorio. |
+| EA003 | Servicios opcionales | Firebase se usa cuando existe configuracion disponible. |
 
-## 4.4 Escenario de Rendimiento
+## D. Escenario de Disponibilidad
 
-| Metrica | Objetivo | Observacion |
+| Escenario | Descripcion | Implementacion |
 |---|---|---|
-| Ejecucion local | Respuesta fluida en practicas academicas. | Depende del equipo cliente y tamano de dataset. |
-| Persistencia | Guardar tablas sin backend propio. | IndexedDB es suficiente para laboratorio. |
-| Simulacion | Actualizar metricas en tiempo real. | Calculos internos ligeros. |
-| Build | Generar assets estaticos. | Vite optimiza salida. |
-| CI/CD | Validar rendimiento simulado. | Matriz de 7 motores por 3 escenarios en GitHub Actions. |
+| ED001 | Operacion local | Consultas, importacion y exportacion funcionan sin backend propio. |
+| ED002 | Persistencia local | IndexedDB conserva tablas y esquemas. |
+| ED003 | Recuperacion de evidencias | Exportacion permite respaldar resultados y sesiones. |
 
-## 4.5 Escenario de Mantenibilidad
+## E. Escenario de Escalabilidad
 
-| Aspecto | Implementacion |
-|---|---|
-| Modularidad | Componentes, motores, store, db y lib separados. |
-| Tipado | TypeScript define motores, resultados y sesiones. |
-| Extensibilidad | `ENGINE_CONFIGS` centraliza motores soportados. |
-| Reutilizacion | Modales y helpers exportables. |
-| Separacion | UI no almacena directamente datos persistentes; usa store y servicios. |
-
-## 4.6 Otros Escenarios
-
-### 4.6.1 Performance
+| Escenario | Descripcion | Implementacion |
+|---|---|---|
+| EE001 | Carga en cliente | La ejecucion de consultas ocurre en el navegador. |
+| EE002 | Hosting estatico | El build puede publicarse en Netlify, Firebase Hosting o GitHub Pages. |
+| EE003 | Monitoreo externo | Firebase soporta presencia y sesiones de simulador para grupos academicos. |
 
 El sistema no busca medir rendimiento real de motores, sino ofrecer una experiencia fluida de laboratorio. El simulador de carga calcula TPS, CPU y latencia mediante formulas internas para representar escenarios didacticos.
-
-### 4.6.2 Escalabilidad
-
-La carga principal se ejecuta en el cliente. Para grupos academicos, Firebase soporta presencia, roles y sesiones del simulador, mientras el frontend puede desplegarse como contenido estatico.
-
-### 4.6.3 Disponibilidad y Confiabilidad
-
-El IDE puede operar parcialmente sin Firebase para consultas locales. Las funciones de login, presencia y admin requieren Firebase configurado. La exportacion de resultados permite respaldar evidencias.
 
 ---
 
