@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "export:pdf": "node scripts/export-pdfs.mjs"
+  },
+  "dependencies": {
+    "markdown-it": "^14.3.0",
+    "mermaid": "^11.16.0",
+    "puppeteer-core": "^25.3.0"
+  }
+}
