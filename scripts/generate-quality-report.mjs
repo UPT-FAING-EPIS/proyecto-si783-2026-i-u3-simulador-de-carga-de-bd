@@ -170,12 +170,6 @@ const unitHtml = `<!doctype html>
     </tbody>
   </table>
 
-  <h2>Artefactos tecnicos</h2>
-  <ul>
-    <li><a href="./results.json">JSON para integraciones</a></li>
-    <li><a href="./junit.xml">JUnit XML para CI/CD</a></li>
-  </ul>
-
   <p>Generado: ${generatedAt}</p>
 </body>
 </html>
@@ -194,8 +188,6 @@ const html = `<!doctype html>
   <ul>
     <li><a href="./coverage/index.html">Reporte de Cobertura (Vitest)</a></li>
     <li><a href="./unit/index.html">Reporte de Pruebas Unitarias</a></li>
-    <li><a href="./unit/results.json">JSON tecnico de pruebas</a></li>
-    <li><a href="./unit/junit.xml">JUnit XML tecnico</a></li>
   </ul>
 
   <h2>Resumen</h2>
