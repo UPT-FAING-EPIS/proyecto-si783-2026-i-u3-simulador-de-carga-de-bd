@@ -27,6 +27,12 @@
 
 ---
 
+## 0. Control documental
+
+| Version | Fecha | Descripcion |
+|---|---|---|
+| 2.2 | 2026-07-04 | Actualizacion con evidencias, rutas finales, limitaciones y validacion GitHub. |
+
 ## 1. Objetivo del manual
 
 Este manual explica el uso del **Simulador de Bases de Datos**, una aplicacion academica para practicar consultas SQL y NoSQL, importar datos, revisar resultados, exportar evidencias y simular carga sin instalar motores reales.
@@ -66,7 +72,7 @@ La pantalla principal se organiza en:
 | Zona | Funcion |
 |---|---|
 | Barra superior | Ejecutar consultas, importar, exportar, abrir ayuda, configuracion, historial y simulador. |
-| Pestañas de motor | Permiten trabajar con SQL Server, MySQL, PostgreSQL, Oracle, SQLite, MongoDB y Redis. |
+| Pestanas de motor | Permiten trabajar con SQL Server, MySQL, PostgreSQL, Oracle, SQLite, MongoDB y Redis. |
 | Editor | Area donde se escriben consultas o comandos. |
 | Panel de resultados | Muestra tablas, mensajes, tiempos de ejecucion y filas afectadas. |
 | Explorador de esquema | Lista bases, tablas, columnas y vista previa de datos. |
@@ -264,6 +270,8 @@ Nota: requiere Firebase configurado.
 - El rendimiento mostrado en el simulador no es benchmark real.
 - MongoDB y Redis son representaciones en memoria.
 - La persistencia depende del navegador e IndexedDB.
+- Las funciones de login real, presencia, roles y panel administrativo dependen de Firebase configurado.
+- Si el navegador borra datos locales, se pueden perder tablas y esquemas guardados.
 
 ## 18. Recomendaciones de uso
 
@@ -278,3 +286,27 @@ Nota: requiere Firebase configurado.
 El repositorio incluye la accion **Database Load Performance**. Esta accion puede ejecutarse desde la pestana **Actions** de GitHub y valida automaticamente el rendimiento simulado de los siete motores en escenarios `light`, `medium` y `heavy`.
 
 Cuando el workflow termina correctamente, GitHub muestra la ejecucion con estado exitoso. Esto sirve como evidencia de que el proyecto compila y que las pruebas de carga automatizadas cumplen los umbrales definidos.
+
+## 20. Evidencias recomendadas para entrega
+
+Para una entrega academica completa se recomienda generar o mostrar:
+
+| Evidencia | Donde obtenerla |
+|---|---|
+| Consulta SQL ejecutada | Editor y panel de resultados. |
+| Resultado exportado | Boton de exportacion en CSV, JSON, Excel o SQL. |
+| Esquema de tablas | Explorador de esquema. |
+| Historial o logs | Opcion de historial en la barra superior. |
+| Simulacion de carga | Modal o vista `simulator.html`. |
+| Reporte de rendimiento | Artifact o carpeta `reports/` generada por CI/CD. |
+| Panel administrativo | Ruta `admin.html` o `/admin` con Firebase configurado. |
+
+## 21. Buenas practicas de uso
+
+1. Usar datos de prueba y evitar informacion sensible real.
+2. Exportar resultados importantes antes de cerrar o limpiar el navegador.
+3. Confirmar el motor activo antes de ejecutar consultas.
+4. Separar practicas SQL, MongoDB y Redis en pestanas distintas.
+5. Revisar mensajes de error antes de repetir una consulta.
+6. Usar el simulador de carga como herramienta didactica, no como benchmark real.
+7. Solicitar al administrador la configuracion de roles si se requiere acceso al panel admin.

@@ -842,13 +842,117 @@ flowchart TD
 
 # V. VISTAS DE CASO DE USO
 
-El diagrama de caso de uso principal se presenta en la seccion [Vista Escenarios](#a-vista-escenarios). Resume las interacciones de Usuario, Docente y Administrador con el simulador.
+El diagrama de caso de uso resume las interacciones principales de Usuario, Docente y Administrador con el simulador.
+
+```mermaid
+flowchart LR
+    Usuario((Usuario / Estudiante))
+    Docente((Docente))
+    Admin((Administrador))
+
+    subgraph Sistema["Simulador de Bases de Datos"]
+        UC1(["Iniciar sesion"])
+        UC2(["Seleccionar motor"])
+        UC3(["Escribir consulta"])
+        UC4(["Ejecutar SQL / NoSQL"])
+        UC5(["Importar datos"])
+        UC6(["Explorar esquema"])
+        UC7(["Exportar resultados"])
+        UC8(["Ver historial y logs"])
+        UC9(["Simular carga"])
+        UC10(["Comparar motores"])
+        UC11(["Monitorear sesiones"])
+        UC12(["Gestionar usuarios y roles"])
+        UC13(["Revisar evidencias"])
+    end
+
+    Usuario --> UC1
+    Usuario --> UC2
+    Usuario --> UC3
+    Usuario --> UC4
+    Usuario --> UC5
+    Usuario --> UC6
+    Usuario --> UC7
+    Usuario --> UC8
+    Usuario --> UC9
+    Usuario --> UC10
+
+    Docente --> UC9
+    Docente --> UC10
+    Docente --> UC13
+
+    Admin --> UC11
+    Admin --> UC12
+
+    UC4 -. incluye .-> UC6
+    UC5 -. actualiza .-> UC6
+    UC9 -. genera .-> UC13
+    UC11 -. requiere .-> UC1
+    UC12 -. requiere .-> UC1
+```
 
 # VI. VISTA LOGICA
 
 ## A. Diagrama Contextual
 
-La vista logica se detalla en la seccion [Vista Logica](#b-vista-logica), donde se presentan subsistemas, secuencia general, colaboracion, objetos y clases.
+El diagrama contextual muestra los subsistemas logicos internos y sus dependencias principales.
+
+```mermaid
+flowchart TB
+    Usuario((Usuario))
+    Admin((Administrador))
+
+    subgraph Sistema["Sistema Simulador de Bases de Datos"]
+        UI["Interfaz React<br/>App / Simulador / Admin"]
+        Store["Estado global<br/>Zustand"]
+        Editor["Editor Monaco"]
+        Results["Panel de resultados"]
+        Schema["Explorador de esquema"]
+        ImportExport["Importacion / Exportacion"]
+        Load["Simulador de carga"]
+
+        subgraph Core["Nucleo logico"]
+            SQL["Motor SQL<br/>AlaSQL + preprocesadores"]
+            Mongo["Simulador MongoDB"]
+            Redis["Simulador Redis"]
+            Metrics["Calculo de metricas"]
+        end
+
+        subgraph Data["Capa de datos"]
+            IDBStorage["Persistencia IndexedDB"]
+            LocalPrefs["Preferencias LocalStorage"]
+        end
+
+        subgraph Services["Servicios externos opcionales"]
+            Auth["Firebase Auth"]
+            RTDB["Firebase RTDB<br/>presencia / sesiones / roles"]
+        end
+    end
+
+    Usuario --> UI
+    Admin --> UI
+    UI --> Store
+    UI --> Editor
+    UI --> Results
+    UI --> Schema
+    UI --> ImportExport
+    UI --> Load
+    Store --> Core
+    Editor --> SQL
+    Editor --> Mongo
+    Editor --> Redis
+    SQL --> IDBStorage
+    Mongo --> IDBStorage
+    Redis --> IDBStorage
+    ImportExport --> IDBStorage
+    Results --> ImportExport
+    Schema --> IDBStorage
+    Load --> Metrics
+    Load --> RTDB
+    UI --> Auth
+    UI --> RTDB
+    Store --> LocalPrefs
+```
 
 # VII. VISTA DE PROCESOS
 
@@ -856,15 +960,119 @@ La vista logica se detalla en la seccion [Vista Logica](#b-vista-logica), donde 
 
 El proceso actual corresponde a la practica tradicional con instalacion de motores reales, configuracion manual y uso de herramientas separadas por tecnologia.
 
+```mermaid
+flowchart TD
+    A["Inicio de practica de bases de datos"] --> B["Elegir motor requerido"]
+    B --> C["Buscar instalador / servicio"]
+    C --> D["Instalar motor local"]
+    D --> E["Configurar puertos, usuarios y credenciales"]
+    E --> F{"Configuracion correcta?"}
+    F -->|No| G["Corregir errores de instalacion"]
+    G --> E
+    F -->|Si| H["Instalar cliente o herramienta externa"]
+    H --> I["Crear base de datos y tablas"]
+    I --> J["Cargar datos de prueba"]
+    J --> K["Ejecutar consultas"]
+    K --> L{"Se requiere otro motor?"}
+    L -->|Si| B
+    L -->|No| M["Exportar evidencias manualmente"]
+    M --> N["Fin de practica"]
+```
+
 ## B. Diagrama de Proceso Propuesto
 
-El proceso propuesto se representa en la seccion [Vista del Proceso](#c-vista-del-proceso), donde el usuario accede al simulador, selecciona motor, ejecuta consultas, revisa resultados y exporta evidencias.
+El proceso propuesto permite que el usuario acceda al simulador, seleccione motor, ejecute consultas, revise resultados y exporte evidencias desde un solo entorno.
+
+```mermaid
+flowchart TD
+    A["Inicio de practica"] --> B["Abrir aplicacion web o desktop"]
+    B --> C["Iniciar sesion si corresponde"]
+    C --> D["Seleccionar motor simulado"]
+    D --> E{"Tipo de entrada"}
+    E -->|Consulta manual| F["Escribir consulta en Monaco Editor"]
+    E -->|Archivo| G["Importar SQL, CSV o JSON"]
+    G --> H["Guardar tablas y esquemas en IndexedDB"]
+    F --> I["Ejecutar consulta"]
+    H --> I
+    I --> J{"Motor seleccionado"}
+    J -->|SQL| K["Procesar con AlaSQL"]
+    J -->|MongoDB| L["Ejecutar simulador MongoDB"]
+    J -->|Redis| M["Ejecutar simulador Redis"]
+    K --> N["Mostrar resultados"]
+    L --> N
+    M --> N
+    N --> O["Actualizar esquema, historial y logs"]
+    O --> P{"Requiere simulacion de carga?"}
+    P -->|Si| Q["Configurar usuarios, duracion y motor"]
+    Q --> R["Calcular TPS, latencia, CPU y errores"]
+    R --> S["Generar reporte de simulacion"]
+    P -->|No| T["Exportar resultados o base"]
+    S --> T
+    T --> U["Fin de practica"]
+```
 
 # VIII. VISTA DE DESPLIEGUE
 
 ## A. Diagrama de Contenedor
 
-La vista fisica y de contenedores se presenta en la seccion [Vista Fisica](#e-vista-fisica), considerando navegador, Electron, hosting estatico, IndexedDB, LocalStorage y Firebase.
+El diagrama de contenedor presenta la distribucion fisica y logica del sistema en navegador, escritorio, almacenamiento local, servicios externos y automatizacion.
+
+```mermaid
+flowchart TB
+    Usuario((Usuario))
+    Admin((Administrador))
+    Dev((Desarrollador))
+
+    subgraph Client["Dispositivo del usuario"]
+        Browser["Navegador moderno"]
+        Electron["Aplicacion Electron"]
+        IDB[("IndexedDB<br/>tablas y esquemas")]
+        LS[("LocalStorage<br/>preferencias e historial")]
+    end
+
+    subgraph StaticHosting["Hosting estatico"]
+        Landing["Landing page"]
+        WebApp["Build Vite<br/>app.html / simulator.html / admin.html"]
+    end
+
+    subgraph AppContainer["Contenedor de aplicacion"]
+        React["React UI"]
+        Store["Zustand Store"]
+        Engine["AlaSQL + simuladores<br/>MongoDB / Redis"]
+        Exporter["Exportadores<br/>CSV / JSON / Excel / SQL"]
+    end
+
+    subgraph FirebaseCloud["Firebase"]
+        Auth["Firebase Auth"]
+        RTDB[("Realtime Database<br/>presencia / sesiones / roles")]
+    end
+
+    subgraph CI["GitHub Actions"]
+        Build["Build y validacion"]
+        Performance["Pruebas de rendimiento"]
+        Pages["Deploy landing"]
+    end
+
+    Usuario --> Browser
+    Usuario --> Electron
+    Admin --> Browser
+    Browser --> WebApp
+    Electron --> WebApp
+    WebApp --> React
+    React --> Store
+    Store --> Engine
+    Engine --> IDB
+    React --> LS
+    React --> Exporter
+    React --> Auth
+    React --> RTDB
+    Dev --> CI
+    CI --> Build
+    CI --> Performance
+    CI --> Pages
+    Pages --> Landing
+    Build --> WebApp
+```
 
 # IX. VISTA DE IMPLEMENTACION
 
@@ -872,9 +1080,153 @@ La vista fisica y de contenedores se presenta en la seccion [Vista Fisica](#e-vi
 
 El sistema web se organiza en componentes React, store Zustand, motores simulados, persistencia local, servicios Firebase, scripts de rendimiento y workflows de GitHub Actions.
 
+```mermaid
+flowchart TB
+    Usuario((Usuario))
+    Admin((Administrador))
+
+    subgraph Web["Sistema Web React"]
+        App["App.tsx"]
+        AdminApp["AdminApp.tsx"]
+        SimulatorView["Vista simulador<br/>simulator.html"]
+
+        subgraph UI["Componentes de interfaz"]
+            Login["LoginScreen"]
+            TopBar["TopBar"]
+            EngineTabs["EngineTabs"]
+            Editor["SQLEditor"]
+            Results["ResultsPanel"]
+            Schema["SchemaExplorer"]
+            ImportExport["DatabaseManagerModal / ExportModal"]
+            LoadSimulator["LoadSimulatorModal"]
+            History["HistoryModal"]
+            Settings["SettingsModal / EnvModal"]
+        end
+
+        Store["useStore<br/>Estado global Zustand"]
+
+        subgraph Engines["Motores simulados"]
+            SQLEngine["sqlEngine.ts<br/>AlaSQL + preprocesadores"]
+            MongoEngine["executeMongoQuery"]
+            RedisEngine["executeRedisCommand"]
+            ExportHelper["exportHelper.ts"]
+        end
+
+        subgraph Persistence["Persistencia local"]
+            IDBStorage["idbStorage.ts"]
+            QueryLogger["Historial y logs locales"]
+            LocalSettings["localStorage"]
+        end
+
+        subgraph FirebaseServices["Servicios Firebase"]
+            Auth["auth.ts"]
+            Presence["presence.ts"]
+            SimulatorSession["simulatorSession.ts"]
+            Roles["Gestion de roles / usuarios"]
+        end
+
+        subgraph Automation["Automatizacion"]
+            PerfScript["performance-test.mjs"]
+            SummaryScript["performance-summary.mjs"]
+            WorkflowPerf["performance.yml"]
+            WorkflowPages["pages.yml"]
+        end
+    end
+
+    IDB[("IndexedDB")]
+    BrowserStorage[("LocalStorage")]
+    Firebase[("Firebase Auth / RTDB")]
+    GitHub["GitHub Actions"]
+
+    Usuario --> App
+    Usuario --> SimulatorView
+    Admin --> AdminApp
+
+    App --> UI
+    SimulatorView --> LoadSimulator
+    AdminApp --> FirebaseServices
+    UI --> Store
+    Store --> Engines
+    Store --> Persistence
+    Editor --> SQLEngine
+    ImportExport --> SQLEngine
+    Results --> ExportHelper
+    Schema --> IDBStorage
+    LoadSimulator --> SQLEngine
+    LoadSimulator --> SimulatorSession
+    History --> QueryLogger
+    Login --> Auth
+
+    IDBStorage --> IDB
+    QueryLogger --> BrowserStorage
+    LocalSettings --> BrowserStorage
+    Auth --> Firebase
+    Presence --> Firebase
+    SimulatorSession --> Firebase
+    Roles --> Firebase
+    WorkflowPerf --> PerfScript
+    WorkflowPerf --> SummaryScript
+    WorkflowPerf --> GitHub
+    WorkflowPages --> GitHub
+```
+
 ## B. Diagrama de Componentes - Sistema Desktop
 
 El sistema desktop usa Electron como contenedor de la aplicacion web, reutilizando la interfaz React y los servicios locales del navegador.
+
+```mermaid
+flowchart TB
+    Usuario((Usuario Desktop))
+
+    subgraph Desktop["Sistema Desktop Electron"]
+        Main["electron/main.cjs<br/>Proceso principal"]
+        Window["BrowserWindow<br/>Ventana de escritorio"]
+        Menu["Menu / ciclo de vida"]
+        Assets["dist/<br/>Build Vite"]
+
+        subgraph Renderer["Proceso renderer"]
+            ReactApp["React App"]
+            Components["Componentes UI"]
+            Store["Zustand Store"]
+            Engine["AlaSQL + simuladores<br/>MongoDB / Redis"]
+            Exporter["ExportHelper / SheetJS"]
+        end
+
+        subgraph LocalData["Datos locales del escritorio"]
+            IDBStorage["IndexedDB Storage"]
+            LocalStorage["LocalStorage"]
+            Files["Archivos exportados<br/>CSV / JSON / Excel / SQL"]
+        end
+
+        subgraph OptionalCloud["Servicios opcionales"]
+            Auth["Firebase Auth"]
+            RTDB["Firebase RTDB<br/>presencia / sesiones / roles"]
+        end
+    end
+
+    OS["Sistema operativo"]
+    Firebase[("Firebase")]
+
+    Usuario --> Window
+    Main --> Window
+    Main --> Menu
+    Window --> Assets
+    Assets --> ReactApp
+    ReactApp --> Components
+    Components --> Store
+    Store --> Engine
+    Engine --> IDBStorage
+    Components --> Exporter
+    Exporter --> Files
+    Store --> LocalStorage
+    ReactApp --> Auth
+    ReactApp --> RTDB
+    Auth --> Firebase
+    RTDB --> Firebase
+    Files --> OS
+    IDBStorage --> OS
+    LocalStorage --> OS
+```
 
 # X. VISTA DE DATOS
 

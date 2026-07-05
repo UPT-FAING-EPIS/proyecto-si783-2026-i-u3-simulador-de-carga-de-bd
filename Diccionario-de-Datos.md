@@ -27,9 +27,15 @@
 
 ---
 
+## 0. Control documental
+
+| Version | Fecha | Descripcion |
+|---|---|---|
+| 2.2 | 2026-07-04 | Actualizacion con estructuras finales, reportes CI/CD y trazabilidad documental. |
+
 ## 1. Objetivo
 
-Este documento describe las principales estructuras de datos utilizadas por el **Simulador de Bases de Datos**, incluyendo tipos TypeScript, almacenamiento local, IndexedDB y nodos Firebase.
+Este documento describe las principales estructuras de datos utilizadas por el **Simulador de Bases de Datos**, incluyendo tipos TypeScript, almacenamiento local, IndexedDB, LocalStorage, nodos Firebase, reportes CI/CD y datos exportables usados como evidencia academica.
 
 ## 2. Fuentes de datos del sistema
 
@@ -42,6 +48,7 @@ Este documento describe las principales estructuras de datos utilizadas por el *
 | Firebase Auth | Firebase | Identidad de usuarios. |
 | Firebase RTDB | Firebase | Usuarios, presencia, sesiones y roles. |
 | GitHub Actions | CI/CD | Reportes de rendimiento y despliegue de landing. |
+| Archivos exportados | CSV, JSON, Excel, SQL, DDL | Evidencias generadas desde resultados, esquemas o bases completas. |
 
 ## 3. Enumeraciones principales
 
@@ -323,6 +330,8 @@ dbName
 - Las tablas creadas por usuarios son dinamicas y dependen de los archivos importados o consultas ejecutadas.
 - Firebase es opcional, pero necesario para login real, presencia y admin.
 - La persistencia principal de datos de prueba se realiza en IndexedDB.
+- Los reportes de rendimiento son evidencias de validacion, no mediciones de motores reales.
+- Los nombres de tablas, columnas y bases importadas deben tratarse como datos de practica.
 
 ## 13. Reportes de rendimiento CI/CD
 
@@ -350,3 +359,27 @@ Los scripts `scripts/performance-test.mjs` y `scripts/performance-summary.mjs` g
 | `performance-summary.md` | Resumen legible para GitHub y Pull Requests. |
 | `performance-summary.json` | Resumen estructurado para analisis. |
 | `performance-summary.csv` | Tabla exportable para hojas de calculo. |
+
+## 14. Estructuras de exportacion
+
+El sistema permite generar archivos para respaldar practicas, entregar evidencias o reutilizar datos en otros entornos academicos.
+
+| Exportacion | Extension | Origen | Contenido |
+|---|---|---|---|
+| Resultados CSV | `.csv` | Panel de resultados | Columnas y filas del resultado activo. |
+| Resultados JSON | `.json` | Panel de resultados | Arreglo de objetos o estructura de resultados. |
+| Resultados Excel | `.xlsx` | Panel de resultados | Hoja con resultados tabulares. |
+| Script SQL | `.sql` | Esquema y datos | DDL e inserts adaptados al motor seleccionado. |
+| DDL | `.sql` | Esquema | Sentencias de creacion de tablas. |
+| Base completa | `.sql` / `.json` | IndexedDB y estado actual | Tablas, esquemas y datos de practica. |
+| Reporte de simulacion | `.md` / `.json` / `.csv` | Scripts de rendimiento | Metricas, ranking, estado y configuracion de pruebas. |
+
+## 15. Trazabilidad con documentos
+
+| Documento | Relacion con el diccionario |
+|---|---|
+| FD03 - SRS | Define los requisitos que originan estas estructuras: consultas, historial, simulacion, importacion, exportacion, usuarios y roles. |
+| FD04 - SAD | Explica como las estructuras se distribuyen entre UI, store, motores, IndexedDB, LocalStorage, Firebase y GitHub Actions. |
+| FD05 - Informe final | Resume las estructuras usadas como evidencia de implementacion, pruebas, resultados y anexos. |
+| Manual de Usuario | Explica como el usuario genera datos, consultas, resultados, exportaciones e historial. |
+| Manual de Instalacion | Explica como instalar dependencias y generar reportes en `reports/`. |

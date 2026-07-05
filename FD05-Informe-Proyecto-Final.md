@@ -32,87 +32,201 @@ Integrantes:
 | 1.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-05-01 | Version inicial |
 | 2.0 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-06-21 | Actualizacion segun implementacion final del simulador |
 | 2.1 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-07-04 | Actualizacion con version actual, GitHub Actions y despliegue |
+| 2.2 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-07-04 | Consolidacion con FD01, FD02, FD03 y FD04 |
+| 2.3 | APO, JVL | APO, JVL | P. Cuadros Q. | 2026-07-04 | Actualizacion con manuales, diccionario, estandares y guia de diagramas |
 
-## 1. Antecedentes
+## INDICE GENERAL
 
-El **Simulador de Bases de Datos** surge como proyecto academico para aplicar conocimientos de desarrollo de software, bases de datos, pruebas, interfaces de usuario y simulacion de rendimiento. El sistema permite practicar consultas SQL y NoSQL en un entorno local sin instalar varios motores de base de datos.
+1. [Introduccion](#1-introduccion)
+2. [Resumen ejecutivo](#2-resumen-ejecutivo)
+3. [Documentos base del proyecto](#3-documentos-base-del-proyecto)
+4. [Vision general del producto](#4-vision-general-del-producto)
+5. [Factibilidad consolidada](#5-factibilidad-consolidada)
+6. [Requerimientos implementados](#6-requerimientos-implementados)
+7. [Arquitectura y diseno de la solucion](#7-arquitectura-y-diseno-de-la-solucion)
+8. [Desarrollo de la solucion](#8-desarrollo-de-la-solucion)
+9. [Pruebas y validacion](#9-pruebas-y-validacion)
+10. [Resultados obtenidos](#10-resultados-obtenidos)
+11. [Limitaciones del proyecto](#11-limitaciones-del-proyecto)
+12. [Presupuesto final](#12-presupuesto-final)
+13. [Conclusiones](#13-conclusiones)
+14. [Recomendaciones](#14-recomendaciones)
+15. [Bibliografia](#15-bibliografia)
+16. [Webgrafia](#16-webgrafia)
+17. [Anexos](#17-anexos)
 
-Durante el desarrollo, el proyecto evoluciono desde un editor de consultas hacia una herramienta mas completa con multiples motores simulados, importacion/exportacion, persistencia local, explorador de esquema, historial, simulador de carga, panel administrativo y empaquetado desktop.
+<div style="page-break-after: always; visibility: hidden">\pagebreak</div>
 
-## 2. Planteamiento del problema
+## 1. Introduccion
 
-Aprender bases de datos puede requerir instalar y configurar distintos motores, servicios, credenciales, puertos y clientes. En entornos academicos, este proceso consume tiempo y puede impedir que el estudiante se concentre en practicar consultas y comprender diferencias entre motores.
+El presente informe final consolida los resultados del proyecto **Simulador de Bases de Datos**, desarrollado como una herramienta academica para practicar consultas SQL y NoSQL, importar datos, explorar esquemas, exportar evidencias y simular condiciones de carga sin instalar servidores de bases de datos reales.
 
-El proyecto atiende esta necesidad ofreciendo una herramienta local y gratuita para:
+Este documento toma como base los informes previos del proyecto: **FD01 - Informe de Factibilidad**, **FD02 - Documento de Vision**, **FD03 - Especificacion de Requerimientos de Software** y **FD04 - Arquitectura de Software**. A partir de ellos se presenta una vision integrada del problema, la solucion implementada, los requerimientos cubiertos, la arquitectura, las pruebas realizadas y los resultados obtenidos.
 
-- Practicar consultas SQL y NoSQL.
-- Comparar sintaxis entre motores.
-- Importar datos de prueba.
-- Visualizar resultados y esquemas.
-- Exportar evidencias.
-- Simular carga y saturacion.
-- Administrar usuarios y sesiones en un contexto academico.
+## 2. Resumen ejecutivo
 
-## 3. Objetivos
+El proyecto responde a la necesidad de contar con un entorno unico, portable y accesible para practicar bases de datos en un contexto academico. La instalacion y configuracion de motores como SQL Server, MySQL, PostgreSQL, Oracle, SQLite, MongoDB y Redis puede ser compleja para estudiantes que recien inician. Por ello, el simulador permite ejecutar ejercicios representativos en el navegador o en una version desktop, reduciendo la dependencia de infraestructura externa.
 
-### 3.1 Objetivo general
+La version actual del sistema incluye:
 
-Desarrollar un simulador academico de bases de datos que permita ejecutar consultas, gestionar datos locales, exportar resultados y simular condiciones de carga en distintos motores sin instalar servidores reales.
+- Aplicacion web tipo IDE con React, TypeScript y Monaco Editor.
+- Soporte para motores simulados SQL Server, MySQL, PostgreSQL, Oracle, SQLite, MongoDB y Redis.
+- Ejecucion SQL en memoria mediante AlaSQL.
+- Simulacion de comandos basicos MongoDB y Redis.
+- Importacion de datos desde SQL, CSV y JSON.
+- Persistencia local de tablas, esquemas y metadatos con IndexedDB.
+- Exportacion de resultados en CSV, JSON, Excel, SQL y formatos por motor.
+- Explorador de esquema, historial, logs y configuracion de editor.
+- Simulador de carga con TPS, latencia, CPU estimada, conexiones, errores y comparacion de motores.
+- Panel administrativo con autenticacion, presencia, sesiones y roles mediante Firebase.
+- Empaquetado desktop con Electron.
+- Automatizacion con GitHub Actions para pruebas de rendimiento y despliegue de landing.
 
-### 3.2 Objetivos especificos
+## 3. Documentos base del proyecto
 
-- Implementar una interfaz web tipo IDE con React y TypeScript.
-- Integrar Monaco Editor para escritura de consultas.
-- Soportar motores simulados SQL Server, MySQL, PostgreSQL, Oracle, SQLite, MongoDB y Redis.
-- Ejecutar consultas SQL mediante AlaSQL.
-- Simular operaciones basicas de MongoDB y Redis.
-- Importar datos desde SQL, CSV y JSON.
-- Persistir tablas y esquemas en IndexedDB.
-- Exportar resultados en CSV, JSON y Excel.
-- Exportar esquemas y bases completas por motor.
-- Implementar historial y logs de consultas.
-- Agregar simulador de carga con TPS, latencia, CPU, conexiones y errores.
-- Implementar panel administrativo con monitoreo y roles.
-- Permitir ejecucion web y empaquetado desktop con Electron.
-- Automatizar validaciones de rendimiento con GitHub Actions.
-- Publicar la landing estatica mediante GitHub Pages.
+| Documento | Proposito | Aporte al informe final |
+|---|---|---|
+| FD01 - Informe de Factibilidad | Evalua la viabilidad tecnica, economica, operativa, legal, social y ambiental. | Confirma que el proyecto es viable para fines academicos con costo estimado bajo. |
+| FD02 - Documento de Vision | Define el producto, usuarios, necesidades, capacidades, restricciones y calidad esperada. | Establece el alcance funcional y la perspectiva del sistema. |
+| FD03 - SRS | Especifica requisitos funcionales, no funcionales, reglas de negocio, casos de uso y trazabilidad. | Sustenta que el sistema implementa los requisitos principales. |
+| FD04 - SAD | Describe arquitectura, vistas 4+1, C4, componentes, datos, despliegue, seguridad y calidad. | Explica como esta construido el sistema y como se relacionan sus modulos. |
 
-## 4. Marco teorico
+### 3.1 Documentos complementarios
 
-### 4.1 Simulador de bases de datos
+| Documento | Proposito | Uso en la entrega |
+|---|---|---|
+| Diccionario de Datos | Describe estructuras, persistencia, Firebase, reportes y exportaciones. | Sirve como referencia tecnica para datos internos y evidencias. |
+| Estandares de Programacion | Define reglas de codigo, documentacion, Mermaid, pruebas y CI/CD. | Sirve como criterio de mantenimiento y revision. |
+| Guia de Diagramas FD03-FD04 | Explica que diagramas corresponden al SRS, SAD e informe final. | Sirve para validar que cada grafico este en el documento correcto. |
+| Manual de Instalacion | Describe instalacion, ejecucion, build, desktop, CI/CD y verificacion documental. | Sirve para reproducir el proyecto y preparar la entrega. |
+| Manual de Usuario | Explica uso del IDE, motores, importacion, exportacion, simulador y admin. | Sirve para operar el sistema y generar evidencias. |
 
-Un simulador de bases de datos reproduce comportamientos representativos de motores reales para fines de aprendizaje. No busca reemplazar un servidor real, sino reducir la complejidad inicial y permitir practicas controladas.
+## 4. Vision general del producto
 
-### 4.2 SQL y NoSQL
+El **Simulador de Bases de Datos** es una aplicacion web y desktop orientada a estudiantes, docentes, administradores academicos y desarrolladores del proyecto. Su finalidad es permitir la practica de operaciones de bases de datos sin instalar varios servidores reales, manteniendo un entorno controlado, visual y facil de usar.
 
-SQL permite definir, consultar y manipular datos relacionales mediante sentencias como `SELECT`, `INSERT`, `UPDATE`, `DELETE` y `CREATE TABLE`. NoSQL agrupa modelos no relacionales como documentos y clave-valor; en este proyecto se representan mediante comandos simulados de MongoDB y Redis.
+### 4.1 Usuarios principales
 
-### 4.3 Persistencia local
-
-IndexedDB permite almacenar informacion estructurada en el navegador. El proyecto la usa para persistir tablas, datos y metadatos sin depender de un backend propio.
-
-### 4.4 Simulacion de carga
-
-La simulacion de carga estima metricas como usuarios concurrentes, TPS, latencia, CPU, conexiones y errores. En este proyecto las metricas son didacticas y se calculan con formulas internas; no representan mediciones reales sobre motores externos.
-
-### 4.5 Herramientas
-
-| Herramienta | Uso |
+| Usuario | Necesidad principal |
 |---|---|
-| React + TypeScript | Desarrollo de la interfaz. |
-| Vite | Build y servidor de desarrollo. |
-| Tailwind CSS | Estilos visuales. |
-| Monaco Editor | Editor de codigo. |
-| AlaSQL | Ejecucion SQL en memoria. |
-| IndexedDB | Persistencia local. |
-| Zustand | Estado global. |
-| Firebase | Autenticacion, presencia y admin. |
-| Electron | Aplicacion desktop. |
-| SheetJS | Exportacion Excel. |
+| Estudiante | Practicar consultas, importar datos, revisar resultados y exportar evidencias. |
+| Docente | Proponer ejercicios, verificar resultados y usar el simulador en laboratorio. |
+| Administrador | Monitorear sesiones, motores activos y usuarios conectados. |
+| Desarrollador | Mantener componentes, motores, persistencia, exportadores y pruebas automatizadas. |
 
-## 5. Desarrollo de la solucion
+### 4.2 Capacidades del producto
 
-### 5.1 Modulos implementados
+| Capacidad | Descripcion |
+|---|---|
+| Multi-motor | Trabaja con SQL Server, MySQL, PostgreSQL, Oracle, SQLite, MongoDB y Redis. |
+| Editor tipo IDE | Permite escribir y ejecutar consultas con Monaco Editor. |
+| Persistencia local | Conserva tablas y esquemas mediante IndexedDB. |
+| Importacion | Carga datos desde archivos SQL, CSV y JSON. |
+| Exportacion | Genera evidencias en CSV, JSON, Excel, SQL y formatos por motor. |
+| Simulacion de carga | Calcula metricas didacticas de TPS, latencia, CPU, conexiones y errores. |
+| Administracion | Usa Firebase para autenticacion, presencia, roles y sesiones cuando esta configurado. |
+| Portabilidad | Funciona como web app y puede empaquetarse con Electron. |
+| CI/CD | Ejecuta validaciones de rendimiento y publica la landing con GitHub Actions. |
+
+## 5. Factibilidad consolidada
+
+La factibilidad del proyecto se considera **alta**. El sistema se construyo con tecnologias accesibles, documentadas y compatibles con el alcance academico. No requiere licencias pagadas para su ejecucion base y puede operar localmente en el navegador para las funciones principales.
+
+| Dimension | Resultado | Sustento |
+|---|---|---|
+| Tecnica | Alta | React, TypeScript, Vite, AlaSQL, IndexedDB, Firebase, Electron y GitHub Actions son tecnologias viables para el alcance. |
+| Economica | Alta | El proyecto usa herramientas gratuitas y recursos propios. El costo estimado final es S/. 2005.00. |
+| Operativa | Alta | El flujo tipo IDE facilita el uso en laboratorios y practicas academicas. |
+| Legal | Alta | El sistema se orienta a datos de prueba y uso academico. Las credenciales externas no deben publicarse. |
+| Social y ambiental | Alta | Reduce instalaciones locales complejas y favorece el aprendizaje con bajo consumo de infraestructura. |
+
+## 6. Requerimientos implementados
+
+El SRS del proyecto define requisitos funcionales y no funcionales alineados con ISO/IEC/IEEE 29148 y UML. La version actual cubre los requerimientos principales mediante componentes concretos del codigo.
+
+### 6.1 Requerimientos funcionales principales
+
+| Codigo | Requerimiento | Implementacion | Estado |
+|---|---|---|---|
+| RF001 | Autenticacion | `LoginScreen`, `auth.ts` | Implementado |
+| RF002 | Editor Monaco | `SQLEditor` | Implementado |
+| RF003 | Tabs por motor | `EngineTabs`, `useStore` | Implementado |
+| RF004 | SQL relacional | `sqlEngine.ts`, AlaSQL | Implementado |
+| RF006 | MongoDB simulado | `executeMongoQuery` | Implementado |
+| RF007 | Redis simulado | `executeRedisCommand` | Implementado |
+| RF008 | Importar CSV | `importTableFromCSV` | Implementado |
+| RF009 | Importar JSON | `importTableFromJSON` | Implementado |
+| RF010 | Importar SQL | `importTableFromSQL` | Implementado |
+| RF011 | Persistencia local | `idbStorage.ts` | Implementado |
+| RF013 | Exportacion | `ExportModal`, `exportHelper` | Implementado |
+| RF014 | Explorador de esquema | `SchemaExplorer` | Implementado |
+| RF015 | Historial y logs | `HistoryModal`, `queryLogger` | Implementado |
+| RF017 | Simulador de carga | `LoadSimulatorModal` | Implementado |
+| RF018 | Comparacion de motores | `LoadSimulatorModal` | Implementado |
+| RF020 | Panel admin | `AdminApp` | Implementado |
+| RF021 | Presencia | `presence.ts`, Firebase | Implementado |
+| RF022 | Desktop | `electron/main.cjs` | Implementado |
+| RF023 | CI/CD rendimiento | `.github/workflows/performance.yml` | Implementado |
+| RF024 | Despliegue landing | `.github/workflows/pages.yml` | Implementado |
+
+### 6.2 Requerimientos no funcionales
+
+| Codigo | Atributo | Cumplimiento |
+|---|---|---|
+| RNF001 | Usabilidad | Interfaz tipo IDE, modales claros, editor con resaltado y paneles visibles. |
+| RNF002 | Rendimiento | Ejecucion local en memoria e IndexedDB para practicas de laboratorio. |
+| RNF003 | Portabilidad | Ejecucion web con Vite y version desktop mediante Electron. |
+| RNF004 | Mantenibilidad | Separacion por componentes, store, motores, servicios y persistencia. |
+| RNF005 | Auditabilidad | Historial, logs, exportaciones y reportes de pruebas. |
+| RNF006 | Configurabilidad | Parametros de editor, entorno y simulacion ajustables. |
+| RNF007 | Seguridad | Autenticacion y roles mediante Firebase para funciones administrativas. |
+| RNF008 | Compatibilidad | Funcionamiento esperado en navegadores modernos. |
+| RNF009 | Claridad | Documentacion indica que los motores son simulados. |
+| RNF010 | Persistencia local | IndexedDB conserva tablas y esquemas entre sesiones del navegador. |
+| RNF011 | Integracion continua | GitHub Actions valida rendimiento simulado y despliegue. |
+
+## 7. Arquitectura y diseno de la solucion
+
+La arquitectura documentada en FD04 se organiza bajo el enfoque 4+1, C4 y una separacion modular entre interfaz, estado, motores, persistencia, servicios externos, build y despliegue. En la version final, FD04 incluye diagramas Mermaid dentro de cada vista principal: caso de uso, vista logica, procesos, despliegue, implementacion, datos y calidad.
+
+```mermaid
+flowchart LR
+    Usuario((Usuario)) --> UI["React UI<br/>App / Simulator / Admin"]
+    Administrador((Administrador)) --> UI
+    Electron["Electron Desktop"] --> UI
+    UI --> Monaco["Monaco Editor"]
+    UI --> Store["Zustand Store"]
+    Store --> Engine["Execution Engine<br/>AlaSQL + MongoDB/Redis simulados"]
+    Engine --> IDB[("IndexedDB")]
+    UI --> LS[("LocalStorage")]
+    UI --> Auth["Firebase Auth"]
+    UI --> RTDB[("Firebase RTDB")]
+    GitHub["GitHub Actions"] --> Build["Build / Performance / Pages"]
+```
+
+### 7.1 Capas principales
+
+| Capa | Responsabilidad |
+|---|---|
+| Presentacion | Componentes React, pantallas, modales, editor, resultados y panel admin. |
+| Estado | Zustand centraliza pestanas, motores, resultados, historial y configuracion. |
+| Motor de ejecucion | AlaSQL procesa SQL; funciones internas simulan MongoDB y Redis. |
+| Persistencia | IndexedDB guarda tablas y esquemas; LocalStorage guarda preferencias. |
+| Servicios externos | Firebase Auth y Realtime Database soportan login, presencia, roles y sesiones. |
+| Distribucion | Vite genera build web; Electron empaqueta desktop; GitHub Actions automatiza pruebas y despliegue. |
+
+### 7.2 Decisiones arquitectonicas
+
+- Ejecutar las practicas principalmente en el navegador para reducir instalacion de infraestructura.
+- Mantener MongoDB y Redis como simulaciones internas, no como conexiones a servidores reales.
+- Usar IndexedDB para conservar datos academicos de practica entre sesiones.
+- Separar el panel administrativo de la aplicacion principal mediante `admin.html`.
+- Permitir degradacion controlada cuando Firebase no esta configurado.
+- Automatizar validaciones mediante GitHub Actions para mejorar la confiabilidad del proyecto.
+
+## 8. Desarrollo de la solucion
+
+### 8.1 Modulos implementados
 
 | Modulo | Descripcion |
 |---|---|
@@ -120,15 +234,14 @@ La simulacion de carga estima metricas como usuarios concurrentes, TPS, latencia
 | `src/components/SQLEditor.tsx` | Editor y ejecucion de consultas. |
 | `src/components/ResultsPanel.tsx` | Visualizacion y exportacion de resultados. |
 | `src/components/SchemaExplorer.tsx` | Exploracion de bases, tablas y columnas. |
-| `src/components/TopBar.tsx` | Acciones principales del IDE. |
 | `src/components/EngineTabs.tsx` | Pestanas por motor. |
 | `src/components/DatabaseManagerModal.tsx` | Importacion de SQL, CSV y JSON. |
-| `src/components/LoadSimulatorModal.tsx` | Simulador de carga. |
+| `src/components/LoadSimulatorModal.tsx` | Simulador de carga y comparacion de motores. |
 | `src/AdminApp.tsx` | Panel de administracion. |
-| `src/store/useStore.ts` | Estado global. |
+| `src/store/useStore.ts` | Estado global de la aplicacion. |
 | `src/engines/sqlEngine.ts` | Motor SQL, MongoDB, Redis, importacion y persistencia. |
 | `src/engines/exportHelper.ts` | Exportacion por motor. |
-| `src/db/idbStorage.ts` | Persistencia IndexedDB. |
+| `src/db/idbStorage.ts` | Persistencia en IndexedDB. |
 | `src/lib/auth.ts` | Autenticacion. |
 | `src/lib/presence.ts` | Usuarios conectados. |
 | `src/lib/simulatorSession.ts` | Actividad del simulador. |
@@ -138,71 +251,29 @@ La simulacion de carga estima metricas como usuarios concurrentes, TPS, latencia
 | `.github/workflows/performance.yml` | Workflow Database Load Performance. |
 | `.github/workflows/pages.yml` | Workflow Deploy Landing Page. |
 
-### 5.2 Motores implementados
+### 8.2 Entradas principales del sistema
 
-- `SQL Server`
-- `MySQL`
-- `PostgreSQL`
-- `Oracle`
-- `SQLite`
-- `MongoDB`
-- `Redis`
+- `app.html`: aplicacion principal del simulador.
+- `simulator.html`: vista orientada al simulador de carga.
+- `admin.html`: panel administrativo.
+- `/app`, `/simulador` y `/admin`: rutas web configuradas para despliegue.
+- `landing/`: landing estatica del proyecto.
 
-### 5.3 Aplicacion principal
+### 8.3 Motores soportados
 
-La aplicacion principal incluye:
+| Motor | Tipo | Implementacion |
+|---|---|---|
+| SQL Server | Relacional simulado | Preprocesamiento y ejecucion con AlaSQL. |
+| MySQL | Relacional simulado | Ejecucion SQL en memoria. |
+| PostgreSQL | Relacional simulado | Ejecucion SQL en memoria. |
+| Oracle | Relacional simulado | Preprocesamiento y ejecucion con AlaSQL. |
+| SQLite | Relacional simulado | Ejecucion SQL en memoria. |
+| MongoDB | Documento simulado | Comandos como `find`, `insertOne`, `updateOne` y `deleteOne`. |
+| Redis | Clave-valor simulado | Comandos como `SET`, `GET`, `HSET`, `LPUSH`, `SADD` e `INCR`. |
 
-- Inicio de sesion y registro.
-- Pantalla de bienvenida.
-- Editor con multiples tabs.
-- Ejecucion de consultas.
-- Ejecucion de seleccion parcial.
-- Explorador de esquema.
-- Resultados tabulares.
-- Mensajes y errores.
-- Historial y logs.
-- Importacion y exportacion.
-- Configuracion de tema y editor.
+## 9. Pruebas y validacion
 
-### 5.4 Simulador de carga
-
-El simulador permite configurar:
-
-- Motor principal.
-- Duracion.
-- Usuarios maximos.
-- Rampa de usuarios.
-- Tipos de consulta.
-- Comparacion entre motores.
-- Modo progresivo hasta saturacion.
-
-Los resultados incluyen TPS, pico TPS, latencia, CPU estimada, conexiones, errores, logs de scripts y veredictos de rendimiento simulado.
-
-### 5.5 Panel administrativo
-
-El panel admin permite:
-
-- Autenticacion de administrador.
-- Monitoreo de sesiones activas.
-- Revision de motores activos.
-- Visualizacion de TPS promedio.
-- Gestion de usuarios y roles.
-
-## 6. Arquitectura resumida
-
-```mermaid
-flowchart LR
-    Usuario((Usuario)) --> React["React App"]
-    Administrador((Administrador)) --> React
-    Electron["Electron"] --> React
-    React --> Monaco["Monaco Editor"]
-    React --> Store["Zustand Store"]
-    React --> Engine["AlaSQL + Motores simulados"]
-    Engine --> IDB[("IndexedDB")]
-    React --> Firebase["Firebase"]
-```
-
-## 7. Pruebas realizadas
+El proyecto incorpora pruebas manuales, validaciones funcionales y automatizacion de rendimiento. El workflow principal de CI ejecuta una matriz de 21 combinaciones: 7 motores por 3 escenarios (`light`, `medium`, `heavy`).
 
 | Prueba | Herramienta | Resultado esperado |
 |---|---|---|
@@ -213,35 +284,44 @@ flowchart LR
 | Importacion CSV | Modal importar | Crea tabla desde archivo CSV. |
 | Importacion JSON | Modal importar | Crea tabla desde arreglo u objeto JSON. |
 | Importacion SQL | Modal importar | Crea tablas e inserta registros. |
-| MongoDB simulado | Editor MongoDB | Ejecuta `find`, `insertOne`, `updateOne` y `deleteOne`. |
-| Redis simulado | Editor Redis | Ejecuta `SET`, `GET`, `HSET`, `LPUSH`, `SADD` e `INCR`. |
-| Exportacion resultados | Panel resultados | Descarga CSV, JSON y Excel. |
-| Simulacion carga | Modal simulador | Muestra TPS, latencia, CPU y errores. |
-| Comparacion | Modal simulador | Muestra metricas para dos motores. |
-| Admin | `admin.html` | Muestra usuarios y sesiones si Firebase esta configurado. |
+| MongoDB simulado | Editor MongoDB | Ejecuta operaciones basicas de documentos. |
+| Redis simulado | Editor Redis | Ejecuta estructuras clave-valor, hashes, listas y sets. |
+| Exportacion | Panel resultados | Descarga CSV, JSON, Excel, SQL y formatos por motor. |
+| Simulacion carga | Modal simulador | Muestra TPS, latencia, CPU, conexiones y errores. |
+| Comparacion | Modal simulador | Compara metricas entre motores simulados. |
+| Admin | `admin.html` | Muestra usuarios, sesiones y roles si Firebase esta configurado. |
 | CI rendimiento | GitHub Actions / `npm run test:performance` | Genera reportes por motor y valida umbrales. |
-| Landing | GitHub Pages / `landing/` | Publica pagina estatica del proyecto. |
+| Landing | GitHub Pages / `landing/` | Publica la pagina estatica del proyecto. |
 
-## 8. Resultados
+## 10. Resultados obtenidos
 
-El sistema cumple con los objetivos definidos. Permite practicar consultas, importar datos, explorar esquemas, exportar evidencias y simular carga. Tambien incorpora funcionalidades de administracion y monitoreo que enriquecen el uso academico.
+El sistema cumple con los objetivos definidos en FD02 y con los requerimientos principales documentados en FD03. La solucion permite practicar consultas, administrar datos locales, exportar resultados, simular carga y monitorear sesiones academicas cuando Firebase esta disponible.
 
-Los artefactos principales son:
+Los resultados mas relevantes son:
 
-- Aplicacion principal: `app.html`.
-- Simulador independiente: `simulator.html`.
-- Panel admin: `admin.html`.
-- Motor de ejecucion: `src/engines/sqlEngine.ts`.
-- Simulador de carga: `src/components/LoadSimulatorModal.tsx`.
-- Persistencia local: `src/db/idbStorage.ts`.
-- Configuracion de build: `vite.config.ts`.
-- Empaquetado desktop: `electron/main.cjs`.
-- Workflow de rendimiento: `.github/workflows/performance.yml`.
-- Workflow de landing: `.github/workflows/pages.yml`.
+- Se logro una herramienta academica funcional para SQL y NoSQL simulado.
+- Se redujo la necesidad de instalar motores reales para practicas introductorias.
+- Se implemento una interfaz tipo IDE con multiples pestanas y paneles.
+- Se incorporo persistencia local con IndexedDB.
+- Se agrego importacion y exportacion de datos en formatos utiles para evidencias.
+- Se implemento simulacion de carga y comparacion entre motores.
+- Se integro panel administrativo, presencia y roles con Firebase.
+- Se preparo distribucion web y desktop con Vite y Electron.
+- Se agrego automatizacion con GitHub Actions para rendimiento y landing.
 
-La version actual del proyecto en `package.json` es **1.8.0**. La automatizacion principal es **Database Load Performance**, que ejecuta una matriz de 21 combinaciones: 7 motores por 3 escenarios (`light`, `medium`, `heavy`). Cada combinacion valida latencia promedio, latencia p95, TPS y tasa de errores. Al finalizar, se genera un artifact consolidado `performance-summary` en Markdown, JSON y CSV.
+La version actual registrada en `package.json` es **1.8.0**.
 
-## 9. Presupuesto
+## 11. Limitaciones del proyecto
+
+- El simulador no reemplaza motores reales de bases de datos.
+- SQL Server, MySQL, PostgreSQL, Oracle y SQLite se representan sobre ejecucion local en memoria, por lo que algunas diferencias avanzadas de dialecto no estan cubiertas.
+- MongoDB y Redis son simulaciones internas, no conexiones a servicios reales.
+- Los datos locales pueden perderse si el navegador elimina IndexedDB o si el usuario cambia de navegador.
+- Las funciones de autenticacion, presencia, sesiones y administracion dependen de Firebase configurado correctamente.
+- Las metricas del simulador de carga son didacticas y no deben interpretarse como benchmarks reales.
+- No se incluyen procedimientos almacenados, triggers avanzados, replicacion, particionamiento ni funciones especificas de motores reales.
+
+## 12. Presupuesto final
 
 | Concepto | Costo estimado |
 |---|---:|
@@ -252,37 +332,36 @@ La version actual del proyecto en `package.json` es **1.8.0**. La automatizacion
 | Tiempo de desarrollo academico | S/. 1600.00 |
 | **Total** | **S/. 2005.00** |
 
-## 10. Conclusiones
+## 13. Conclusiones
 
 1. El **Simulador de Bases de Datos** cumple el objetivo de ofrecer un entorno academico para practicar SQL y NoSQL sin instalar motores reales.
-2. El sistema implementa una interfaz completa tipo IDE con editor, tabs, resultados, esquema, historial, importacion y exportacion.
-3. La simulacion de MongoDB y Redis amplia el alcance mas alla de bases relacionales.
-4. IndexedDB permite persistencia local suficiente para practicas de laboratorio.
-5. El simulador de carga aporta una vista didactica de rendimiento, saturacion y comparacion entre motores.
-6. El panel administrativo y Firebase agregan capacidades de monitoreo y gestion de usuarios.
-7. Electron permite distribuir el sistema como aplicacion desktop.
-8. GitHub Actions mejora la calidad del proyecto al automatizar build, pruebas de rendimiento y publicacion de la landing.
-9. La solucion es viable para fines academicos, practicas guiadas y demostraciones.
+2. La solucion es viable tecnica, economica, operativa, legal, social y ambientalmente para el contexto del curso.
+3. El sistema implementa los requisitos principales del SRS, incluyendo autenticacion, editor, motores, importacion, exportacion, persistencia, historial, simulacion y administracion.
+4. La arquitectura basada en React, TypeScript, Vite, Zustand, AlaSQL, IndexedDB, Firebase y Electron permite una solucion modular y mantenible.
+5. Los diagramas y vistas de FD03 y FD04 explican correctamente la diferencia entre requisitos del sistema y diseno de la solucion.
+6. El simulador de carga aporta una herramienta didactica para observar conceptos de TPS, latencia, saturacion, errores y comparacion entre motores.
+7. GitHub Actions fortalece el proyecto al automatizar validaciones de rendimiento y despliegue de la landing.
+8. La solucion final es adecuada para practicas guiadas, demostraciones academicas y evaluaciones de laboratorio.
 
-## 11. Recomendaciones
+## 14. Recomendaciones
 
-- Corregir textos con problemas de codificacion para mejorar la presentacion final.
-- Agregar pruebas automatizadas para los motores simulados.
-- Documentar claramente las diferencias entre simulacion y motores reales.
-- Agregar mas plantillas por motor y ejercicios guiados.
-- Evaluar una capa opcional de conexion real en una version futura separada.
-- Mejorar mensajes de error por dialecto.
-- Mantener las credenciales Firebase fuera del repositorio.
-- Agregar capturas de pantalla y guia de uso para la entrega final.
+- Mantener visible en la documentacion que el sistema es un simulador academico y no un motor real.
+- Agregar mas ejercicios guiados por motor y por nivel de dificultad.
+- Documentar la configuracion de Firebase para entornos de prueba y entrega.
+- Ampliar pruebas unitarias sobre `sqlEngine.ts`, importadores, exportadores y simulador de carga.
+- Incorporar capturas de pantalla actualizadas en los anexos de entrega.
+- Mantener credenciales y variables de entorno fuera del repositorio.
+- Evaluar una version futura con conectores reales opcionales, separada del modo simulado.
+- Revisar periodicamente compatibilidad con versiones nuevas de React, Vite, Electron y Firebase.
 
-## 12. Bibliografia
+## 15. Bibliografia
 
 - Sommerville, I. (2016). *Software Engineering*.
 - Pressman, R. S., & Maxim, B. R. (2020). *Software Engineering: A Practitioner's Approach*.
 - Silberschatz, A., Korth, H. F., & Sudarshan, S. (2019). *Database System Concepts*.
 - Elmasri, R., & Navathe, S. B. (2016). *Fundamentals of Database Systems*.
 
-## 13. Webgrafia
+## 16. Webgrafia
 
 - React Documentation: https://react.dev/
 - TypeScript Documentation: https://www.typescriptlang.org/docs/
@@ -294,11 +373,18 @@ La version actual del proyecto en `package.json` es **1.8.0**. La automatizacion
 - MDN IndexedDB: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
 - GitHub Actions Documentation: https://docs.github.com/actions
 
-## 14. Anexos
+## 17. Anexos
 
 - FD01: Informe de Factibilidad.
 - FD02: Documento de Vision.
-- FD03: Especificacion de Requerimientos.
+- FD03: Especificacion de Requerimientos de Software.
 - FD04: Arquitectura de Software.
+- Diccionario de Datos.
+- Estandares de Programacion.
+- Guia de diagramas FD03-FD04.
+- Manual de Instalacion.
+- Manual de Usuario.
 - README del proyecto.
 - Archivos de configuracion y scripts de ejecucion.
+- Workflows de GitHub Actions.
+- Reportes de rendimiento generados por el proyecto.

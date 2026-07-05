@@ -27,14 +27,26 @@
 
 ---
 
+## 0. Control documental
+
+| Version | Fecha | Descripcion |
+|---|---|---|
+| 2.2 | 2026-07-04 | Actualizacion con rama Documentos, CI/CD, reportes y verificacion documental. |
+
 ## 1. Objetivo
 
-Este manual describe el proceso para instalar, ejecutar, compilar y empaquetar el **Simulador de Bases de Datos** en modo web y desktop.
+Este manual describe el proceso para instalar, ejecutar, compilar, empaquetar y validar el **Simulador de Bases de Datos** en modo web, desktop y entrega documental.
 
 Repositorio oficial:
 
 ```text
 https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds.git
+```
+
+Rama documental de trabajo:
+
+```text
+Documentos
 ```
 
 ## 2. Requisitos previos
@@ -46,6 +58,7 @@ https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de
 | Git | Opcional | Clonar o versionar el proyecto. |
 | Navegador moderno | Actual | Usar la aplicacion web. |
 | Java Runtime | Opcional | Solo si se desea renderizar PlantUML localmente. |
+| Visor Markdown con Mermaid | Opcional | Revisar diagramas de FD03, FD04 y FD05. |
 
 ## 3. Estructura principal del proyecto
 
@@ -72,6 +85,14 @@ Ubicarse en la carpeta del proyecto:
 
 ```powershell
 cd C:\Users\USUARIO\Documents\proyecto-si783-2026-i-u1-simulador-de-carga-de-bds
+```
+
+Si se clona desde cero:
+
+```bash
+git clone https://github.com/UPT-FAING-EPIS/proyecto-si783-2026-i-u1-simulador-de-carga-de-bds.git
+cd proyecto-si783-2026-i-u1-simulador-de-carga-de-bds
+git switch Documentos
 ```
 
 ### Paso 2: Instalar dependencias
@@ -288,6 +309,8 @@ Luego de instalar, verificar:
 5. `admin.html` muestra login administrativo.
 6. `npm run build` genera carpeta `dist`.
 7. `npm run test:performance` genera reportes en `reports/` y muestra estado `PASS` si los umbrales se cumplen.
+8. Los diagramas Mermaid de FD03, FD04 y FD05 se renderizan correctamente en el visor Markdown.
+9. Los manuales, diccionario, estandares y guia de diagramas estan actualizados en la rama `Documentos`.
 
 ## 13. Problemas comunes
 
@@ -318,3 +341,25 @@ El proyecto incluye el workflow `Deploy Landing Page`, definido en:
 Este flujo se ejecuta en `push` a `main` o manualmente desde GitHub Actions. Publica la carpeta `landing/` como artifact de GitHub Pages y despliega la pagina estatica del proyecto.
 
 La aplicacion completa se compila con Vite en `dist/`, mientras que la landing se mantiene separada para publicacion rapida en GitHub Pages.
+
+## 16. Verificacion documental
+
+Antes de entregar o subir cambios documentales:
+
+1. Revisar que FD01 a FD05 mantengan el mismo nombre de proyecto.
+2. Confirmar que FD03 explique requisitos y que FD04 explique arquitectura.
+3. Confirmar que FD04 tenga diagramas en las secciones V, VI, VII, VIII, IX, X y XI.
+4. Confirmar que FD05 consolide factibilidad, vision, requisitos, arquitectura, pruebas y resultados.
+5. Revisar que `Diccionario-de-Datos.md` incluya IndexedDB, LocalStorage, Firebase, exportaciones y reportes CI/CD.
+6. Revisar que `Estandares-de-Programacion.md` incluya reglas de Mermaid y documentacion.
+7. Revisar que `Manual-de-Usuario.md` y `Manual-de-Instalacion.md` coincidan con las rutas `app.html`, `simulator.html` y `admin.html`.
+
+Comandos utiles:
+
+```bash
+git status
+git diff --check
+git add FD01-Informe-Factibilidad.md FD02-Informe-Vision.md FD03-Informe-Especificacion-Requerimientos.md FD04-Informe-Arquitectura-Software.md FD05-Informe-Proyecto-Final.md Diccionario-de-Datos.md Estandares-de-Programacion.md Guia-Diagramas-FD03-FD04.md Manual-de-Instalacion.md Manual-de-Usuario.md
+git commit -m "docs: actualizar entrega documental final"
+git push origin Documentos
+```

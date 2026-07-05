@@ -27,9 +27,15 @@
 
 ---
 
+## 0. Control documental
+
+| Version | Fecha | Descripcion |
+|---|---|---|
+| 2.2 | 2026-07-04 | Actualizacion con reglas de documentacion, Mermaid, CI/CD y evidencias finales. |
+
 ## 1. Objetivo
 
-Definir reglas de codificacion, organizacion, estilo y buenas practicas para mantener el **Simulador de Bases de Datos** legible, consistente, mantenible y facil de extender.
+Definir reglas de codificacion, organizacion, estilo, documentacion y buenas practicas para mantener el **Simulador de Bases de Datos** legible, consistente, mantenible y facil de extender.
 
 ## 2. Stack del proyecto
 
@@ -200,6 +206,8 @@ useEffect(() => {
 | Store | Crear tab, eliminar tab, cambiar panel activo. |
 | Simulador | Inicio, pausa, comparacion, modo progresivo, exportacion de logs. |
 | Firebase | Login, roles, presencia, sesiones admin. |
+| Desktop | Apertura de Electron, carga de build y exportacion local. |
+| CI/CD | Build, matriz de motores, escenarios `light`, `medium`, `heavy` y generacion de artifacts. |
 
 ## 15. Control de versiones
 
@@ -219,7 +227,38 @@ useEffect(() => {
 6. El workflow `.github/workflows/pages.yml` debe publicar solo la carpeta `landing/`.
 7. Los cambios en `scripts/performance-test.mjs`, `scripts/performance-summary.mjs` o `src/types.ts` deben revisarse juntos porque los perfiles de rendimiento toman datos desde `ENGINE_CONFIGS`.
 
-## 16. Criterios para aceptar un cambio
+## 16. Estandares de documentacion
+
+1. Mantener los informes FD01 a FD05 alineados entre si.
+2. FD03 debe explicar requisitos y comportamiento esperado: que hace el sistema.
+3. FD04 debe explicar arquitectura y diseno: como se construye el sistema.
+4. FD05 debe consolidar resultados, pruebas, limitaciones y anexos sin duplicar por completo FD03/FD04.
+5. El Diccionario de Datos debe actualizarse si cambian estructuras de estado, persistencia, Firebase, reportes o exportaciones.
+6. El Manual de Usuario debe actualizarse si cambia el flujo visible, rutas, botones o limitaciones.
+7. El Manual de Instalacion debe actualizarse si cambian scripts, dependencias, CI/CD o despliegue.
+8. La Guia de Diagramas debe actualizarse si se agregan o cambian diagramas Mermaid.
+9. Usar nombres claros en tablas y diagramas para facilitar exportacion a PDF.
+10. Evitar caracteres corruptos de codificacion; preferir ASCII si el documento ya usa ASCII.
+
+## 17. Reglas para diagramas Mermaid
+
+| Tipo | Uso permitido |
+|---|---|
+| `flowchart LR` | Contexto, casos de uso, arquitectura horizontal e integraciones. |
+| `flowchart TD` | Procesos, despliegue, componentes y flujos de ejecucion. |
+| `sequenceDiagram` | Interaccion temporal entre usuario, UI, store, motor, persistencia y servicios. |
+| `classDiagram` | Modelo logico, clases principales o tipos internos. |
+| `erDiagram` | Entidades persistidas, IndexedDB, LocalStorage y Firebase RTDB. |
+
+Reglas:
+
+1. Cada caso de uso del SRS debe tener su secuencia asociada.
+2. Cada vista del SAD debe mostrar su diagrama en la seccion correspondiente, no solo redirigir a otra seccion.
+3. Los nodos deben tener nombres breves para evitar diagramas demasiado anchos.
+4. No mezclar requisitos de FD03 con componentes internos de FD04 si no aporta trazabilidad.
+5. Verificar que cada bloque Mermaid abra y cierre con triple backtick.
+
+## 18. Criterios para aceptar un cambio
 
 Un cambio debe considerarse aceptable si:
 
@@ -231,11 +270,13 @@ Un cambio debe considerarse aceptable si:
 - Actualiza tipos si cambia una estructura compartida.
 - Incluye documentacion si modifica comportamiento visible.
 - No introduce credenciales ni datos sensibles.
+- Mantiene actualizados FD03, FD04, FD05, manuales y diccionario si el cambio afecta requisitos, arquitectura, datos o uso.
 
-## 17. Recomendaciones finales
+## 19. Recomendaciones finales
 
 - Mantener `src/types.ts` como referencia central.
 - Evitar duplicar logica entre `TopBar`, `SQLEditor` y modales.
 - Separar funciones puras de componentes visuales cuando crezcan demasiado.
 - Agregar pruebas automatizadas a los motores antes de ampliar dialectos.
 - Revisar codificacion de textos para evitar caracteres corruptos.
+- Revisar los diagramas Mermaid antes de generar PDF o entregar el informe final.
